@@ -16,7 +16,7 @@ interface OpenAIProviderOptions {
  */
 export function openAiProvider(opts: OpenAIProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.OPENAI_API_KEY;
-  const maxTokens = opts.maxTokens ?? 16;
+  const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
 
   return {

@@ -15,7 +15,7 @@ interface GoogleProviderOptions {
  */
 export function googleProvider(opts: GoogleProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
-  const maxTokens = opts.maxTokens ?? 16;
+  const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
 
   return {

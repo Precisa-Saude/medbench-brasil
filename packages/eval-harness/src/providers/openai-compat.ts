@@ -20,7 +20,9 @@ interface OpenAICompatOptions {
  */
 export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   const apiKey = opts.apiKey;
-  const maxTokens = opts.maxTokens ?? 16;
+  // Default alto: modelos com reasoning (Qwen, DeepSeek R1) emitem cadeia
+  // de pensamento + resposta. 16 tokens trunca antes da letra sair.
+  const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
 
   return {

@@ -12,12 +12,45 @@ function renderUserPrompt(q: Question): string {
   return `${q.stem}\n\n${opts}`;
 }
 
-function parseLetter(raw: string): QuestionOption | null {
-  const m = raw
-    .trim()
-    .toUpperCase()
-    .match(/\b([ABCD])\b/);
-  return m ? (m[1] as QuestionOption) : null;
+/**
+ * Extrai a letra de resposta (A, B, C, D) do texto bruto emitido pelo modelo.
+ *
+ * Modelos com reasoning (Qwen 3.x, DeepSeek R1, etc.) emitem cadeias de
+ * pensamento + resposta final, tipicamente com marcadores como "**D**",
+ * "D)", "resposta é D", "alternativa D". Em pt-BR os artigos "A" e "O"
+ * colidem com letras de opção, portanto um regex ingênuo pego no início do
+ * texto responde "A" para qualquer frase que comece com "A resposta…".
+ *
+ * Estratégia (em ordem, a primeira que casar vence):
+ *   1. Letra entre asteriscos em markdown: `**X**`
+ *   2. Frases de compromisso: "resposta (correta )?é (a alternativa )?X",
+ *      "é a letra X", "opção X", "alternativa X"
+ *   3. Última ocorrência de `X)` (letra seguida de parêntese)
+ *   4. Última ocorrência de letra isolada `\bX\b`
+ */
+export function parseLetter(raw: string): QuestionOption | null {
+  const text = raw.trim();
+  const upper = text.toUpperCase();
+
+  const bold = upper.match(/\*\*\s*([ABCD])\s*\*\*/);
+  if (bold) return bold[1] as QuestionOption;
+
+  const commitment = upper.match(
+    /(?:RESPOSTA(?:\s+CORRETA)?\s+É\s+(?:A\s+)?(?:LETRA\s+|ALTERNATIVA\s+|OP[CÇ][AÃ]O\s+)?|É\s+(?:A\s+)?(?:LETRA\s+|ALTERNATIVA\s+|OP[CÇ][AÃ]O\s+)|LETRA\s+|ALTERNATIVA\s+|OP[CÇ][AÃ]O\s+)([ABCD])\b/,
+  );
+  if (commitment) return commitment[1] as QuestionOption;
+
+  const parenMatches = [...upper.matchAll(/\b([ABCD])\)/g)];
+  if (parenMatches.length > 0) {
+    return parenMatches[parenMatches.length - 1]![1] as QuestionOption;
+  }
+
+  const loneMatches = [...upper.matchAll(/\b([ABCD])\b/g)];
+  if (loneMatches.length > 0) {
+    return loneMatches[loneMatches.length - 1]![1] as QuestionOption;
+  }
+
+  return null;
 }
 
 export async function runEvaluation(

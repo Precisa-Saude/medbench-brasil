@@ -16,7 +16,7 @@ interface AnthropicProviderOptions {
  */
 export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
-  const maxTokens = opts.maxTokens ?? 16;
+  const maxTokens = opts.maxTokens ?? 1024;
   const temperature = opts.temperature ?? 0;
 
   return {
