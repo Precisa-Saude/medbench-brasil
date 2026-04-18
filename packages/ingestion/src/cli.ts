@@ -29,8 +29,10 @@ function usage(): never {
   console.log(`uso:
   medbench-ingest download --edition revalida-2025-1 --prova <url> --gabarito <url>
   medbench-ingest extract  --edition revalida-2025-1
+                           [--backend bedrock|anthropic-api] [--model <id>] [--region sa-east-1]
     (lê scripts/data/raw/revalida-2025-1/{prova.pdf,gabarito-definitivo.pdf},
-     chama o parser Claude e escreve packages/dataset/data/revalida/2025-1.json)`);
+     chama Claude (Bedrock por padrão) e escreve
+     packages/dataset/data/revalida/2025-1.json)`);
   process.exit(1);
 }
 
@@ -72,12 +74,15 @@ async function cmdExtract(args: Record<string, string>) {
   console.log(`  prova:    ${prova.pages} páginas, ${prova.text.length} caracteres`);
   console.log(`  gabarito: ${gabarito.pages} páginas, ${gabarito.text.length} caracteres`);
 
-  console.log(`chamando Claude para estruturar questões…`);
+  const backend = (args.backend as 'bedrock' | 'anthropic-api' | undefined) ?? 'bedrock';
+  console.log(`chamando Claude via ${backend} para estruturar questões…`);
   const parsed = await parseEdition({
+    backend,
     editionId: edition,
     gabaritoText: gabarito.text,
     model: args.model,
     provaText: prova.text,
+    region: args.region,
   });
   console.log(
     `  → ${parsed.questions.length} questões extraídas, ${parsed.warnings.length} warnings`,

@@ -17,7 +17,9 @@
   "bin": {
     "medbench-ingest": "./dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist .turbo",
@@ -27,6 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1032.0",
     "@kreuzberg/node": "^4.0.8",
     "@precisa-saude/medbench-dataset": "workspace:*"
   },
