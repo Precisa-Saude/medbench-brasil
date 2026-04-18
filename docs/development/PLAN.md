@@ -70,7 +70,7 @@ Feita inline pelo parser (schema enum obriga classificação no momento do `tool
 ## Fase 4 — Visualizações pendentes
 
 - [ ] **4.1 Gráfico de três linhas** em `EditionDetail` — nota de corte, média humana estimada, escore dos modelos (usar helper de retrocálculo documentado em `docs/human-baseline.md`)
-- [ ] **4.2 Scatter de tendência** estilo METR — eixo X = data de release do modelo, eixo Y = acurácia em edições limpas; linha de tendência opcional
+- [ ] **4.2 Scatter de tendência** estilo METR — eixo X = data de release do modelo, eixo Y = precisão em edições limpas; linha de tendência opcional
 - [ ] **4.3 Filtro por especialidade** no Leaderboard — dropdown que recalcula ranking usando `accuracyBySpecialty`
 - [ ] **4.4 Página de detalhe da edição** com distribuição de acertos por questão, destaque para itens em que todos os modelos erraram
 

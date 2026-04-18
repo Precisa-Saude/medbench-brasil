@@ -44,6 +44,10 @@
     @apply border-border;
   }
 
+  html {
+    scroll-padding-top: 5rem;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Roboto Serif', Georgia, serif;

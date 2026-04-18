@@ -52,15 +52,13 @@ export default function ComparisonChart({
   }
 
   return (
-    <div className="border rounded-lg bg-card p-4">
+    <div className="rounded-lg border bg-card p-4 font-sans">
       <div className="mb-3">
-        <h3 className="font-sans font-semibold">
-          {edition.label} — acurácia por modelo
-        </h3>
+        <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
         <p className="text-xs text-muted-foreground mt-1">
           Linhas pontilhadas: nota de corte ({(edition.cutoffScore * 100).toFixed(0)}%) e média
-          humana estimada ({(edition.estimatedHumanMean * 100).toFixed(0)}%, retrocalculada da
-          taxa de aprovação de {(edition.passRate * 100).toFixed(0)}%).
+          humana estimada ({(edition.estimatedHumanMean * 100).toFixed(0)}%, retrocalculada da taxa
+          de aprovação de {(edition.passRate * 100).toFixed(0)}%).
         </p>
       </div>
       <ResponsiveContainer width="100%" height={Math.max(220, data.length * 42 + 60)}>
@@ -104,7 +102,7 @@ export default function ComparisonChart({
               value: 'Humano',
             }}
           />
-          <Bar dataKey="accuracy" name="Acurácia" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="accuracy" name="Precisão" radius={[0, 4, 4, 0]}>
             {data.map((d) => (
               <Cell key={d.modelId} fill={TIER_COLOR[d.tier]} />
             ))}

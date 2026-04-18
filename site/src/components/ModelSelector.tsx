@@ -1,10 +1,10 @@
-import type { ModelResult } from '../data/results';
 import { TIER_COLOR } from '../data/models';
+import type { ModelResult } from '../data/results';
 
 export default function ModelSelector({
   models,
-  selected,
   onChange,
+  selected,
 }: {
   models: ModelResult[];
   selected: string[];

@@ -7,16 +7,16 @@
  */
 
 export interface EditionMetadata {
-  id: string;
-  label: string;
   /** Nota de corte oficial, escala 0–1. */
   cutoffScore: number;
-  /** Taxa de aprovação oficial, escala 0–1. */
-  passRate: number;
   /** Média humana estimada, escala 0–1. */
   estimatedHumanMean: number;
   /** Desvio-padrão assumido no retrocálculo. */
   estimatedHumanSd: number;
+  id: string;
+  label: string;
+  /** Taxa de aprovação oficial, escala 0–1. */
+  passRate: number;
   /** Ano-semestre para ordenação no eixo do gráfico. */
   publishedAt: string;
 }
@@ -47,13 +47,10 @@ function inverseNormal(p: number): number {
     -7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734,
     4.374664141464968, 2.938163982698783,
   ];
-  const d = [
-    7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416,
-  ];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
   const plow = 0.02425;
   const phigh = 1 - plow;
   let q: number;
-  let r: number;
   if (p < plow) {
     q = Math.sqrt(-2 * Math.log(p));
     return (
@@ -69,7 +66,7 @@ function inverseNormal(p: number): number {
     );
   }
   q = p - 0.5;
-  r = q * q;
+  const r = q * q;
   return (
     ((((((a[0]! * r + a[1]!) * r + a[2]!) * r + a[3]!) * r + a[4]!) * r + a[5]!) * q) /
     (((((b[0]! * r + b[1]!) * r + b[2]!) * r + b[3]!) * r + b[4]!) * r + 1)

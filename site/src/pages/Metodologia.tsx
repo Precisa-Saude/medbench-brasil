@@ -2,10 +2,12 @@ import { SYSTEM_PROMPT } from '@precisa-saude/medbench-harness/prompt';
 
 export default function Metodologia() {
   return (
-    <article className="prose max-w-none space-y-8">
+    <div className="space-y-10">
       <header>
-        <h1 className="text-4xl font-sans font-bold text-primary">Metodologia</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
+        <h1 className="font-sans text-4xl font-bold tracking-tight text-primary sm:text-5xl">
+          Metodologia
+        </h1>
+        <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
           O medbench-brasil existe porque um leaderboard público só é útil se for reproduzível e
           honesto sobre suas limitações. Esta página documenta o protocolo exato usado para cada
           avaliação.
@@ -13,7 +15,9 @@ export default function Metodologia() {
       </header>
 
       <section>
-        <h2 className="text-2xl font-sans font-semibold">Protocolo de avaliação</h2>
+        <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          Protocolo de avaliação
+        </h2>
         <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
           <li>Zero-shot, uma questão por requisição, sem histórico nem few-shot</li>
           <li>Nenhuma ferramenta, conector, capacidade de busca ou RAG</li>
@@ -26,17 +30,21 @@ export default function Metodologia() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-sans font-semibold">System prompt literal</h2>
+        <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          System prompt literal
+        </h2>
         <pre className="mt-3 bg-card border rounded p-4 text-sm overflow-x-auto">
           <code>{SYSTEM_PROMPT}</code>
         </pre>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-sans font-semibold">Contaminação de treino</h2>
+      <section id="contaminacao">
+        <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          Contaminação de treino
+        </h2>
         <p className="mt-3">
           Toda prova pública do Revalida anterior ao corte de treino de um modelo é marcada como{' '}
-          <em>provavelmente contaminada</em>. Relatamos acurácia separadamente para edições limpas e
+          <em>provavelmente contaminada</em>. Relatamos precisão separadamente para edições limpas e
           contaminadas — a diferença entre as duas mede quanto memorização infla o escore.
         </p>
         <p className="mt-3">
@@ -47,7 +55,9 @@ export default function Metodologia() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-sans font-semibold">Linha de base humana</h2>
+        <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+          Linha de base humana
+        </h2>
         <p className="mt-3">
           Mostramos três linhas em cada gráfico por edição: nota de corte oficial (publicada no
           edital da INEP), média humana estimada (retrocalculada a partir da taxa de aprovação,
@@ -58,7 +68,7 @@ export default function Metodologia() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-sans font-semibold">Fontes</h2>
+        <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">Fontes</h2>
         <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
           <li>
             Provas e gabaritos:{' '}
@@ -76,6 +86,6 @@ export default function Metodologia() {
           <li>Cortes de treino dos modelos: documentação oficial de cada fornecedor</li>
         </ul>
       </section>
-    </article>
+    </div>
   );
 }

@@ -38,9 +38,9 @@ export interface RawEvaluationArtifact {
 }
 
 export interface ModelResult extends RawEvaluationArtifact, ModelMetadata {
+  accuracyByEdition: Record<string, { accuracy: number; n: number }>;
   cleanAccuracy: number | null;
   contaminatedAccuracy: number | null;
-  accuracyByEdition: Record<string, { accuracy: number; n: number }>;
 }
 
 const artifacts = import.meta.glob<RawEvaluationArtifact>('../../../results/*.json', {

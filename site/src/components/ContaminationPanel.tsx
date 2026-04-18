@@ -5,31 +5,25 @@ import ContaminationToggle, { type ContaminationScope } from './ContaminationTog
 
 export default function ContaminationPanel({
   models,
-  scope,
   onScopeChange,
+  scope,
 }: {
   models: ModelResult[];
   scope: ContaminationScope;
   onScopeChange: (v: ContaminationScope) => void;
 }) {
-  const cleanN = models.reduce(
-    (acc, m) => acc + (m.contaminationSplit.clean?.n ?? 0),
-    0,
-  );
-  const contN = models.reduce(
-    (acc, m) => acc + (m.contaminationSplit.contaminated?.n ?? 0),
-    0,
-  );
+  const cleanN = models.reduce((acc, m) => acc + (m.contaminationSplit.clean?.n ?? 0), 0);
+  const contN = models.reduce((acc, m) => acc + (m.contaminationSplit.contaminated?.n ?? 0), 0);
 
   return (
-    <section className="border rounded-lg bg-card p-5 space-y-3">
+    <section className="space-y-3 rounded-lg border bg-card p-5 font-sans">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="max-w-2xl">
           <h3 className="font-sans font-semibold">Contaminação de treino</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Edições anteriores ao corte de treino de um modelo são marcadas como{' '}
-            <em>provavelmente contaminadas</em>. Compare os dois buckets — o delta mede o quanto
-            a memorização infla o escore.{' '}
+            <em>provavelmente contaminadas</em>. Compare os dois buckets — o delta mede o quanto a
+            memorização infla o escore.{' '}
             <Link to="/metodologia#contaminacao" className="underline text-ps-violet">
               Entenda a metodologia
             </Link>

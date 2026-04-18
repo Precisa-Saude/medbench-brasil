@@ -1,7 +1,7 @@
 /**
  * Metadados dos modelos avaliados.
  *
- * Os artefatos em `results/` só carregam o que o scorer produz (acurácia,
+ * Os artefatos em `results/` só carregam o que o scorer produz (precisão,
  * IC95, splits). Dados editoriais — rótulo, fornecedor, tier, release,
  * corte de treino — vivem aqui, chaveados por `modelId`.
  *
@@ -15,9 +15,9 @@ export type ModelTier = 'proprietaria' | 'open-weight' | 'brasileira';
 export interface ModelMetadata {
   label: string;
   modelId: string;
+  provider: string;
   /** ISO YYYY-MM-DD do lançamento público do modelo. Usado no eixo X do scatter. */
   releaseDate: string;
-  provider: string;
   tier: ModelTier;
   /** ISO YYYY-MM-DD — fonte oficial do fornecedor. Ver docs/contamination.md. */
   trainingCutoff: string | undefined;

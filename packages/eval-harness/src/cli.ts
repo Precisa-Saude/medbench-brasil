@@ -93,7 +93,7 @@ async function main() {
   writeFileSync(outPath, JSON.stringify(result, null, 2));
   // eslint-disable-next-line no-console
   console.log(
-    `resultado salvo em ${outPath} (acurácia ${(result.accuracy * 100).toFixed(1)}%, IC ${(result.ci95[0] * 100).toFixed(1)}–${(result.ci95[1] * 100).toFixed(1)}%)`,
+    `resultado salvo em ${outPath} (precisão ${(result.accuracy * 100).toFixed(1)}%, IC ${(result.ci95[0] * 100).toFixed(1)}–${(result.ci95[1] * 100).toFixed(1)}%)`,
   );
 }
 

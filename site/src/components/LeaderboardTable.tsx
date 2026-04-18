@@ -62,15 +62,15 @@ export default function LeaderboardTable({
   });
 
   return (
-    <div className="overflow-x-auto border rounded-lg">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full font-sans text-sm">
         <thead className="bg-muted text-muted-foreground font-sans">
           <tr>
             <th className="text-left px-4 py-3">#</th>
             <th className="text-left px-4 py-3">Modelo</th>
             <th className="text-left px-4 py-3">Fornecedor</th>
             <th className="text-left px-4 py-3">Tier</th>
-            <SortableTh label="Acurácia" k="acc" sort={sort} onClick={toggleSort} align="right" />
+            <SortableTh label="Precisão" k="acc" sort={sort} onClick={toggleSort} align="right" />
             <SortableTh label="IC 95%" k="ci" sort={sort} onClick={toggleSort} align="right" />
             <SortableTh label="Limpa" k="clean" sort={sort} onClick={toggleSort} align="right" />
             <SortableTh

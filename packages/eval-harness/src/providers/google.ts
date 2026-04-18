@@ -16,7 +16,11 @@ interface GoogleProviderOptions {
  */
 export function googleProvider(opts: GoogleProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
-  const maxTokens = opts.maxTokens ?? 2048;
+  // Gemini 2.5+ usa tokens de "thinking" que contam contra maxOutputTokens
+  // junto com o texto da resposta. Casos reais no Revalida mostraram
+  // thoughtsTokenCount de 1400-2500 tokens; 2048 cortava a resposta. 8192
+  // dá folga para pensamento + conteúdo.
+  const maxTokens = opts.maxTokens ?? 8192;
   const temperature = opts.temperature ?? 0;
   const timeoutMs = opts.timeoutMs ?? 90_000;
 
@@ -67,10 +71,16 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
         throw new Error(`Google API erro ${res.status}: ${await res.text()}`);
       }
       const body = (await res.json()) as {
-        candidates?: Array<{ content: { parts: Array<{ text?: string }> } }>;
+        candidates?: Array<{
+          content?: { parts?: Array<{ text?: string }> };
+          finishReason?: string;
+        }>;
       };
-      const rawResponse =
-        body.candidates?.[0]?.content.parts.map((p) => p.text ?? '').join('') ?? '';
+      // Gemini às vezes retorna candidates[0].content vazio (safety filter,
+      // MAX_TOKENS sem texto, etc.). Retornamos string vazia nesses casos; o
+      // runner marca a questão como incorreta com parsed=null. Evita crash.
+      const parts = body.candidates?.[0]?.content?.parts ?? [];
+      const rawResponse = parts.map((p) => p.text ?? '').join('');
 
       return {
         parsedAnswer: null,

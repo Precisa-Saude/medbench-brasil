@@ -26,10 +26,10 @@ export default function Leaderboard() {
   return (
     <div className="space-y-10">
       <section>
-        <h1 className="text-4xl font-sans font-bold text-primary">
+        <h1 className="font-sans text-4xl font-bold tracking-tight text-primary sm:text-5xl">
           LLMs em provas médicas brasileiras
         </h1>
-        <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
+        <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
           Leaderboard vivo e reproduzível do desempenho de modelos de linguagem no Revalida.
           Zero-shot, sem ferramentas, três execuções por modelo, com análise explícita de
           contaminação de treino. Veja a{' '}
@@ -72,7 +72,7 @@ export default function Leaderboard() {
 
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-sans font-semibold">Ranking</h2>
+              <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">Ranking</h2>
             </div>
             <LeaderboardTable models={MODELS} contaminationScope={scope} />
           </section>
@@ -80,7 +80,9 @@ export default function Leaderboard() {
           <section className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-sans font-semibold">Comparar modelos</h2>
+                <h2 className="font-sans text-2xl font-bold tracking-tight sm:text-3xl">
+                  Comparar modelos
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Clique nas tags para ligar/desligar modelos no gráfico.
                 </p>

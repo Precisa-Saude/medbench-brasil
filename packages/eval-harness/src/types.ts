@@ -61,13 +61,13 @@ export interface EvaluationResult {
   };
   correct: number;
   modelId: string;
-  perSpecialty: Record<string, { accuracy: number; n: number }>;
   /**
    * Uma entrada por questão distinta, agregando as `runsPerQuestion` execuções.
    * Apenas a letra parseada é persistida — nunca texto bruto do modelo.
    * Opcional para manter back-compat com artefatos v0.
    */
   perQuestion?: PerQuestionResult[];
+  perSpecialty: Record<string, { accuracy: number; n: number }>;
   runsPerQuestion: number;
   total: number;
 }

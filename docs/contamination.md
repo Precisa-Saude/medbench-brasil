@@ -18,8 +18,8 @@ A implementação está em `packages/dataset/src/contamination.ts`.
 
 Toda visualização no site apresenta o escore nos dois recortes quando ambos existem:
 
-- acurácia em edições limpas (medida mais confiável de capacidade real)
-- acurácia em edições contaminadas (baseline histórico, útil para comparação com estudos anteriores)
+- precisão em edições limpas (medida mais confiável de capacidade real)
+- precisão em edições contaminadas (baseline histórico, útil para comparação com estudos anteriores)
 
 A diferença entre os dois é um dado em si: mede o quanto memorização infla o escore.
 
@@ -36,7 +36,7 @@ A cada nova edição publicada pela INEP, o conjunto de provas limpas cresce par
 Para v2, planejamos três testes adicionais (opcional, por modelo):
 
 1. **Completion test** — dar os primeiros 10–15 tokens do enunciado e pedir o restante; reprodução verbatim indica contaminação forte
-2. **Shuffled options** — reordenar A/B/C/D; queda grande de acurácia sugere memorização posicional
+2. **Shuffled options** — reordenar A/B/C/D; queda grande de precisão sugere memorização posicional
 3. **Paraphrase** — reformular enunciado preservando conteúdo clínico; queda sugere memorização sobre compreensão
 
 Os resultados desses testes serão publicados por modelo e por edição quando implementados.
