@@ -100,6 +100,25 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)(msw@2.13.4(@types/node@20.19.39)(typescript@5.7.3))
 
+  packages/ingestion:
+    dependencies:
+      '@kreuzberg/node':
+        specifier: ^4.0.8
+        version: 4.9.0
+      '@precisa-saude/medbench-dataset':
+        specifier: workspace:*
+        version: link:../dataset
+    devDependencies:
+      tsup:
+        specifier: ^8.3.5
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.10)(typescript@5.7.3)(yaml@2.8.3)
+      typescript:
+        specifier: ~5.7.3
+        version: 5.7.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@20.19.39)(lightningcss@1.32.0)(msw@2.13.4(@types/node@20.19.39)(typescript@5.7.3))
+
   site:
     dependencies:
       '@precisa-saude/medbench-dataset':
@@ -408,6 +427,9 @@ packages:
     engines: {bun: '>=1', deno: '>=2.7.10', node: '>=16'}
     peerDependencies:
       '@noble/ciphers': ^1.0.0
+
+  '@emnapi/runtime@1.10.0':
+    resolution: {integrity: sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -982,6 +1004,35 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@kreuzberg/node-darwin-arm64@4.9.0':
+    resolution: {integrity: sha512-L5hKSYyRP3GKSdE9unl/Q+e1gpger8uO6rSQVZBCdxH2vgfc3+i4sx1jFfKZnmp1xAEOOcdGVcgjZB97ovGhVg==}
+    engines: {bun: '>= 1.3', node: '>= 22'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@kreuzberg/node-linux-arm64-gnu@4.9.0':
+    resolution: {integrity: sha512-zvcU5VbMov1SXr0kRctzGxBCJVYr1uyKmJSrRxvZhv9YxYTBCe2jpj/O81kSostZryjf1SgHcZfRwNhcCrfqAg==}
+    engines: {bun: '>= 1.3', node: '>= 22'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@kreuzberg/node-linux-x64-gnu@4.9.0':
+    resolution: {integrity: sha512-2sbeNC3fmlAuGpw2rExLmSgM2pM+Xde/uNzutJ7rjEbXZDKnhMGOLnFhHLTRQgG8jisKLNkBai3VENE5k/uGTg==}
+    engines: {bun: '>= 1.3', node: '>= 22'}
+    cpu: [x64]
+    os: [linux]
+
+  '@kreuzberg/node-win32-x64-msvc@4.9.0':
+    resolution: {integrity: sha512-dtmVwZcJ1RhV80x3Y2oz1CnQ9IZr90spUDGaoAlRwewvKLAngw388597dzOvkhhUigcO23V3WA1JuAAXzeIxqw==}
+    engines: {bun: '>= 1.3', node: '>= 22'}
+    cpu: [x64]
+    os: [win32]
+
+  '@kreuzberg/node@4.9.0':
+    resolution: {integrity: sha512-ELriH8Wvrv9ecaiGFsrqsrAxYRaahpfNpJCvNT8JdKIUTh/ncnTZyXXf0IwgIZqycjIb129+4Q40hBA9Fk5T3A==}
+    engines: {bun: '>= 1.3', node: '>= 22'}
+    hasBin: true
 
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
@@ -2447,6 +2498,10 @@ packages:
     resolution: {integrity: sha512-6B3tLtFqtQS4ekarvLVMZ+X+VlvQekbe4taUkf/rhVO3d/h0M2rfARm/pXLcPEsjjMsFgrFgSrhQIxcSVrBz8w==}
     engines: {node: '>=18'}
 
+  isexe@4.0.0:
+    resolution: {integrity: sha512-FFUtZMpoZ8RqHS3XeXEmHWLA4thH+ZxCv2lOiPIn1Xc7CxrqhWzNSDzD+/chS/zbYezmiwWLdQC09JdQKmthOw==}
+    engines: {node: '>=20'}
+
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
     engines: {node: '>=8'}
@@ -3594,6 +3649,11 @@ packages:
     engines: {node: ^16.13.0 || >=18.0.0}
     hasBin: true
 
+  which@6.0.1:
+    resolution: {integrity: sha512-oGLe46MIrCRqX7ytPUf66EAYvdeMIZYn3WaocqqKZAxrBpkqHfL/qvTyJ/bTk5+AqHCjXmrv3CEWgy368zhRUg==}
+    engines: {node: ^20.17.0 || >=22.9.0}
+    hasBin: true
+
   why-is-node-running@2.3.0:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
@@ -4008,6 +4068,10 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.3.0
 
+  '@emnapi/runtime@1.10.0':
+    dependencies:
+      tslib: 2.8.1
+
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
 
@@ -4343,6 +4407,28 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@kreuzberg/node-darwin-arm64@4.9.0':
+    optional: true
+
+  '@kreuzberg/node-linux-arm64-gnu@4.9.0':
+    optional: true
+
+  '@kreuzberg/node-linux-x64-gnu@4.9.0':
+    optional: true
+
+  '@kreuzberg/node-win32-x64-msvc@4.9.0':
+    optional: true
+
+  '@kreuzberg/node@4.9.0':
+    dependencies:
+      '@emnapi/runtime': 1.10.0
+      which: 6.0.1
+    optionalDependencies:
+      '@kreuzberg/node-darwin-arm64': 4.9.0
+      '@kreuzberg/node-linux-arm64-gnu': 4.9.0
+      '@kreuzberg/node-linux-x64-gnu': 4.9.0
+      '@kreuzberg/node-win32-x64-msvc': 4.9.0
 
   '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
     dependencies:
@@ -5773,6 +5859,8 @@ snapshots:
 
   isexe@3.1.5: {}
 
+  isexe@4.0.0: {}
+
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-report@3.0.1:
@@ -6906,6 +6994,10 @@ snapshots:
   which@4.0.0:
     dependencies:
       isexe: 3.1.5
+
+  which@6.0.1:
+    dependencies:
+      isexe: 4.0.0
 
   why-is-node-running@2.3.0:
     dependencies:

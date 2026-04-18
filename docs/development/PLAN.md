@@ -27,52 +27,37 @@ Antes de qualquer trabalho de conteúdo, validar que o monorepo build e roda.
 
 ## Fase 2 — Pipeline de extração Revalida
 
-Trabalho real de ingestão. Alvo: edição **2025/1** como piloto (ver ADR futura sobre escolha).
+Trabalho real de ingestão. Alvo: edição **2025/1** como piloto. Toolchain definida em ADR 0003 (`@kreuzberg/node` + Tesseract `por+eng` + Claude `tool_use`).
 
-### 2.1 Download — `scripts/ingest-inep.ts`
+### 2.1 Download (`@medbench-brasil/ingestion medbench-ingest download`)
 
-- [ ] Varrer a [página de provas e gabaritos da INEP](https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos)
-- [ ] Identificar os três PDFs de cada edição: **prova objetiva** (caderno), **gabarito preliminar**, **gabarito definitivo** (pós-recurso)
-- [ ] Salvar em `scripts/data/raw/revalida/<AAAA-N>/{prova.pdf,gabarito-preliminar.pdf,gabarito-definitivo.pdf}` com `manifest.json` (URL origem + SHA-256 + data do download)
-- [ ] Tolerância a mudanças de layout da página INEP — varredura baseada em padrão de URL (`.pdf` com `revalida` + ano), não posicional
-- [ ] Sem dependências pesadas: `node:fetch` + `node:fs`
+- [x] `packages/ingestion/src/downloader.ts` — `fetch` + gravação de `manifest.json` com URL, SHA-256, timestamp
+- [ ] **Rodar na 2025/1**: localizar URLs oficiais de prova + gabarito definitivo na [página INEP](https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos) e executar o comando
 
-### 2.2 Extração — `scripts/extract-questions.ts`
+### 2.2 Extração + estruturação
 
-O Revalida tem layout de duas colunas, ~100 questões numeradas, enunciado + 4 alternativas (A–D). Complicadores: tabelas inline, imagens clínicas, caracteres Unicode de unidades (µ, °), rodapés, quebras de página no meio de questão.
-
-Abordagem híbrida em camadas:
-
-- [ ] **2.2a Extração de texto estruturada** com `pdfjs-dist` — preserva coordenadas (x, y, pageN) de cada token. Evitar `pdf-parse` (perde estrutura de colunas)
-- [ ] **2.2b Reconstrução de coluna** — agrupar tokens por `(page, columnBucket)` via clustering simples em `x`; concatenar por ordem crescente de `y` dentro de cada coluna
-- [ ] **2.2c Fallback OCR** para páginas onde a extração de texto retornar caracteres suspeitos (`?`, `�`, ausência de caracteres acentuados comuns) — `tesseract.js` com idioma `por`
-- [ ] **2.2d Segmentação em questões** — regex de start-of-question (`/^\d{1,3}\s/` no começo de linha) + lookahead até a próxima
-- [ ] **2.2e Segmentação das alternativas** dentro da questão — regex `/^[A-D]\)/` ou `/^[A-D]\s/`
-- [ ] **2.2f Marcação `hasImage`/`hasTable`** — detectar pela presença de objetos não-texto na página (via `pdfjs-dist` operator list) sobrepostos ao retângulo da questão
-- [ ] **2.2g Cruzamento com gabarito definitivo** — parse do PDF de gabarito (tabela `questão → letra`), preferir sempre o definitivo sobre o preliminar, registrar diff em `notes` quando houver alteração pós-recurso
-- [ ] **2.2h Marcação `annulled`** — gabarito definitivo marca anuladas com asterisco ou tarja; capturar explicitamente
+- [x] **2.2a `@kreuzberg/node` wrapper** em `packages/ingestion/src/extractor.ts` — mesmo padrão (`extractPages: true`, fallback OCR Tesseract `por+eng` quando conteúdo < 20 chars)
+- [x] **2.2b Parser estruturado** em `packages/ingestion/src/parser.ts` — Claude `tool_use` com schema JSON rígido (enum para `correct` e `specialty`). Temperatura 0.1. Recebe texto da prova + texto do gabarito e retorna `Question[]` + `warnings[]`. Preprocessamento, não viola ADR 0002.
+- [x] **2.2c CLI** — `medbench-ingest download` e `medbench-ingest extract` em `packages/ingestion/src/cli.ts`
+- [ ] **Rodar na 2025/1**: executar `extract` com `ANTHROPIC_API_KEY`, conferir warnings, revisar amostra
 
 ### 2.3 Classificação por especialidade
 
-O INEP não classifica explicitamente por especialidade dentro da prova objetiva. A classificação pode ser feita:
+Feita inline pelo parser (schema enum obriga classificação no momento do `tool_use`). Para auditoria:
 
-- [ ] **2.3a Heurística por âncoras** (primeira passada determinística) — palavras-chave clínicas conhecidas (ex.: "gestante", "puerpério" → GO; "lactente", "puericultura" → Pediatria; "campanha de vacinação", "vigilância epidemiológica" → Saúde Pública)
-- [ ] **2.3b Revisão LLM com prompt rígido** — passar cada questão a um modelo de classificação (`claude-haiku-4-5` ou `claude-sonnet-4-6`) com prompt de classificação multi-label estrita nas 6 categorias de `src/specialty.ts`; log da classificação em campo separado para auditoria humana
-- [ ] **2.3c Revisão humana por amostragem** — revisar ~20% das questões classificadas; registrar taxa de concordância
-
-A classificação LLM **nunca** é usada no harness de avaliação — é apenas metadado do dataset para filtros do leaderboard. Não há contaminação metodológica.
+- [ ] **Revisão humana por amostragem** — conferir ~20% das classificações, registrar taxa de concordância em `docs/development/adr/0004-*` quando a edição piloto estiver pronta
 
 ### 2.4 Validação e publicação
 
-- [ ] **2.4a Schema validation** — validar saída contra tipo `Edition` (checagem de tempo de build via `tsc`)
-- [ ] **2.4b Testes de sanidade** — acima de 95% das questões têm 4 alternativas; todas têm gabarito; nenhuma questão anulada no gabarito definitivo aparece como não-anulada
-- [ ] **2.4c Revisão manual** de 100% da edição piloto — comparação lado a lado com o PDF original
-- [ ] **2.4d Commit** do `packages/dataset/data/revalida/2025-1.json` preenchido + nota de CHANGELOG
+- [ ] **Schema validation** — validar saída contra tipo `Edition` (verificação vem do `tsc` dos consumidores)
+- [ ] **Sanidade** — todas as questões têm 4 alternativas e gabarito; questão anulada no gabarito nunca aparece como `annulled: false`
+- [ ] **Revisão manual** de 100% da edição piloto lado a lado com o PDF oficial
+- [ ] **Commit** do `packages/dataset/data/revalida/2025-1.json` preenchido + CHANGELOG
 
 ### 2.5 Metadados da edição
 
-- [ ] Extrair nota de corte do edital de resultado oficial (`cutoffScore`)
-- [ ] Extrair taxa de aprovação do Painel Revalida ou edital (`passRate`, `totalInscritos`)
+- [ ] Extrair `cutoffScore` do edital de resultado
+- [ ] Extrair `passRate` e `totalInscritos` do Painel Revalida ou edital
 - [ ] Quando a INEP não publicar granularidade, abrir pedido via Lei de Acesso à Informação
 
 ## Fase 3 — Primeira rodada de avaliação
