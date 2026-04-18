@@ -6,6 +6,7 @@ interface GoogleProviderOptions {
   maxTokens?: number;
   model: string;
   temperature?: number;
+  timeoutMs?: number;
   trainingCutoff?: string;
 }
 
@@ -17,6 +18,7 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
   const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
+  const timeoutMs = opts.timeoutMs ?? 90_000;
 
   return {
     id: opts.model,
@@ -46,11 +48,19 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
 
       const start = Date.now();
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
-        body: JSON.stringify(requestParams),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      let res: Response;
+      try {
+        res = await fetch(url, {
+          body: JSON.stringify(requestParams),
+          headers: { 'content-type': 'application/json' },
+          method: 'POST',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
       const durationMs = Date.now() - start;
 
       if (!res.ok) {

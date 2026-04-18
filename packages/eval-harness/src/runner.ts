@@ -73,7 +73,10 @@ async function runWithRetry<T>(fn: () => Promise<T>, label: string): Promise<T> 
       if (attempt === RETRY_DELAYS_MS.length || !isRetryable(err)) throw err;
       const delay = RETRY_DELAYS_MS[attempt]!;
       // eslint-disable-next-line no-console
-      console.warn(`[${label}] tentativa ${attempt + 1} falhou, retry em ${delay}ms:`, err instanceof Error ? err.message.slice(0, 120) : err);
+      console.warn(
+        `[${label}] tentativa ${attempt + 1} falhou, retry em ${delay}ms:`,
+        err instanceof Error ? err.message.slice(0, 120) : err,
+      );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -96,9 +99,14 @@ export async function runEvaluation(
     );
 
     const contamination = getModelContaminationRisk(edition, provider.trainingCutoff);
+    const total = questions.length * config.runsPerQuestion;
+    let done = 0;
+    let correctSoFar = 0;
+    const startAll = Date.now();
 
     for (const q of questions) {
       for (let run = 0; run < config.runsPerQuestion; run++) {
+        const start = Date.now();
         const response = await runWithRetry(
           () =>
             provider.run({
@@ -109,12 +117,17 @@ export async function runEvaluation(
           `${provider.id} ${q.id} run${run + 1}`,
         );
         const parsed = response.parsedAnswer ?? parseLetter(response.rawResponse);
-        records.push({
-          contamination,
-          correct: parsed === q.correct,
-          parsed,
-          question: q,
-        });
+        const correct = parsed === q.correct;
+        records.push({ contamination, correct, parsed, question: q });
+        done += 1;
+        if (correct) correctSoFar += 1;
+        const elapsedMs = Date.now() - start;
+        const totalElapsed = (Date.now() - startAll) / 1000;
+        const etaSec = done > 0 ? Math.round((totalElapsed / done) * (total - done)) : 0;
+        // eslint-disable-next-line no-console
+        console.log(
+          `  [${done}/${total}] ${q.id} run${run + 1}: ${parsed ?? '?'} vs ${q.correct} ${correct ? 'OK' : '--'} (${elapsedMs}ms) | acc ${((correctSoFar / done) * 100).toFixed(1)}% | eta ${etaSec}s`,
+        );
       }
     }
   }

@@ -6,6 +6,7 @@ interface OpenAIProviderOptions {
   maxTokens?: number;
   model: string;
   temperature?: number;
+  timeoutMs?: number;
   trainingCutoff?: string;
 }
 
@@ -18,6 +19,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.OPENAI_API_KEY;
   const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
+  const timeoutMs = opts.timeoutMs ?? 90_000;
 
   return {
     id: opts.model,
@@ -32,9 +34,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       // nome. Mandamos o correto conforme a família do modelo.
       const usesNewParamName = /^gpt-5/i.test(opts.model) || /^o[1-9]/i.test(opts.model);
       const requestParams = {
-        ...(usesNewParamName
-          ? { max_completion_tokens: maxTokens }
-          : { max_tokens: maxTokens }),
+        ...(usesNewParamName ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
         messages: [
           { content: input.systemPrompt, role: 'system' },
           { content: input.userPrompt, role: 'user' },
@@ -44,14 +44,22 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       } as const;
 
       const start = Date.now();
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        body: JSON.stringify(requestParams),
-        headers: {
-          authorization: `Bearer ${apiKey}`,
-          'content-type': 'application/json',
-        },
-        method: 'POST',
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      let res: Response;
+      try {
+        res = await fetch('https://api.openai.com/v1/chat/completions', {
+          body: JSON.stringify(requestParams),
+          headers: {
+            authorization: `Bearer ${apiKey}`,
+            'content-type': 'application/json',
+          },
+          method: 'POST',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
       const durationMs = Date.now() - start;
 
       if (!res.ok) {

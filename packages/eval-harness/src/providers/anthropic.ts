@@ -6,6 +6,8 @@ interface AnthropicProviderOptions {
   maxTokens?: number;
   model: string;
   temperature?: number;
+  /** Timeout por requisição em ms (padrão 90000). */
+  timeoutMs?: number;
   trainingCutoff?: string;
 }
 
@@ -18,6 +20,7 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
   const maxTokens = opts.maxTokens ?? 1024;
   const temperature = opts.temperature ?? 0;
+  const timeoutMs = opts.timeoutMs ?? 90_000;
 
   return {
     id: opts.model,
@@ -40,15 +43,23 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       } as const;
 
       const start = Date.now();
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        body: JSON.stringify(requestParams),
-        headers: {
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        method: 'POST',
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      let res: Response;
+      try {
+        res = await fetch('https://api.anthropic.com/v1/messages', {
+          body: JSON.stringify(requestParams),
+          headers: {
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'x-api-key': apiKey,
+          },
+          method: 'POST',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
       const durationMs = Date.now() - start;
 
       if (!res.ok) {

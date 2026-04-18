@@ -10,6 +10,8 @@ interface OpenAICompatOptions {
   /** Nome do fornecedor para display — ex.: 'Ollama', 'vLLM'. */
   provider: string;
   temperature?: number;
+  /** Timeout por requisição em ms (padrão 300000 — inferência local costuma ser lenta). */
+  timeoutMs?: number;
   trainingCutoff?: string;
 }
 
@@ -24,6 +26,7 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   // de pensamento + resposta. 16 tokens trunca antes da letra sair.
   const maxTokens = opts.maxTokens ?? 2048;
   const temperature = opts.temperature ?? 0;
+  const timeoutMs = opts.timeoutMs ?? 300_000;
 
   return {
     id: opts.model,
@@ -41,14 +44,22 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
       } as const;
 
       const start = Date.now();
-      const res = await fetch(`${opts.baseUrl.replace(/\/$/, '')}/chat/completions`, {
-        body: JSON.stringify(requestParams),
-        headers: {
-          ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
-          'content-type': 'application/json',
-        },
-        method: 'POST',
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      let res: Response;
+      try {
+        res = await fetch(`${opts.baseUrl.replace(/\/$/, '')}/chat/completions`, {
+          body: JSON.stringify(requestParams),
+          headers: {
+            ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
+            'content-type': 'application/json',
+          },
+          method: 'POST',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
