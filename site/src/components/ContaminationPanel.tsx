@@ -10,7 +10,7 @@ interface Biggest {
 }
 
 function biggestDelta(models: ModelResult[]): Biggest | null {
-  // Δ = acurácia em edições contaminadas - acurácia em edições limpas.
+  // Δ = precisão em edições contaminadas - precisão em edições limpas.
   // Positivo = modelo vai melhor em provas que pode ter visto no treino,
   // indício de memorização. Só destacamos modelos com ambos os buckets.
   let best: Biggest | null = null;
@@ -48,7 +48,7 @@ export default function ContaminationPanel({
           <p className="mt-1 text-sm text-muted-foreground">
             Um modelo pode ter visto a prova durante o treino (edição publicada antes do corte de
             treino do modelo) ou não. A coluna <strong>Δ</strong> na tabela abaixo mostra a
-            diferença entre a acurácia em edições contaminadas e limpas — um Δ alto sugere que o
+            diferença entre a precisão em edições contaminadas e limpas — um Δ alto sugere que o
             modelo se beneficia da memorização.{' '}
             <Link to="/metodologia#contaminacao" className="underline text-ps-violet">
               Entenda a metodologia
