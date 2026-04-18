@@ -20,7 +20,9 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
   const maxTokens = opts.maxTokens ?? 1024;
   const temperature = opts.temperature ?? 0;
-  const timeoutMs = opts.timeoutMs ?? 90_000;
+  // Opus 4.x com reasoning estendido chega a ultrapassar 90s por chamada em
+  // questões longas. 180s dá folga sem mascarar hangs reais.
+  const timeoutMs = opts.timeoutMs ?? 180_000;
 
   return {
     id: opts.model,

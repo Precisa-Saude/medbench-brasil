@@ -30,14 +30,30 @@ export interface ProviderResponse {
 }
 
 export interface RunConfig {
+  /** Máximo de requisições simultâneas ao provider. Padrão 1 (serial). */
+  concurrency?: number;
   editions: string[];
   excludeImages: boolean;
   excludeTables: boolean;
   runsPerQuestion: number;
 }
 
+export interface PerQuestionResult {
+  contamination: 'likely-clean' | 'likely-contaminated' | 'unknown';
+  correctAnswer: QuestionOption;
+  editionId: string;
+  majority: QuestionOption | null;
+  majorityCorrect: boolean;
+  questionId: string;
+  questionNumber: number;
+  runs: Array<{ correct: boolean; parsed: QuestionOption | null }>;
+  specialty: string[];
+}
+
 export interface EvaluationResult {
   accuracy: number;
+  /** Agregado por edição. Opcional para manter back-compat com artefatos v0. */
+  accuracyByEdition?: Record<string, { accuracy: number; n: number }>;
   ci95: [number, number];
   contaminationSplit: {
     clean: { accuracy: number; n: number } | null;
@@ -46,6 +62,12 @@ export interface EvaluationResult {
   correct: number;
   modelId: string;
   perSpecialty: Record<string, { accuracy: number; n: number }>;
+  /**
+   * Uma entrada por questão distinta, agregando as `runsPerQuestion` execuções.
+   * Apenas a letra parseada é persistida — nunca texto bruto do modelo.
+   * Opcional para manter back-compat com artefatos v0.
+   */
+  perQuestion?: PerQuestionResult[];
   runsPerQuestion: number;
   total: number;
 }

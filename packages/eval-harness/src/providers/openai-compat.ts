@@ -22,9 +22,11 @@ interface OpenAICompatOptions {
  */
 export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   const apiKey = opts.apiKey;
-  // Default alto: modelos com reasoning (Qwen, DeepSeek R1) emitem cadeia
-  // de pensamento + resposta. 16 tokens trunca antes da letra sair.
-  const maxTokens = opts.maxTokens ?? 2048;
+  // Modelos locais com reasoning (Qwen 3.x, DeepSeek R1) emitem cadeias de
+  // pensamento longas antes de committar na resposta. Testes com Qwen 3.6
+  // em questões do Revalida mostraram reasoning_len ~2500+ tokens; 2048 cortava
+  // antes da letra. 8192 dá folga confortável para o conteúdo final.
+  const maxTokens = opts.maxTokens ?? 8192;
   const temperature = opts.temperature ?? 0;
   const timeoutMs = opts.timeoutMs ?? 300_000;
 

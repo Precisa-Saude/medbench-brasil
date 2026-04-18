@@ -1,6 +1,6 @@
 import type { Question, QuestionOption } from '@precisa-saude/medbench-dataset';
 
-import type { EvaluationResult } from './types.js';
+import type { EvaluationResult, PerQuestionResult } from './types.js';
 
 export interface RunRecord {
   contamination: 'likely-clean' | 'likely-contaminated' | 'unknown';
@@ -56,8 +56,24 @@ export function scoreRun(
     perSpecialtyOut[sp] = { accuracy: b.accuracy, n: b.n };
   }
 
+  const byEditionAcc: Record<string, { correct: number; n: number }> = {};
+  for (const rec of records) {
+    const eid = rec.question.editionId;
+    const slot = byEditionAcc[eid] ?? { correct: 0, n: 0 };
+    slot.n += 1;
+    if (rec.correct) slot.correct += 1;
+    byEditionAcc[eid] = slot;
+  }
+  const accuracyByEdition: Record<string, { accuracy: number; n: number }> = {};
+  for (const [eid, slot] of Object.entries(byEditionAcc)) {
+    accuracyByEdition[eid] = { accuracy: slot.n === 0 ? 0 : slot.correct / slot.n, n: slot.n };
+  }
+
+  const perQuestion = aggregatePerQuestion(records);
+
   return {
     accuracy,
+    accuracyByEdition,
     ci95: wilsonInterval(correct, total),
     contaminationSplit: {
       clean: bucket(clean),
@@ -65,8 +81,54 @@ export function scoreRun(
     },
     correct,
     modelId,
+    perQuestion,
     perSpecialty: perSpecialtyOut,
     runsPerQuestion,
     total,
   };
+}
+
+function aggregatePerQuestion(records: RunRecord[]): PerQuestionResult[] {
+  const byQ = new Map<string, { q: Question; runs: RunRecord[] }>();
+  for (const rec of records) {
+    const key = rec.question.id;
+    const slot = byQ.get(key) ?? { q: rec.question, runs: [] };
+    slot.runs.push(rec);
+    byQ.set(key, slot);
+  }
+  const out: PerQuestionResult[] = [];
+  for (const { q, runs } of byQ.values()) {
+    const counts: Record<string, number> = {};
+    for (const r of runs) {
+      const key = r.parsed ?? '_null';
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    let topKey: string | null = null;
+    let topCount = -1;
+    for (const [k, c] of Object.entries(counts)) {
+      if (k === '_null') continue;
+      if (c > topCount) {
+        topKey = k;
+        topCount = c;
+      }
+    }
+    const majority = (topKey as QuestionOption | null) ?? null;
+    out.push({
+      contamination: runs[0]!.contamination,
+      correctAnswer: q.correct,
+      editionId: q.editionId,
+      majority,
+      majorityCorrect: majority === q.correct,
+      questionId: q.id,
+      questionNumber: q.number,
+      runs: runs.map((r) => ({ correct: r.correct, parsed: r.parsed })),
+      specialty: q.specialty,
+    });
+  }
+  out.sort((a, b) =>
+    a.editionId === b.editionId
+      ? a.questionNumber - b.questionNumber
+      : a.editionId.localeCompare(b.editionId),
+  );
+  return out;
 }

@@ -58,7 +58,9 @@ const RETRY_DELAYS_MS = [1000, 3000, 10_000];
 function isRetryable(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
   const msg = err.message;
-  // Erros de rede transientes do node:fetch + Anthropic/OpenAI/Google 5xx e 429
+  const name = err.name;
+  // Erros de rede transientes do node:fetch + timeouts por AbortController
+  if (name === 'AbortError' || /operation was aborted/i.test(msg)) return true;
   if (/ECONNRESET|ETIMEDOUT|ENETUNREACH|EAI_AGAIN|fetch failed/i.test(msg)) return true;
   if (/erro 5\d\d/i.test(msg)) return true;
   if (/erro 429/i.test(msg)) return true;
@@ -99,13 +101,24 @@ export async function runEvaluation(
     );
 
     const contamination = getModelContaminationRisk(edition, provider.trainingCutoff);
-    const total = questions.length * config.runsPerQuestion;
+    const tasks: Array<{ q: Question; run: number }> = [];
+    for (const q of questions) {
+      for (let run = 0; run < config.runsPerQuestion; run++) {
+        tasks.push({ q, run });
+      }
+    }
+    const total = tasks.length;
+    const concurrency = Math.max(1, config.concurrency ?? 1);
+    let cursor = 0;
     let done = 0;
     let correctSoFar = 0;
     const startAll = Date.now();
 
-    for (const q of questions) {
-      for (let run = 0; run < config.runsPerQuestion; run++) {
+    async function worker() {
+      while (true) {
+        const idx = cursor++;
+        if (idx >= tasks.length) return;
+        const { q, run } = tasks[idx]!;
         const start = Date.now();
         const response = await runWithRetry(
           () =>
@@ -130,6 +143,8 @@ export async function runEvaluation(
         );
       }
     }
+
+    await Promise.all(Array.from({ length: concurrency }, () => worker()));
   }
 
   return scoreRun(provider.id, config.runsPerQuestion, records);

@@ -76,7 +76,10 @@ async function main() {
   console.log(
     `avaliando ${provider.label} via ${provider.provider} em ${args.edition ?? 'revalida-2025-1'}…`,
   );
+  const defaultConcurrency = backend === 'ollama' ? 1 : 10;
+  const concurrency = args.concurrency ? Number(args.concurrency) : defaultConcurrency;
   const result = await runEvaluation(provider, {
+    concurrency,
     editions: [args.edition ?? 'revalida-2025-1'],
     excludeImages: true,
     excludeTables: true,
