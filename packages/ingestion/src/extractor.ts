@@ -58,7 +58,7 @@ export async function extractPdfText(buffer: Buffer): Promise<ExtractionResult> 
 
   return {
     pageContents,
-    pages: result.metadata?.page_count ?? pageContents.length,
+    pages: (result.metadata?.page_count as number | undefined) ?? pageContents.length,
     text: result.content ?? '',
   };
 }

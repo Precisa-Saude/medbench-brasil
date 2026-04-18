@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -21,14 +22,23 @@ export async function downloadPdf(
 ): Promise<DownloadManifest> {
   mkdirSync(outDir, { recursive: true });
 
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Download falhou (${res.status}): ${url}`);
+  // Node.js fetch não confia na cadeia de certificados ICP-Brasil usada por
+  // download.inep.gov.br por padrão. Usamos curl (que usa o trust store do
+  // sistema) para garantir portabilidade e reprodutibilidade.
+  const filePath = join(outDir, filename);
+  try {
+    execFileSync('curl', ['-sSL', '-A', 'Mozilla/5.0', '-o', filePath, url], {
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+  } catch (err) {
+    throw new Error(`Download falhou: ${url}`, { cause: err });
   }
-  const buffer = Buffer.from(await res.arrayBuffer());
+  const buffer = readFileSync(filePath);
+  if (buffer.length === 0) {
+    throw new Error(`Download vazio: ${url}`);
+  }
 
   const sha256 = createHash('sha256').update(buffer).digest('hex');
-  writeFileSync(join(outDir, filename), buffer);
 
   const manifest: DownloadManifest = {
     downloadedAt: new Date().toISOString(),
