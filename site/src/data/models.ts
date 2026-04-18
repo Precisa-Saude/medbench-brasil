@@ -23,7 +23,26 @@ export interface ModelMetadata {
   trainingCutoff: string | undefined;
 }
 
+// Cortes de treino abaixo são estimativas públicas (documentação do fornecedor
+// quando disponível, caso contrário a data mais recente plausível). Sempre
+// que uma fonte oficial for localizada, atualizar e referenciar no comentário.
 export const MODELS_METADATA: Record<string, ModelMetadata> = {
+  'claude-opus-4-5': {
+    label: 'Claude Opus 4.5',
+    modelId: 'claude-opus-4-5',
+    provider: 'Anthropic',
+    releaseDate: '2025-07-01',
+    tier: 'proprietaria',
+    trainingCutoff: '2024-07-01',
+  },
+  'claude-opus-4-6': {
+    label: 'Claude Opus 4.6',
+    modelId: 'claude-opus-4-6',
+    provider: 'Anthropic',
+    releaseDate: '2025-10-01',
+    tier: 'proprietaria',
+    trainingCutoff: '2024-11-01',
+  },
   'claude-opus-4-7': {
     label: 'Claude Opus 4.7',
     modelId: 'claude-opus-4-7',
@@ -32,13 +51,53 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-03-01',
   },
+  'gemini-2.5-pro': {
+    label: 'Gemini 2.5 Pro',
+    modelId: 'gemini-2.5-pro',
+    provider: 'Google',
+    releaseDate: '2025-03-25',
+    tier: 'proprietaria',
+    trainingCutoff: '2025-01-01',
+  },
+  'gemini-3.1-pro-preview': {
+    label: 'Gemini 3.1 Pro',
+    modelId: 'gemini-3.1-pro-preview',
+    provider: 'Google',
+    releaseDate: '2026-02-19',
+    tier: 'proprietaria',
+    trainingCutoff: '2025-11-01',
+  },
+  'gpt-5.1': {
+    label: 'GPT-5.1',
+    modelId: 'gpt-5.1',
+    provider: 'OpenAI',
+    releaseDate: '2025-11-13',
+    tier: 'proprietaria',
+    trainingCutoff: '2025-06-01',
+  },
+  'gpt-5.2': {
+    label: 'GPT-5.2',
+    modelId: 'gpt-5.2',
+    provider: 'OpenAI',
+    releaseDate: '2025-12-11',
+    tier: 'proprietaria',
+    trainingCutoff: '2025-06-01',
+  },
   'gpt-5.4': {
     label: 'GPT-5.4',
     modelId: 'gpt-5.4',
     provider: 'OpenAI',
-    releaseDate: '2026-01-15',
+    releaseDate: '2026-03-05',
     tier: 'proprietaria',
-    trainingCutoff: '2025-06-01',
+    trainingCutoff: '2026-01-01',
+  },
+  'qwen3.6:35b-a3b-q8_0': {
+    label: 'Qwen 3.6 (36B MoE, Q8_0)',
+    modelId: 'qwen3.6:35b-a3b-q8_0',
+    provider: 'Alibaba · Ollama local',
+    releaseDate: '2025-10-01',
+    tier: 'open-weight',
+    trainingCutoff: '2025-09-01',
   },
 };
 
