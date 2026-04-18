@@ -1,0 +1,54 @@
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+interface EditionPoint {
+  edition: string;
+  estimatedHumanMean?: number;
+  modelScore?: number;
+  passingScore?: number;
+}
+
+export default function TrendChart({ data }: { data: EditionPoint[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <XAxis dataKey="edition" tick={{ fill: 'var(--muted-foreground)' }} />
+        <YAxis domain={[0, 100]} tick={{ fill: 'var(--muted-foreground)' }} />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="passingScore"
+          name="Nota de corte"
+          stroke="var(--ps-amber)"
+          strokeDasharray="4 4"
+          dot={false}
+        />
+        <Line
+          type="monotone"
+          dataKey="estimatedHumanMean"
+          name="Média humana estimada"
+          stroke="var(--ps-green)"
+          strokeDasharray="2 4"
+          dot={false}
+        />
+        <Line
+          type="monotone"
+          dataKey="modelScore"
+          name="Modelo"
+          stroke="var(--ps-violet)"
+          strokeWidth={2}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}

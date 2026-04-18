@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+.env
+.env.local
+*.tsbuildinfo
+
+# Dados brutos extraídos da INEP (PDFs + gabaritos)
+scripts/data/raw/
+
+# Resultados de avaliação gerados pelo harness
+results/
