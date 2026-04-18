@@ -27,12 +27,16 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       if (!apiKey) {
         throw new Error('ANTHROPIC_API_KEY ausente — defina no ambiente antes de rodar o harness.');
       }
+      // Modelos Opus 4.x (e demais famílias com reasoning fixo) deprecam
+      // o parâmetro `temperature`. Em vez de mandar 0 e ser rejeitado,
+      // omitimos quando o nome do modelo indica família Opus 4+.
+      const omitTemperature = /^claude-opus-[4-9]/i.test(opts.model);
       const requestParams = {
         max_tokens: maxTokens,
         messages: [{ content: input.userPrompt, role: 'user' }],
         model: opts.model,
         system: input.systemPrompt,
-        temperature,
+        ...(omitTemperature ? {} : { temperature }),
       } as const;
 
       const start = Date.now();

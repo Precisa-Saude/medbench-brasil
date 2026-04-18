@@ -27,8 +27,14 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       if (!apiKey) {
         throw new Error('OPENAI_API_KEY ausente — defina no ambiente antes de rodar o harness.');
       }
+      // Modelos GPT-5.x exigem `max_completion_tokens` (e `max_tokens` é
+      // rejeitado). Modelos GPT-4.x aceitam `max_tokens` e rejeitam o novo
+      // nome. Mandamos o correto conforme a família do modelo.
+      const usesNewParamName = /^gpt-5/i.test(opts.model) || /^o[1-9]/i.test(opts.model);
       const requestParams = {
-        max_tokens: maxTokens,
+        ...(usesNewParamName
+          ? { max_completion_tokens: maxTokens }
+          : { max_tokens: maxTokens }),
         messages: [
           { content: input.systemPrompt, role: 'system' },
           { content: input.userPrompt, role: 'user' },

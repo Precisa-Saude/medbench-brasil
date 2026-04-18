@@ -53,6 +53,33 @@ export function parseLetter(raw: string): QuestionOption | null {
   return null;
 }
 
+const RETRY_DELAYS_MS = [1000, 3000, 10_000];
+
+function isRetryable(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const msg = err.message;
+  // Erros de rede transientes do node:fetch + Anthropic/OpenAI/Google 5xx e 429
+  if (/ECONNRESET|ETIMEDOUT|ENETUNREACH|EAI_AGAIN|fetch failed/i.test(msg)) return true;
+  if (/erro 5\d\d/i.test(msg)) return true;
+  if (/erro 429/i.test(msg)) return true;
+  return false;
+}
+
+async function runWithRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt === RETRY_DELAYS_MS.length || !isRetryable(err)) throw err;
+      const delay = RETRY_DELAYS_MS[attempt]!;
+      // eslint-disable-next-line no-console
+      console.warn(`[${label}] tentativa ${attempt + 1} falhou, retry em ${delay}ms:`, err instanceof Error ? err.message.slice(0, 120) : err);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error(`[${label}] retry loop inesperado`);
+}
+
 export async function runEvaluation(
   provider: Provider,
   config: RunConfig,
@@ -72,11 +99,15 @@ export async function runEvaluation(
 
     for (const q of questions) {
       for (let run = 0; run < config.runsPerQuestion; run++) {
-        const response = await provider.run({
-          question: q,
-          systemPrompt: SYSTEM_PROMPT,
-          userPrompt: renderUserPrompt(q),
-        });
+        const response = await runWithRetry(
+          () =>
+            provider.run({
+              question: q,
+              systemPrompt: SYSTEM_PROMPT,
+              userPrompt: renderUserPrompt(q),
+            }),
+          `${provider.id} ${q.id} run${run + 1}`,
+        );
         const parsed = response.parsedAnswer ?? parseLetter(response.rawResponse);
         records.push({
           contamination,
