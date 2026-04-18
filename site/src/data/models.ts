@@ -91,6 +91,14 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2026-01-01',
   },
+  'sabia-4': {
+    label: 'Sabiá 4',
+    modelId: 'sabia-4',
+    provider: 'Maritaca AI',
+    releaseDate: '2025-07-01',
+    tier: 'brasileira',
+    trainingCutoff: '2024-10-01',
+  },
   'qwen3.6:35b-a3b-q8_0': {
     label: 'Qwen 3.6 (36B MoE, Q8_0)',
     modelId: 'qwen3.6:35b-a3b-q8_0',

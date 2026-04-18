@@ -34,7 +34,7 @@ function parseArgs(argv: string[]): Record<string, string> {
   return out;
 }
 
-type Backend = 'anthropic' | 'openai' | 'google' | 'ollama';
+type Backend = 'anthropic' | 'openai' | 'google' | 'ollama' | 'maritaca';
 
 function buildProvider(backend: Backend, args: Record<string, string>): Provider {
   const model = args.model;
@@ -59,6 +59,20 @@ function buildProvider(backend: Backend, args: Record<string, string>): Provider
         provider: 'Ollama',
         trainingCutoff: cutoff,
       });
+    case 'maritaca': {
+      const apiKey = args.apiKey ?? process.env.MARITACA_API_KEY;
+      if (!apiKey) {
+        throw new Error('MARITACA_API_KEY ausente — defina no ambiente antes de rodar.');
+      }
+      return openAiCompatProvider({
+        apiKey,
+        baseUrl: args.baseUrl ?? 'https://chat.maritaca.ai/api',
+        label,
+        model,
+        provider: 'Maritaca AI',
+        trainingCutoff: cutoff,
+      });
+    }
     default:
       throw new Error(`backend inválido: ${backend}`);
   }
