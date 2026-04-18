@@ -43,10 +43,80 @@ export interface ModelResult extends RawEvaluationArtifact, ModelMetadata {
   contaminatedAccuracy: number | null;
 }
 
-const artifacts = import.meta.glob<RawEvaluationArtifact>('../../../results/*.json', {
+// Artefatos agora ficam em `results/<edition>/<model>.json` — um arquivo por
+// par (modelo, edição). Precisamos agregar múltiplas edições para um mesmo
+// modelId antes de renderizar no leaderboard.
+const artifacts = import.meta.glob<RawEvaluationArtifact>('../../../results/*/*.json', {
   eager: true,
   import: 'default',
 });
+
+type SplitBucket = { accuracy: number; n: number } | null;
+
+function mergeBuckets(a: SplitBucket, b: SplitBucket): SplitBucket {
+  if (!a) return b;
+  if (!b) return a;
+  const n = a.n + b.n;
+  if (n === 0) return { accuracy: 0, n: 0 };
+  const correct = a.accuracy * a.n + b.accuracy * b.n;
+  return { accuracy: correct / n, n };
+}
+
+function mergePerSpecialty(
+  a: RawEvaluationArtifact['perSpecialty'],
+  b: RawEvaluationArtifact['perSpecialty'],
+): RawEvaluationArtifact['perSpecialty'] {
+  const out: RawEvaluationArtifact['perSpecialty'] = { ...a };
+  for (const [sp, bucket] of Object.entries(b)) {
+    const existing = out[sp];
+    out[sp] = existing ? (mergeBuckets(existing, bucket) ?? bucket) : bucket;
+  }
+  return out;
+}
+
+function wilsonInterval(successes: number, total: number): [number, number] {
+  if (total === 0) return [0, 0];
+  const p = successes / total;
+  const z = 1.96;
+  const denom = 1 + (z * z) / total;
+  const center = (p + (z * z) / (2 * total)) / denom;
+  const margin = (z * Math.sqrt((p * (1 - p)) / total + (z * z) / (4 * total * total))) / denom;
+  return [Math.max(0, center - margin), Math.min(1, center + margin)];
+}
+
+function combineArtifacts(artifacts: RawEvaluationArtifact[]): RawEvaluationArtifact {
+  const first = artifacts[0]!;
+  let total = 0;
+  let correct = 0;
+  let accuracyByEdition: Record<string, { accuracy: number; n: number }> = {};
+  let perSpecialty: RawEvaluationArtifact['perSpecialty'] = {};
+  let perQuestion: PerQuestionResult[] = [];
+  let clean: SplitBucket = null;
+  let contaminated: SplitBucket = null;
+
+  for (const a of artifacts) {
+    total += a.total;
+    correct += a.correct;
+    accuracyByEdition = { ...accuracyByEdition, ...(a.accuracyByEdition ?? {}) };
+    perSpecialty = mergePerSpecialty(perSpecialty, a.perSpecialty);
+    perQuestion = [...perQuestion, ...(a.perQuestion ?? [])];
+    clean = mergeBuckets(clean, a.contaminationSplit.clean);
+    contaminated = mergeBuckets(contaminated, a.contaminationSplit.contaminated);
+  }
+
+  return {
+    accuracy: total === 0 ? 0 : correct / total,
+    accuracyByEdition,
+    ci95: wilsonInterval(correct, total),
+    contaminationSplit: { clean, contaminated },
+    correct,
+    modelId: first.modelId,
+    perQuestion,
+    perSpecialty,
+    runsPerQuestion: first.runsPerQuestion,
+    total,
+  };
+}
 
 function normalise(raw: RawEvaluationArtifact): ModelResult {
   const meta = getModelMetadata(raw.modelId);
@@ -61,8 +131,15 @@ function normalise(raw: RawEvaluationArtifact): ModelResult {
   };
 }
 
-export const MODELS: ModelResult[] = Object.values(artifacts)
-  .map((raw) => normalise(raw))
+const byModel = new Map<string, RawEvaluationArtifact[]>();
+for (const raw of Object.values(artifacts)) {
+  const list = byModel.get(raw.modelId) ?? [];
+  list.push(raw);
+  byModel.set(raw.modelId, list);
+}
+
+export const MODELS: ModelResult[] = [...byModel.values()]
+  .map((group) => normalise(combineArtifacts(group)))
   .sort((a, b) => b.accuracy - a.accuracy);
 
 export function findModel(modelId: string): ModelResult | undefined {

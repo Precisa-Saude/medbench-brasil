@@ -2,6 +2,13 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { config as loadDotenv } from 'dotenv';
+
+// Carrega .env.local (preferido) e .env no cwd antes de instanciar providers,
+// para que API keys possam vir de arquivos locais e não de `export` shell.
+loadDotenv({ path: '.env.local' });
+loadDotenv();
+
 import { anthropicProvider } from './providers/anthropic.js';
 import { googleProvider } from './providers/google.js';
 import { openAiProvider } from './providers/openai.js';
@@ -78,15 +85,19 @@ async function main() {
   );
   const defaultConcurrency = backend === 'ollama' ? 1 : 10;
   const concurrency = args.concurrency ? Number(args.concurrency) : defaultConcurrency;
+  const edition = args.edition ?? 'revalida-2025-1';
   const result = await runEvaluation(provider, {
     concurrency,
-    editions: [args.edition ?? 'revalida-2025-1'],
+    editions: [edition],
     excludeImages: true,
     excludeTables: true,
     runsPerQuestion: Number(args.runs ?? 3),
   });
 
-  const outDir = args.out ?? 'results';
+  // Layout por edição — espelha packages/dataset/data/revalida/<edition>.json.
+  // Evita colisão quando o mesmo modelo roda em edições distintas.
+  const baseDir = args.out ?? 'results';
+  const outDir = join(baseDir, edition);
   mkdirSync(outDir, { recursive: true });
   const slug = provider.id.replace(/[^a-z0-9.-]/gi, '_');
   const outPath = join(outDir, `${slug}.json`);
