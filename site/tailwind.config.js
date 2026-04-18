@@ -17,6 +17,10 @@ export default {
         'ps-mint': 'var(--ps-mint)',
         'ps-green': 'var(--ps-green)',
         'ps-amber': 'var(--ps-amber)',
+        'ps-violet-dark': 'var(--primary)',
+        'ps-violet-light': 'var(--ps-violet)',
+        'ps-sand': 'var(--secondary)',
+        'ps-neutral': 'var(--background)',
       },
       fontFamily: {
         sans: ['Roboto', 'system-ui', 'sans-serif'],

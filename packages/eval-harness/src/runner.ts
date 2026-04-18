@@ -1,8 +1,8 @@
-import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
 import type { Edition, EditionId, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
+import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
 
 import { SYSTEM_PROMPT } from './prompt.js';
-import { scoreRun, type RunRecord } from './scorer.js';
+import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, Provider, RunConfig } from './types.js';
 
 function renderUserPrompt(q: Question): string {
@@ -13,7 +13,10 @@ function renderUserPrompt(q: Question): string {
 }
 
 function parseLetter(raw: string): QuestionOption | null {
-  const m = raw.trim().toUpperCase().match(/\b([ABCD])\b/);
+  const m = raw
+    .trim()
+    .toUpperCase()
+    .match(/\b([ABCD])\b/);
   return m ? (m[1] as QuestionOption) : null;
 }
 

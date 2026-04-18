@@ -7,8 +7,8 @@ const OPTIONS: Array<{ label: string; value: ContaminationScope }> = [
 ];
 
 export default function ContaminationToggle({
-  value,
   onChange,
+  value,
 }: {
   onChange: (v: ContaminationScope) => void;
   value: ContaminationScope;

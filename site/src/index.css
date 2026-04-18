@@ -26,6 +26,18 @@
     --ps-mint: oklch(0.9 0.085 181);
     --ps-green: oklch(0.6 0.17 155);
     --ps-amber: oklch(0.8 0.123 80);
+
+    --grid-cols: 14;
+    --grid-gaps: calc(var(--grid-cols) - 1);
+    --grid-max-w: calc(var(--grid-cols) * 6rem - 1rem);
+    --col-w: calc((min(100vw, var(--grid-max-w)) - var(--grid-gaps) * 1rem) / var(--grid-cols));
+  }
+
+  @media (min-width: 1440px) {
+    :root {
+      --grid-cols: 16;
+      --grid-max-w: 1440px;
+    }
   }
 
   * {
@@ -44,5 +56,17 @@
   h5,
   h6 {
     font-family: 'Roboto', system-ui, sans-serif;
+  }
+}
+
+@custom-variant 3xl (@media (min-width: 1440px));
+
+@layer utilities {
+  .font-margem {
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+
+  .font-pausa {
+    font-family: 'Roboto Serif', Georgia, serif;
   }
 }

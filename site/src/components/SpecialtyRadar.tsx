@@ -1,4 +1,11 @@
-import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer } from 'recharts';
+import {
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function SpecialtyRadar({
   data,
@@ -10,8 +17,14 @@ export default function SpecialtyRadar({
     <ResponsiveContainer width="100%" height={320}>
       <RadarChart data={chartData} outerRadius="75%">
         <PolarGrid stroke="var(--border)" />
-        <PolarAngleAxis dataKey="specialty" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
-        <PolarRadiusAxis domain={[0, 100]} tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} />
+        <PolarAngleAxis
+          dataKey="specialty"
+          tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+        />
+        <PolarRadiusAxis
+          domain={[0, 100]}
+          tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }}
+        />
         <Radar
           dataKey="accuracy"
           stroke="var(--ps-violet)"

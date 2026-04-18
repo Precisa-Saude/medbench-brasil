@@ -45,7 +45,10 @@ export default function LeaderboardTable({
             <tr key={model.modelId} className="border-t">
               <td className="px-4 py-3 text-muted-foreground">{idx + 1}</td>
               <td className="px-4 py-3">
-                <Link to={`/models/${model.modelId}`} className="font-medium text-ps-violet hover:underline">
+                <Link
+                  to={`/models/${model.modelId}`}
+                  className="font-medium text-ps-violet hover:underline"
+                >
                   {model.label}
                 </Link>
               </td>

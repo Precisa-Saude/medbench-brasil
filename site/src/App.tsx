@@ -1,5 +1,6 @@
 import { Link, Route, Routes } from 'react-router-dom';
 
+import { Footer } from './components/Footer';
 import Dataset from './pages/Dataset';
 import EditionDetail from './pages/EditionDetail';
 import Leaderboard from './pages/Leaderboard';
@@ -32,20 +33,7 @@ export default function App() {
         </Routes>
       </main>
 
-      <footer className="border-t bg-card">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-sm text-muted-foreground">
-          medbench-brasil é um projeto de pesquisa aberta, Apache-2.0. Contrapartida de IA do{' '}
-          <a
-            href="https://fhir-brasil.dev.br"
-            className="underline text-ps-violet"
-            target="_blank"
-            rel="noreferrer"
-          >
-            fhir-brasil
-          </a>
-          .
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -23,6 +23,16 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./prompt": {
+      "import": {
+        "types": "./dist/prompt.d.ts",
+        "default": "./dist/prompt.js"
+      },
+      "require": {
+        "types": "./dist/prompt.d.cts",
+        "default": "./dist/prompt.cjs"
+      }
     }
   },
   "main": "./dist/index.cjs",

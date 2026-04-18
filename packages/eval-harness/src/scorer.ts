@@ -23,7 +23,11 @@ function wilsonInterval(successes: number, total: number): [number, number] {
   return [Math.max(0, center - margin), Math.min(1, center + margin)];
 }
 
-export function scoreRun(modelId: string, runsPerQuestion: number, records: RunRecord[]): EvaluationResult {
+export function scoreRun(
+  modelId: string,
+  runsPerQuestion: number,
+  records: RunRecord[],
+): EvaluationResult {
   const total = records.length;
   const correct = records.filter((r) => r.correct).length;
   const accuracy = total === 0 ? 0 : correct / total;
@@ -43,7 +47,9 @@ export function scoreRun(modelId: string, runsPerQuestion: number, records: RunR
   const cont = records.filter((r) => r.contamination === 'likely-contaminated');
 
   const bucket = (rs: RunRecord[]) =>
-    rs.length === 0 ? null : { accuracy: rs.filter((r) => r.correct).length / rs.length, n: rs.length };
+    rs.length === 0
+      ? null
+      : { accuracy: rs.filter((r) => r.correct).length / rs.length, n: rs.length };
 
   const perSpecialtyOut: Record<string, { accuracy: number; n: number }> = {};
   for (const [sp, b] of Object.entries(perSpecialty)) {

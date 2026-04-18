@@ -23,7 +23,6 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
     id: opts.model,
     label: opts.label ?? opts.model,
     provider: 'Anthropic',
-    trainingCutoff: opts.trainingCutoff,
     async run(input: RunInput): Promise<ProviderResponse> {
       if (!apiKey) {
         throw new Error('ANTHROPIC_API_KEY ausente — defina no ambiente antes de rodar o harness.');
@@ -53,7 +52,7 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       }
       const body = (await res.json()) as { content: Array<{ text?: string; type: string }> };
       const rawResponse = body.content
-        .map((c) => (c.type === 'text' ? c.text ?? '' : ''))
+        .map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
         .join('');
 
       return {
@@ -63,5 +62,6 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
         timings: { durationMs },
       };
     },
+    trainingCutoff: opts.trainingCutoff,
   };
 }
