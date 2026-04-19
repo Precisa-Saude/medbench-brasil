@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   pull-requests: write
   deployments: write
   id-token: write
@@ -38,6 +39,16 @@ jobs:
         run: pnpm turbo run typecheck
       - name: Test
         run: pnpm turbo run test
+
+  # ── PR only: Claude code review via Bedrock ─────────────────
+  review:
+    name: Code Review
+    needs: build-and-test
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/review.yml
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+    secrets: inherit
 
   build-site:
     name: Build Site
