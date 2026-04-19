@@ -12,12 +12,49 @@ type Filter = 'all' | 'divergent' | 'no-one-correct' | 'all-correct';
 
 export default function QuestionsTable({ models }: { models: ModelResult[] }) {
   const questions = useMemo(() => allQuestions(), []);
-  const editions = useMemo(() => {
-    const ids = new Set(questions.map((q) => q.editionId));
-    return [...ids].sort();
-  }, [questions]);
 
-  const [editionFilter, setEditionFilter] = useState<string>('all');
+  // Edições com dados de avaliação (ao menos um modelo tem perQuestion).
+  // Só essas entram no dropdown — edições sem nenhum modelo avaliado geram
+  // uma tabela 100% "—" sem valor de inspeção (ex.: enamed-2025,
+  // revalida-2024-2). Se ainda não há nenhuma avaliação, cai no set completo
+  // para não quebrar a renderização do filtro.
+  const editions = useMemo(() => {
+    const withData = new Set<string>();
+    for (const m of models) for (const p of m.perQuestion ?? []) withData.add(p.editionId);
+    if (withData.size === 0) {
+      return [...new Set(questions.map((q) => q.editionId))].sort();
+    }
+    return [...withData].sort();
+  }, [models, questions]);
+
+  // Default: mais recente edição com dados.
+  const defaultEdition = editions[editions.length - 1] ?? 'all';
+
+  const [editionFilter, setEditionFilter] = useState<string>(defaultEdition);
+
+  // Quando o filtro é uma edição específica, esconde colunas de modelos sem
+  // perQuestion para aquela edição — evita colunas inteiras de "—" (ex.:
+  // Gemini 3.1 Pro foi avaliado só em 2024/1, então some em 2025/1).
+  const visibleModels = useMemo(() => {
+    if (editionFilter === 'all') return models;
+    return models.filter((m) => (m.perQuestion ?? []).some((p) => p.editionId === editionFilter));
+  }, [models, editionFilter]);
+
+  // Handlers que resetam a página quando um filtro muda — senão, estar na
+  // página 2 de um resultado grande e trocar pra um filtro com poucos resultados
+  // deixa pageRows vazio, mostrando a tabela sem nenhuma linha renderizada.
+  const onEditionChange = (v: string) => {
+    setEditionFilter(v);
+    setPage(1);
+  };
+  const onSpecialtyChange = (v: string) => {
+    setSpecialtyFilter(v);
+    setPage(1);
+  };
+  const onFilterChange = (v: Filter) => {
+    setFilter(v);
+    setPage(1);
+  };
   const [specialtyFilter, setSpecialtyFilter] = useState<string>('all');
   const [filter, setFilter] = useState<Filter>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -38,7 +75,12 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
       questionId: string;
       specialty: string[];
     }> = [];
+    const evaluatedEditions = new Set(editions);
     for (const q of questions) {
+      // Mesmo quando editionFilter === 'all', não queremos poluir a tabela
+      // com edições sem avaliação (ex.: enamed-2025) — todas as células
+      // sairiam "—".
+      if (!evaluatedEditions.has(q.editionId)) continue;
       if (editionFilter !== 'all' && q.editionId !== editionFilter) continue;
       if (specialtyFilter !== 'all' && !q.specialty.includes(specialtyFilter as never)) continue;
       const byModel: Record<string, PerQuestionResult | undefined> = {};
@@ -68,7 +110,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
       });
     }
     return out;
-  }, [questions, models, editionFilter, specialtyFilter, filter, withPerQuestion]);
+  }, [questions, models, editions, editionFilter, specialtyFilter, filter, withPerQuestion]);
 
   const totalRows = rows.length;
   const start = (page - 1) * pageSize;
@@ -78,7 +120,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-4 font-sans">
         <FilterField label="Edição">
-          <Select value={editionFilter} onValueChange={setEditionFilter}>
+          <Select value={editionFilter} onValueChange={onEditionChange}>
             <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
@@ -94,7 +136,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         </FilterField>
 
         <FilterField label="Especialidade">
-          <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+          <Select value={specialtyFilter} onValueChange={onSpecialtyChange}>
             <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
@@ -110,7 +152,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         </FilterField>
 
         <FilterField label="Filtro">
-          <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+          <Select value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
             <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
@@ -138,7 +180,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
                 Especialidade
               </TableHead>
               <TableHead className="text-center">Gabarito</TableHead>
-              {models.map((m) => (
+              {visibleModels.map((m) => (
                 <TableHead
                   key={m.modelId}
                   className="text-center whitespace-nowrap"
@@ -154,7 +196,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
               <QuestionRow
                 key={row.questionId}
                 row={row}
-                models={models}
+                models={visibleModels}
                 expanded={expanded === row.questionId}
                 onToggle={() =>
                   setExpanded((cur) => (cur === row.questionId ? null : row.questionId))
