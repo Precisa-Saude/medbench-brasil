@@ -17,14 +17,18 @@ import { SlidingToggle } from '../components/ui/sliding-toggle';
 import { EDITIONS } from '../data/editions';
 import { allEditionIds, MODELS } from '../data/results';
 
+// "Apenas limpas" vem primeiro e é o default porque é a visão mais honesta:
+// exclui edições que o modelo pode ter visto no treino. A visão "Todas as
+// edições" existe como complemento (comparar com literatura pré-existente).
+// "Apenas contaminadas" foi removida — isoladamente é uma métrica de
+// memorização, não de capacidade, então não serve como ranking.
 const SCOPE_ITEMS = [
-  { label: 'Todas as edições', value: 'all' },
   { label: 'Apenas limpas', value: 'clean' },
-  { label: 'Apenas contaminadas', value: 'contaminated' },
+  { label: 'Todas as edições', value: 'all' },
 ] as const satisfies readonly { label: string; value: ContaminationScope }[];
 
 export default function Leaderboard() {
-  const [scope, setScope] = useState<ContaminationScope>('all');
+  const [scope, setScope] = useState<ContaminationScope>('clean');
   const editionIds = useMemo(() => {
     const ids = allEditionIds();
     return ids.length > 0 ? ids : Object.keys(EDITIONS);
@@ -50,10 +54,14 @@ export default function Leaderboard() {
                   <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
                     Ranking
                   </h2>
+                  <p className="max-w-2xl font-sans text-sm text-muted-foreground">
+                    A visão recomendada é <strong>Apenas limpas</strong> — são os únicos escores em
+                    edições que o modelo não pode ter visto no treino.
+                  </p>
                   <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
                 </div>
                 <LeaderboardTable models={MODELS} contaminationScope={scope} />
-                <p className="pt-2 text-center font-sans text-xs text-muted-foreground">
+                <p className="pt-2 text-center font-sans text-sm text-muted-foreground">
                   Edições publicadas antes do corte de treino do modelo são marcadas como{' '}
                   <em>contaminadas</em>. A coluna <strong>Δ</strong> mostra a diferença entre a
                   precisão em contaminadas e limpas — Δ alto sugere memorização.{' '}
