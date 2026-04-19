@@ -43,9 +43,9 @@ jobs:
               /^\.github\//,
               /\.json$/,
               /\.ya?ml$/,
-              // Artefatos de avaliação — gerados por harness, não faz sentido
+              // Artefatos de avaliação — gerados pelo harness, não faz sentido
               // revisar linha a linha (e estouram o budget de contexto).
-              /\.raw\.jsonl$/,
+              /^results\//,
               /^probes\//,
             ];
             const hasCodeChanges = files.some(f => !ignoredPatterns.some(p => p.test(f.filename)));
@@ -121,11 +121,11 @@ jobs:
           BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefOid -q .baseRefOid)
           echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
 
-          # Exclusões de pathspec: artefatos de avaliação (raw.jsonl, probes/)
+          # Exclusões de pathspec: artefatos de avaliação (results/ e probes/)
           # são gerados pelo harness e não fazem sentido em diff review; também
           # estouram o budget de contexto do revisor em PRs com reruns extensos.
           DIFF_EXCLUDES=(
-            ':(exclude,glob)**/*.raw.jsonl'
+            ':(exclude,glob)results/**'
             ':(exclude,glob)probes/**'
           )
 
@@ -140,8 +140,8 @@ jobs:
           fi
 
           gh pr view "$PR_NUMBER" --json files -q '.files[].path' \
-            | grep -vE '\.raw\.jsonl$|^probes/' > changed_files.txt || true
-          echo "Changed files (após exclusão de raw.jsonl/probes):"
+            | grep -vE '^results/|^probes/' > changed_files.txt || true
+          echo "Changed files (após exclusão de results/ e probes/):"
           cat changed_files.txt
 
           DIFF_SIZE=$(wc -c < pr.diff)
