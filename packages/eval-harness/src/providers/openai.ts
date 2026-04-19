@@ -17,7 +17,13 @@ interface OpenAIProviderOptions {
  */
 export function openAiProvider(opts: OpenAIProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.OPENAI_API_KEY;
-  const maxTokens = opts.maxTokens ?? 2048;
+  // Modelos GPT-5.x e família o1/o3 são reasoning models — gastam o budget de
+  // saída em cadeias de pensamento internas antes de emitir a letra final.
+  // 2048 é suficiente para GPT-4 mas ocasionalmente trunca reasoning em
+  // enunciados clínicos longos (observado em ENAMED 2025). Default maior
+  // para reasoning models; GPT-4 continua em 2048.
+  const isReasoningModel = /^gpt-5/i.test(opts.model) || /^o[1-9]/i.test(opts.model);
+  const maxTokens = opts.maxTokens ?? (isReasoningModel ? 8192 : 2048);
   const temperature = opts.temperature ?? 0;
   const timeoutMs = opts.timeoutMs ?? 90_000;
 
