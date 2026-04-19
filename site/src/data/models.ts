@@ -196,6 +196,28 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     trainingCutoff: '2025-08-01',
   },
+  'mistralai/mistral-large-2411': {
+    description:
+      'Versão de nov/2024 do Mistral Large — antecessora imediata do Mistral Large 2512.',
+    homepage: 'https://mistral.ai/',
+    label: 'Mistral Large (2411)',
+    modelId: 'mistralai/mistral-large-2411',
+    provider: 'Mistral · OpenRouter',
+    releaseDate: '2024-11-18',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
+  'mistralai/mistral-large-2512': {
+    description:
+      'Flagship atual da Mistral (dez/2025), modelo denso com foco em raciocínio multilíngue.',
+    homepage: 'https://mistral.ai/',
+    label: 'Mistral Large (2512)',
+    modelId: 'mistralai/mistral-large-2512',
+    provider: 'Mistral · OpenRouter',
+    releaseDate: '2025-12-01',
+    tier: 'open-weight',
+    trainingCutoff: '2025-06-01',
+  },
   'qwen/qwen3-235b-a22b-2507': {
     description:
       'Qwen 3 235B MoE (22B ativos), variante 2025-07 sem thinking — comparável aos outros modelos open-weight sem reasoning estendido.',
