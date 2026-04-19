@@ -119,17 +119,6 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-11-01',
   },
-  'gpt-5-nano': {
-    description:
-      'Variante mais barata/pequena da família GPT-5 da OpenAI, otimizada para alto volume a baixo custo.',
-    homepage: 'https://openai.com/gpt-5/',
-    label: 'GPT-5 nano',
-    modelId: 'gpt-5-nano',
-    provider: 'OpenAI',
-    releaseDate: '2025-08-07',
-    tier: 'proprietaria',
-    trainingCutoff: '2024-10-01',
-  },
   'gpt-5.1': {
     description:
       'Primeira revisão do GPT-5, lançada no final de 2025 com melhorias em instruction following e custo.',
