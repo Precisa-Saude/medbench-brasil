@@ -63,7 +63,8 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @medbench-brasil/site build
+      - name: Build site + workspace deps
+        run: pnpm turbo run build --filter=@medbench-brasil/site...
       - uses: actions/upload-artifact@v6
         with:
           name: site-dist
