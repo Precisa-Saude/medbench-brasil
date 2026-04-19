@@ -82,13 +82,23 @@ const RETRY_DELAYS_MS = [1000, 3000, 10_000];
 
 function isRetryable(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
-  const msg = err.message;
   const name = err.name;
-  // Erros de rede transientes do node:fetch + timeouts por AbortController
-  if (name === 'AbortError' || /operation was aborted/i.test(msg)) return true;
-  if (/ECONNRESET|ETIMEDOUT|ENETUNREACH|EAI_AGAIN|fetch failed/i.test(msg)) return true;
-  if (/erro 5\d\d/i.test(msg)) return true;
-  if (/erro 429/i.test(msg)) return true;
+  const msg = err.message;
+  // undici às vezes embrulha ECONNRESET em 'TypeError: terminated' com a
+  // causa real na propriedade .cause (err.cause.message === 'read ECONNRESET').
+  // Checamos mensagem + nome + cause.message.
+  const causeMsg =
+    err.cause && err.cause instanceof Error
+      ? err.cause.message
+      : typeof err.cause === 'object' && err.cause && 'message' in err.cause
+        ? String((err.cause as { message: unknown }).message)
+        : '';
+  const haystack = `${name}\n${msg}\n${causeMsg}`;
+  if (name === 'AbortError' || /operation was aborted/i.test(haystack)) return true;
+  if (/ECONNRESET|ETIMEDOUT|ENETUNREACH|EAI_AGAIN|fetch failed|terminated/i.test(haystack))
+    return true;
+  if (/erro 5\d\d/i.test(haystack)) return true;
+  if (/erro 429/i.test(haystack)) return true;
   return false;
 }
 
