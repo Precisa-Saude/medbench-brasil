@@ -24,7 +24,18 @@ export interface Question {
   stem: string;
 }
 
-export type EditionId = `revalida-${number}-${1 | 2}` | `revalida-${number}`;
+export type ExamFamily = 'revalida' | 'enamed';
+
+export type EditionId = `revalida-${number}-${1 | 2}` | `revalida-${number}` | `enamed-${number}`;
+
+/**
+ * Extrai a família do exame a partir do `EditionId`. Ex.: `revalida-2025-1` →
+ * `revalida`, `enamed-2025` → `enamed`. Usado pelo loader e pelo ingestor
+ * para resolver o diretório de dados correto.
+ */
+export function examFamilyOf(id: EditionId): ExamFamily {
+  return id.split('-')[0] as ExamFamily;
+}
 
 export interface Edition {
   cutoffScore: number;

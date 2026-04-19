@@ -1,12 +1,12 @@
 /**
- * Carrega as edições do Revalida em tempo de build via Vite.
+ * Carrega as edições (Revalida + ENAMED) em tempo de build via Vite.
  * Usado pelo site para renderizar enunciados e alternativas nas páginas
  * de questão/edição — tudo estático, sem fetch em runtime.
  */
 
 import type { Edition, Question } from '@precisa-saude/medbench-dataset';
 
-const raw = import.meta.glob<Edition>('../../../packages/dataset/data/revalida/*.json', {
+const raw = import.meta.glob<Edition>('../../../packages/dataset/data/*/*.json', {
   eager: true,
   import: 'default',
 });

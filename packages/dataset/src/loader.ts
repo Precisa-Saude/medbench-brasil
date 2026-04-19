@@ -1,25 +1,33 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Edition, EditionId } from './types.js';
+import type { Edition, EditionId, ExamFamily } from './types.js';
+import { examFamilyOf } from './types.js';
 
-const dataDir = join(fileURLToPath(new URL('../data/revalida/', import.meta.url)));
+const EXAM_FAMILIES: readonly ExamFamily[] = ['revalida', 'enamed'];
 
-function slugToId(filename: string): EditionId {
-  return `revalida-${filename.replace(/\.json$/, '')}` as EditionId;
+function dataDirFor(family: ExamFamily): string {
+  return join(fileURLToPath(new URL(`../data/${family}/`, import.meta.url)));
 }
 
 export function listEditions(): EditionId[] {
-  return readdirSync(dataDir)
-    .filter((f) => f.endsWith('.json'))
-    .map(slugToId)
-    .sort();
+  const ids: EditionId[] = [];
+  for (const family of EXAM_FAMILIES) {
+    const dir = dataDirFor(family);
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)) {
+      if (!f.endsWith('.json')) continue;
+      ids.push(`${family}-${f.replace(/\.json$/, '')}` as EditionId);
+    }
+  }
+  return ids.sort();
 }
 
 export function loadEdition(id: EditionId): Edition {
-  const slug = id.replace(/^revalida-/, '');
-  const raw = readFileSync(join(dataDir, `${slug}.json`), 'utf8');
+  const family = examFamilyOf(id);
+  const slug = id.slice(family.length + 1);
+  const raw = readFileSync(join(dataDirFor(family), `${slug}.json`), 'utf8');
   return JSON.parse(raw) as Edition;
 }
 
