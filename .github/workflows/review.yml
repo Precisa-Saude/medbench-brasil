@@ -121,6 +121,12 @@ jobs:
           BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefOid -q .baseRefOid)
           echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
 
+          # Garantir que ambos SHAs estão no clone local. Em workflow_call com
+          # pull_request, o checkout traz o merge commit; ambos SHAs são
+          # alcançáveis via parents, mas fetch explícito elimina o risco de
+          # "fatal: bad revision" se algo mudar no mecanismo de checkout.
+          git fetch --no-tags --depth=100 origin "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
+
           # Exclusões de pathspec: artefatos de avaliação (results/ e probes/)
           # são gerados pelo harness e não fazem sentido em diff review; também
           # estouram o budget de contexto do revisor em PRs com reruns extensos.
