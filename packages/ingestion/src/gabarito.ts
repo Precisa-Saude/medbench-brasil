@@ -61,29 +61,44 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
   //   2 Excluída* 12 D 22 A
   //   ...
   // Aplicamos como fallback — só preenche números ainda não capturados pelo
-  // formato Revalida acima. Anulada, Excluída, Anulada Administrativamente
-  // tratados como 'ANNULLED' (questão removida do cálculo de precisão).
+  // formato Revalida acima.
   //
-  // Limite superior de 200: exames INEP têm no máximo ~100 questões por
-  // caderno; números maiores são quase certamente falsos positivos (números
-  // de página, valores clínicos citados nos enunciados, etc.).
-  //
-  // Âncoras explícitas em vez de \b: com a flag `u` o comportamento de
-  // \b perto de caracteres acentuados (Excluída, Administrati-vamente) é
-  // inconsistente entre engines. Lookbehind (início ou whitespace) e
-  // lookahead (espaço, fim ou asterisco) cobrem todos os casos observados.
+  // Mitigações contra falsos positivos de enunciados clínicos (ex.: "130
+  // x 90 mmHg A..."):
+  //   - Processamos linha por linha em vez de juntar tudo, exigindo que o
+  //     par (número, letra) apareça no início da linha. Enunciados raramente
+  //     começam em "<número> <letra>" posicional; tabelas de gabarito, sim.
+  //   - Upper bound de 200: cadernos INEP têm no máximo ~100 questões.
+  //   - Lookahead explícito no token (não \b) — comportamento de \b com flag
+  //     `u` próximo a acentos (Excluída, Administrati-vamente) é instável.
+  //   - Sem flag `i`: aceitamos apenas letras maiúsculas A/B/C/D para não
+  //     casar com artigos em minúscula no meio do texto.
   const pairRegex =
-    /(?<=^|\s)(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/giu;
-  const joined = text.replace(/\n/g, ' ');
-  for (const m of joined.matchAll(pairRegex)) {
+    /^\s*(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/u;
+  for (const line of lines) {
+    const m = pairRegex.exec(line);
+    if (!m) continue;
     const n = Number(m[1]);
     if (!Number.isFinite(n) || n < 1 || n > 200) continue;
     if (out.has(n)) continue;
-    const token = m[2]!;
+    const token = m[2]!.toUpperCase();
     if (/^[ABCD]$/.test(token)) {
       out.set(n, token as QuestionOption);
     } else {
       out.set(n, 'ANNULLED');
+    }
+    // Em linhas "1 A 11 Anulada 21 A" só capturamos o primeiro par com esta
+    // regex por linha. Continuamos lendo resto da linha via regex global.
+    const restRegex =
+      /(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/gu;
+    restRegex.lastIndex = m.index + m[0].length;
+    let rest: RegExpExecArray | null;
+    while ((rest = restRegex.exec(line))) {
+      const rn = Number(rest[1]);
+      if (!Number.isFinite(rn) || rn < 1 || rn > 200) continue;
+      if (out.has(rn)) continue;
+      const rtok = rest[2]!.toUpperCase();
+      out.set(rn, /^[ABCD]$/.test(rtok) ? (rtok as QuestionOption) : 'ANNULLED');
     }
   }
 

@@ -114,8 +114,8 @@ export async function parseEdition(opts: ParseOptions): Promise<ParsedEditionQue
       // deixa claro pela flag `annulled: true` que o valor não deve ser
       // usado. Questões não-anuladas com gabarito válido usam o gabarito;
       // demais casos mantêm o que o LLM inferiu.
-      const ALLOWED: QuestionOption[] = ['A', 'B', 'C', 'D'];
-      const llmCorrect = ALLOWED.includes(q.correct) ? q.correct : 'A';
+      const ALLOWED = new Set<QuestionOption>(['A', 'B', 'C', 'D']);
+      const llmCorrect: QuestionOption = ALLOWED.has(q.correct) ? q.correct : 'A';
       const correct = truth && truth !== 'ANNULLED' ? truth : llmCorrect;
       if (truth === 'ANNULLED' && !q.annulled) {
         allWarnings.push(
@@ -128,7 +128,7 @@ export async function parseEdition(opts: ParseOptions): Promise<ParsedEditionQue
       } else if (!truth) {
         allWarnings.push(`[${from}-${to}] Q${q.number}: gabarito não encontrado no PDF`);
       }
-      if (!ALLOWED.includes(q.correct as QuestionOption)) {
+      if (!ALLOWED.has(q.correct)) {
         allWarnings.push(
           `[${from}-${to}] Q${q.number}: LLM retornou correct="${q.correct}" fora do enum — normalizado`,
         );
