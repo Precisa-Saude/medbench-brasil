@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { allQuestions, getEdition } from '../data/dataset';
 import type { ModelResult, PerQuestionResult } from '../data/results';
@@ -225,13 +226,13 @@ function QuestionRow({
   return (
     <>
       <TableRow className="group cursor-pointer" onClick={onToggle}>
-        <TableCell className="sticky left-0 z-10 w-[110px] min-w-[110px] bg-background font-mono text-xs text-muted-foreground transition-colors group-hover:bg-muted/50">
+        <TableCell className="sticky left-0 z-10 w-[110px] min-w-[110px] bg-background font-mono text-xs text-muted-foreground transition-colors group-hover:bg-muted">
           {row.editionId}
         </TableCell>
-        <TableCell className="sticky left-[110px] z-10 w-[56px] min-w-[56px] bg-background font-mono transition-colors group-hover:bg-muted/50">
+        <TableCell className="sticky left-[110px] z-10 w-[56px] min-w-[56px] bg-background font-mono transition-colors group-hover:bg-muted">
           {row.number}
         </TableCell>
-        <TableCell className="sticky left-[166px] z-10 w-[200px] min-w-[200px] bg-background text-xs text-muted-foreground transition-colors group-hover:bg-muted/50 after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
+        <TableCell className="sticky left-[166px] z-10 w-[200px] min-w-[200px] bg-background text-xs text-muted-foreground transition-colors group-hover:bg-muted after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
           {row.specialty.map((s) => specialtyLabel(s)).join(', ')}
         </TableCell>
         <TableCell className="text-center font-mono font-semibold">{row.correct}</TableCell>
@@ -295,8 +296,14 @@ function QuestionRow({
       </TableRow>
       {expanded && question && (
         <tr className="border-b bg-muted/20">
-          <td colSpan={4 + models.length} className="px-4 py-4">
-            <div className="max-w-3xl space-y-3">
+          <td colSpan={4 + models.length} className="p-0">
+            <div
+              className="sticky left-0 space-y-3 px-4 py-4"
+              style={{
+                maxWidth: '100vw',
+                width: 'calc(12 * var(--col-w) + 11rem)',
+              }}
+            >
               <div className="font-serif text-base leading-relaxed whitespace-pre-wrap">
                 {question.stem}
               </div>
@@ -312,18 +319,22 @@ function QuestionRow({
                 ))}
               </ul>
               <div className="text-xs text-muted-foreground">Execuções por modelo:</div>
-              <div className="grid grid-cols-1 gap-2 text-xs md:grid-cols-2">
+              <div className="grid grid-cols-2 gap-4 text-xs md:grid-cols-12">
                 {models.map((m) => {
                   const p = row.byModel[m.modelId];
                   return (
-                    <div key={m.modelId} className="rounded border p-2">
-                      <div className="font-sans font-semibold">{m.label}</div>
+                    <Link
+                      key={m.modelId}
+                      to={`/models/${m.modelId}`}
+                      className="col-span-2 rounded-lg border bg-card p-4 font-sans transition-colors hover:border-ps-violet/40 hover:bg-muted/50 md:col-span-3"
+                    >
+                      <div className="font-semibold text-ps-violet">{m.label}</div>
                       {p ? (
-                        <div className="mt-1 flex gap-1 font-mono">
+                        <div className="mt-3 flex gap-1.5">
                           {p.runs.map((r, i) => (
                             <span
                               key={i}
-                              className={`inline-block rounded px-1.5 py-0.5 font-semibold ${
+                              className={`inline-flex h-6 w-6 items-center justify-center rounded-full font-mono text-xs font-bold ${
                                 r.correct
                                   ? 'bg-emerald-600 text-white'
                                   : r.parsed
@@ -336,9 +347,9 @@ function QuestionRow({
                           ))}
                         </div>
                       ) : (
-                        <div className="mt-1 text-muted-foreground">sem dados por questão</div>
+                        <div className="mt-3 text-muted-foreground">sem dados por questão</div>
                       )}
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
