@@ -29,6 +29,29 @@ describe('parseLetter', () => {
     expect(parseLetter('Analisando A, B, C, D... a correta é C')).toBe('C');
   });
 
+  it('caso real Mistral Large: "é:" seguido de **X) e justificativa com outras letras no final', () => {
+    // Resposta de exemplo do mistral-large-2512: a letra correta é C, mas a
+    // justificativa lista A, B, D como incorretas no fim. Parser precisa
+    // pegar a primeira letra MAIÚSCULA após a frase de compromisso.
+    const real = [
+      'A resposta correta é:',
+      '',
+      '**C) assegurar o direito às informações clínicas...**',
+      '',
+      '### Explicação:',
+      'As outras alternativas estão incorretas porque:',
+      '- **A)** Não considera o desejo da paciente.',
+      '- **B)** Desencorajar o aborto não é papel do médico.',
+      '- **D)** O médico não tem obrigação ética.',
+    ].join('\n');
+    expect(parseLetter(real)).toBe('C');
+  });
+
+  it('artigo "a" em minúsculas após "é" não é capturado como letra-resposta', () => {
+    // "é a alternativa C" — o "a" é artigo, a resposta é C.
+    expect(parseLetter('A resposta correta é a alternativa C.')).toBe('C');
+  });
+
   it('retorna null quando nenhuma letra aparece', () => {
     expect(parseLetter('Não sei responder')).toBe(null);
     expect(parseLetter('')).toBe(null);
