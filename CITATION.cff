@@ -8,7 +8,7 @@ authors:
     email: "rafael@precisa-saude.com.br"
     affiliation: "Precisa Saúde"
 repository-code: "https://github.com/Precisa-Saude/medbench-brasil"
-url: "https://medbench-brasil.dev.br"
+url: "https://medbench-brasil.ia.br"
 abstract: >
   Dataset estruturado e harness de avaliação reproduzível para desempenho de
   modelos de linguagem em provas médicas brasileiras (Revalida inicial),
