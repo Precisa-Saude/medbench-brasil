@@ -14,7 +14,21 @@ import {
 import { EDITIONS, getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
+import type { ContaminationScope } from './ContaminationToggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+
+// Contaminação por edição: a ModelResult agregada mistura editions, então
+// olhamos no perQuestion para achar a classificação naquela edição específica.
+function contaminationForEdition(
+  m: ModelResult,
+  editionId: string,
+): 'clean' | 'contaminated' | 'unknown' {
+  const q = (m.perQuestion ?? []).find((pq) => pq.editionId === editionId);
+  if (!q) return 'unknown';
+  if (q.contamination === 'likely-clean') return 'clean';
+  if (q.contamination === 'likely-contaminated') return 'contaminated';
+  return 'unknown';
+}
 
 /**
  * Família do modelo derivada do prefixo alfabético do label:
@@ -47,9 +61,11 @@ const JENKS_K = 4;
  * forma do dado já suporta.
  */
 export default function ComparisonChart({
+  contaminationScope,
   editionId,
   models,
 }: {
+  contaminationScope?: ContaminationScope;
   editionId: string;
   models: ModelResult[];
 }) {
@@ -85,6 +101,13 @@ export default function ComparisonChart({
   const data = models
     .filter((m) => m.accuracyByEdition[editionId] !== undefined)
     .filter((m) => isVisible(modelFamily(m.label)))
+    .filter((m) => {
+      // Respeita o toggle de contaminação: 'clean' esconde contaminados,
+      // 'contaminated' esconde limpos, 'all'/undefined mostra todos.
+      if (!contaminationScope || contaminationScope === 'all') return true;
+      const c = contaminationForEdition(m, editionId);
+      return contaminationScope === 'clean' ? c === 'clean' : c === 'contaminated';
+    })
     .map((m) => ({
       accuracy: m.accuracyByEdition[editionId]!.accuracy * 100,
       ciHigh: m.ci95[1] * 100,

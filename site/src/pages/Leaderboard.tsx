@@ -92,7 +92,7 @@ export default function Leaderboard() {
                     </Select>
                   )}
                 </div>
-                <ComparisonChart editionId={edition} models={MODELS} />
+                <ComparisonChart contaminationScope={scope} editionId={edition} models={MODELS} />
               </section>
             </>
           )}

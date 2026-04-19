@@ -108,12 +108,12 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-01-01',
   },
-  'gemini-3.1-pro-preview': {
+  'google/gemini-3.1-pro-preview': {
     description:
       'Preview da geração 3.1 do Gemini, com arquitetura atualizada e janela de contexto estendida.',
     homepage: 'https://deepmind.google/technologies/gemini/',
     label: 'Gemini 3.1 Pro',
-    modelId: 'gemini-3.1-pro-preview',
+    modelId: 'google/gemini-3.1-pro-preview',
     provider: 'Google',
     releaseDate: '2026-02-19',
     tier: 'proprietaria',
