@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Publicar `medbench-brasil.dev.br` como leaderboard contínuo de LLMs em provas médicas brasileiras, em paralelo ao fhir-brasil.
+Publicar `medbench-brasil.ia.br` como leaderboard contínuo de LLMs em provas médicas brasileiras, em paralelo ao fhir-brasil.
 
 ## Status atual
 
@@ -85,7 +85,7 @@ Feita inline pelo parser (schema enum obriga classificação no momento do `tool
 ## Fase 6 — Deploy e lançamento
 
 - [ ] **6.1 Cloudflare Pages** — criar projeto `medbench-brasil`, configurar secrets no GitHub Actions (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`)
-- [ ] **6.2 DNS** — registrar `medbench-brasil.dev.br` (se ainda não é propriedade da Precisa), apontar CNAME para `medbench-brasil.pages.dev`
+- [ ] **6.2 DNS** — registrar `medbench-brasil.ia.br` (se ainda não é propriedade da Precisa), apontar CNAME para `medbench-brasil.pages.dev`
 - [ ] **6.3 robots.txt + sitemap.xml** — permissivos; sitemap gerado no build
 - [ ] **6.4 Meta tags OG** — imagem, descrição, pt-BR; Twitter card
 - [ ] **6.5 Release 0.1.0** — tag no git, anotação no CHANGELOG, publicação dos dois pacotes no npm via workflow
