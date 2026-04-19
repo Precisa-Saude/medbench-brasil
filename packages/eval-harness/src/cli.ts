@@ -34,7 +34,7 @@ function parseArgs(argv: string[]): Record<string, string> {
   return out;
 }
 
-type Backend = 'anthropic' | 'openai' | 'google' | 'ollama' | 'maritaca';
+type Backend = 'anthropic' | 'openai' | 'google' | 'ollama' | 'maritaca' | 'together';
 
 function buildProvider(backend: Backend, args: Record<string, string>): Provider {
   const model = args.model;
@@ -70,6 +70,20 @@ function buildProvider(backend: Backend, args: Record<string, string>): Provider
         label,
         model,
         provider: 'Maritaca AI',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'together': {
+      const apiKey = args.apiKey ?? process.env.TOGETHER_API_KEY;
+      if (!apiKey) {
+        throw new Error('TOGETHER_API_KEY ausente — defina no ambiente antes de rodar.');
+      }
+      return openAiCompatProvider({
+        apiKey,
+        baseUrl: args.baseUrl ?? 'https://api.together.xyz/v1',
+        label,
+        model,
+        provider: 'Together AI',
         trainingCutoff: cutoff,
       });
     }
