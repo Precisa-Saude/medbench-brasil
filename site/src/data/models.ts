@@ -75,6 +75,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     trainingCutoff: '2024-07-01',
   },
+  'deepseek/deepseek-chat-v3-0324': {
+    description:
+      'Versão original do DeepSeek V3 (snapshot de 2025-03-24), antecessora imediata do V3.1. Sem reasoning explícito.',
+    homepage: 'https://api-docs.deepseek.com/',
+    label: 'DeepSeek V3 (0324)',
+    modelId: 'deepseek/deepseek-chat-v3-0324',
+    provider: 'DeepSeek · OpenRouter',
+    releaseDate: '2025-03-24',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
   'deepseek/deepseek-r1': {
     description:
       'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
@@ -141,6 +152,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2026-01-01',
   },
+  'meta-llama/llama-3.3-70b-instruct': {
+    description:
+      'Llama 3.3 70B Instruct — flagship dense da geração anterior ao Llama 4, lançado em dezembro de 2024.',
+    homepage: 'https://ai.meta.com/blog/llama-3-3-new-models/',
+    label: 'Llama 3.3 70B',
+    modelId: 'meta-llama/llama-3.3-70b-instruct',
+    provider: 'Meta · OpenRouter',
+    releaseDate: '2024-12-06',
+    tier: 'open-weight',
+    trainingCutoff: '2023-12-01',
+  },
   'meta-llama/llama-4-maverick': {
     description:
       'Flagship da família Llama 4 da Meta (Maverick, MoE 17B × 128 experts, 400B total). Multimodal nativo.',
@@ -163,6 +185,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     trainingCutoff: '2024-08-01',
   },
+  'qwen/qwen3.5-122b-a10b': {
+    description:
+      'Qwen 3.5 flagship MoE (122B total, 10B ativos). Antecessora imediata do Qwen 3.6 Plus.',
+    homepage: 'https://qwenlm.github.io/',
+    label: 'Qwen 3.5 122B',
+    modelId: 'qwen/qwen3.5-122b-a10b',
+    provider: 'Alibaba · OpenRouter',
+    releaseDate: '2026-01-01',
+    tier: 'open-weight',
+    trainingCutoff: '2025-08-01',
+  },
   'qwen/qwen3-235b-a22b-2507': {
     description:
       'Qwen 3 235B MoE (22B ativos), variante 2025-07 sem thinking — comparável aos outros modelos open-weight sem reasoning estendido.',
@@ -184,6 +217,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     releaseDate: '2026-04-02',
     tier: 'open-weight',
     trainingCutoff: '2025-12-01',
+  },
+  'sabia-3': {
+    description:
+      'Versão anterior do Sabiá da Maritaca AI, treinado com foco em português brasileiro. Benchmark publicado no paper original em 2024.',
+    homepage: 'https://maritaca.ai/',
+    label: 'Sabiá 3',
+    modelId: 'sabia-3',
+    provider: 'Maritaca AI',
+    releaseDate: '2024-09-01',
+    tier: 'proprietaria',
+    trainingCutoff: '2024-03-01',
   },
   'sabia-4': {
     description:
