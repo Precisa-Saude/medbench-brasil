@@ -3,9 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { Edition, EditionId, ExamFamily } from './types.js';
-import { examFamilyOf } from './types.js';
-
-const EXAM_FAMILIES: readonly ExamFamily[] = ['revalida', 'enamed'];
+import { EXAM_FAMILIES, examFamilyOf } from './types.js';
 
 function dataDirFor(family: ExamFamily): string {
   return join(fileURLToPath(new URL(`../data/${family}/`, import.meta.url)));

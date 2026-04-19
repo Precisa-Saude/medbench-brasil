@@ -63,12 +63,21 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
   // Aplicamos como fallback — só preenche números ainda não capturados pelo
   // formato Revalida acima. Anulada, Excluída, Anulada Administrativamente
   // tratados como 'ANNULLED' (questão removida do cálculo de precisão).
+  //
+  // Limite superior de 200: exames INEP têm no máximo ~100 questões por
+  // caderno; números maiores são quase certamente falsos positivos (números
+  // de página, valores clínicos citados nos enunciados, etc.).
+  //
+  // Âncoras explícitas em vez de \b: com a flag `u` o comportamento de
+  // \b perto de caracteres acentuados (Excluída, Administrati-vamente) é
+  // inconsistente entre engines. Lookbehind (início ou whitespace) e
+  // lookahead (espaço, fim ou asterisco) cobrem todos os casos observados.
   const pairRegex =
-    /\b(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}\b/giu;
+    /(?<=^|\s)(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/giu;
   const joined = text.replace(/\n/g, ' ');
   for (const m of joined.matchAll(pairRegex)) {
     const n = Number(m[1]);
-    if (!Number.isFinite(n) || n < 1 || n > 1000) continue;
+    if (!Number.isFinite(n) || n < 1 || n > 200) continue;
     if (out.has(n)) continue;
     const token = m[2]!;
     if (/^[ABCD]$/.test(token)) {
