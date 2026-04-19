@@ -45,8 +45,18 @@ export function Hero() {
               className="text-ps-mint underline decoration-ps-mint/40 underline-offset-4 transition-colors hover:decoration-ps-mint"
             >
               Revalida
+            </a>{' '}
+            e no{' '}
+            <a
+              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enamed"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ps-mint underline decoration-ps-mint/40 underline-offset-4 transition-colors hover:decoration-ps-mint"
+            >
+              ENAMED
             </a>
-            . Três execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
+            , os dois exames da Matriz de Referência Comum para a Avaliação da Formação Médica. Três
+            execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

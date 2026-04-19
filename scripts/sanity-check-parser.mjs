@@ -63,7 +63,12 @@ const SYSTEM_PROMPT =
 // Amostra deliberadamente diversificada: uma de cada especialidade, diferentes formatos.
 const SAMPLE_QUESTION_NUMBERS = [10, 25, 50, 75, 95];
 
-const EDITION_ID = 'revalida-2025-1';
+// Aceita override via --edition; default permanece Revalida 2025/1 porque
+// o sanity check existe para validar o parser contra artefatos já publicados.
+const EDITION_ID = (() => {
+  const idx = process.argv.indexOf('--edition');
+  return idx >= 0 && process.argv[idx + 1] ? process.argv[idx + 1] : 'revalida-2025-1';
+})();
 
 function renderUserPrompt(q) {
   const opts = ['A', 'B', 'C', 'D'].map((k) => `${k}) ${q.options[k]}`).join('\n');
@@ -71,8 +76,9 @@ function renderUserPrompt(q) {
 }
 
 function loadEdition(editionId) {
-  const slug = editionId.replace(/^revalida-/, '');
-  const path = join(process.cwd(), 'packages', 'dataset', 'data', 'revalida', `${slug}.json`);
+  const family = editionId.split('-')[0];
+  const slug = editionId.slice(family.length + 1);
+  const path = join(process.cwd(), 'packages', 'dataset', 'data', family, `${slug}.json`);
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 

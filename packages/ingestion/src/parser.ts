@@ -107,7 +107,16 @@ export async function parseEdition(opts: ParseOptions): Promise<ParsedEditionQue
       // do PDF de gabarito.
       const truth = gabaritoMap.get(q.number);
       const annulled = truth === 'ANNULLED' ? true : q.annulled;
-      const correct = truth && truth !== 'ANNULLED' ? truth : q.correct;
+      // Para questões anuladas, o LLM às vezes emite placeholders fora do
+      // enum (ex.: '<UNKNOWN>') quando o enunciado é ambíguo. Como a letra
+      // é irrelevante em anuladas (o scorer filtra antes da contagem),
+      // normalizamos para 'A' — mantém o tipo `QuestionOption` íntegro e
+      // deixa claro pela flag `annulled: true` que o valor não deve ser
+      // usado. Questões não-anuladas com gabarito válido usam o gabarito;
+      // demais casos mantêm o que o LLM inferiu.
+      const ALLOWED = new Set<QuestionOption>(['A', 'B', 'C', 'D']);
+      const llmCorrect: QuestionOption = ALLOWED.has(q.correct) ? q.correct : 'A';
+      const correct = truth && truth !== 'ANNULLED' ? truth : llmCorrect;
       if (truth === 'ANNULLED' && !q.annulled) {
         allWarnings.push(
           `[${from}-${to}] Q${q.number}: gabarito marca como anulada, LLM marcou como não-anulada — corrigido`,
@@ -118,6 +127,11 @@ export async function parseEdition(opts: ParseOptions): Promise<ParsedEditionQue
         );
       } else if (!truth) {
         allWarnings.push(`[${from}-${to}] Q${q.number}: gabarito não encontrado no PDF`);
+      }
+      if (!ALLOWED.has(q.correct)) {
+        allWarnings.push(
+          `[${from}-${to}] Q${q.number}: LLM retornou correct="${q.correct}" fora do enum — normalizado`,
+        );
       }
 
       allQuestions.push({

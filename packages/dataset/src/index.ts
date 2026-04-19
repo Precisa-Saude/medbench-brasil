@@ -5,7 +5,9 @@ export type {
   ContaminationRisk,
   Edition,
   EditionId,
+  ExamFamily,
   Question,
   QuestionOption,
   Specialty,
 } from './types.js';
+export { examFamilyOf } from './types.js';

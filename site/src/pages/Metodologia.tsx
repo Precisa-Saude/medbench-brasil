@@ -20,6 +20,20 @@ export default function Metodologia() {
 
         <section>
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
+            Exames avaliados
+          </h2>
+          <p className="mt-3">
+            Desde outubro de 2025, Revalida e ENAMED são aplicados no mesmo dia sob a{' '}
+            <strong>Matriz de Referência Comum para a Avaliação da Formação Médica</strong> — cinco
+            áreas com peso igual: Clínica Médica, Cirurgia, Ginecologia-Obstetrícia, Pediatria e
+            Medicina de Família e Comunidade. O ENAMED também serve de porta de entrada para o Enare
+            (residência). Tratamos os dois exames como edições de um único benchmark: mesma matriz,
+            duas portas de entrada, um leaderboard.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
             Protocolo de avaliação
           </h2>
           <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
@@ -47,9 +61,10 @@ export default function Metodologia() {
             Contaminação de treino
           </h2>
           <p className="mt-3">
-            Toda prova pública do Revalida anterior ao corte de treino de um modelo é marcada como{' '}
-            <em>provavelmente contaminada</em>. Relatamos precisão separadamente para edições limpas
-            e contaminadas — a diferença entre as duas mede quanto memorização infla o escore.
+            Toda prova pública (Revalida ou ENAMED) anterior ao corte de treino de um modelo é
+            marcada como <em>provavelmente contaminada</em>. Relatamos precisão separadamente para
+            edições limpas e contaminadas — a diferença entre as duas mede quanto memorização infla
+            o escore.
           </p>
           <p className="mt-3">
             O recorte mais confiável é sempre a edição mais recente da INEP. A cada nova prova, o

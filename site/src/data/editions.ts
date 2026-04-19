@@ -76,6 +76,20 @@ function inverseNormal(p: number): number {
 const SD = 0.11;
 
 export const EDITIONS: Record<string, EditionMetadata> = {
+  // ENAMED 2025 — primeira aplicação sob a Matriz de Referência Comum,
+  // realizada em conjunto com o Revalida 2025/2 em outubro de 2025.
+  // Corte e taxa de aprovação oficiais ainda não divulgados pelo INEP;
+  // usamos os mesmos defaults do Revalida para que o gráfico de três linhas
+  // renderize. Atualizar quando o edital pós-prova for publicado.
+  'enamed-2025': {
+    cutoffScore: 0.6,
+    estimatedHumanMean: estimateHumanMean(0.6, 0.18, SD),
+    estimatedHumanSd: SD,
+    id: 'enamed-2025',
+    label: 'ENAMED 2025',
+    passRate: 0.18,
+    publishedAt: '2025-10-26',
+  },
   'revalida-2024-1': {
     cutoffScore: 0.6,
     estimatedHumanMean: estimateHumanMean(0.6, 0.18, SD),
