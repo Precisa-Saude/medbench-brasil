@@ -64,17 +64,6 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-03-01',
   },
-  'deepseek/deepseek-r1': {
-    description:
-      'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
-    homepage: 'https://api-docs.deepseek.com/news/news250120',
-    label: 'DeepSeek R1',
-    modelId: 'deepseek/deepseek-r1',
-    provider: 'DeepSeek · OpenRouter',
-    releaseDate: '2025-01-20',
-    tier: 'open-weight',
-    trainingCutoff: '2024-07-01',
-  },
   'deepseek/deepseek-chat-v3.1': {
     description:
       'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
@@ -83,6 +72,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     modelId: 'deepseek/deepseek-chat-v3.1',
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-08-21',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
+  'deepseek/deepseek-r1': {
+    description:
+      'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
+    homepage: 'https://api-docs.deepseek.com/news/news250120',
+    label: 'DeepSeek R1',
+    modelId: 'deepseek/deepseek-r1',
+    provider: 'DeepSeek · OpenRouter',
+    releaseDate: '2025-01-20',
     tier: 'open-weight',
     trainingCutoff: '2024-07-01',
   },

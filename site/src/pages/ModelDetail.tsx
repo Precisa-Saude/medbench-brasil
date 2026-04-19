@@ -6,7 +6,10 @@ import { findModel } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
 
 export default function ModelDetail() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ '*': string }>();
+  // modelIds podem conter barra (ex.: `meta-llama/llama-4-scout`), então usamos
+  // rota wildcard `/models/*` e lemos o segmento completo.
+  const id = params['*'];
   const model = id ? findModel(id) : undefined;
 
   if (!model) {
