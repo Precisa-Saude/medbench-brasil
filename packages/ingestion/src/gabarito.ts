@@ -56,50 +56,44 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
     }
   }
 
-  // Formato ENAMED (tabela interleaved):
+  // Formato ENAMED (tabela interleaved, com células que podem quebrar em
+  // múltiplas linhas quando o rótulo é longo):
   //   1 A 11 Anulada 21 A
   //   2 Excluída* 12 D 22 A
-  //   ...
+  //   10
+  //   Anulada
+  //   Administrati-vamente**20 C 30 C
+  //
   // Aplicamos como fallback — só preenche números ainda não capturados pelo
   // formato Revalida acima.
   //
-  // Mitigações contra falsos positivos de enunciados clínicos (ex.: "130
-  // x 90 mmHg A..."):
-  //   - Processamos linha por linha em vez de juntar tudo, exigindo que o
-  //     par (número, letra) apareça no início da linha. Enunciados raramente
-  //     começam em "<número> <letra>" posicional; tabelas de gabarito, sim.
-  //   - Upper bound de 200: cadernos INEP têm no máximo ~100 questões.
-  //   - Lookahead explícito no token (não \b) — comportamento de \b com flag
-  //     `u` próximo a acentos (Excluída, Administrati-vamente) é instável.
-  //   - Sem flag `i`: aceitamos apenas letras maiúsculas A/B/C/D para não
-  //     casar com artigos em minúscula no meio do texto.
+  // Esta função só processa texto de PDFs de gabarito oficiais da INEP
+  // (nunca enunciados de prova). Isso permite colapsar whitespace sem risco
+  // de casar números clínicos em stems ('130 x 90 mmHg A'). O cenário
+  // multi-linha real ('10\\nAnulada\\nAdministrati-vamente**') obriga esse
+  // colapso — processar linha a linha dropa células que quebram em 3
+  // linhas (visto em ENAMED 2025 Q10).
+  //
+  // Mitigações de falso positivo mantidas (defesa em profundidade):
+  //   - Upper bound 200 (cadernos INEP têm ~100 questões)
+  //   - Sem flag `i`: só casa A/B/C/D maiúsculos
+  //   - `.toUpperCase()` no token como defesa redundante
+  //   - Lookbehind `(?<=^|\\s)` e lookahead `(?=\\s|$|\\*)`: evita o
+  //     comportamento instável de \\b com flag `u` próximo a acentos
+  //     (Excluída, Administrati-vamente)
+  // Lookbehind inclui `\*` porque o marcador `**` termina a célula anterior
+  // ('Administrati-vamente**20 C') — depois dos asteriscos vem o próximo
+  // número sem whitespace. Sem isso, Q20 após Q10 anulada administrativamente
+  // fica sem correspondência.
   const pairRegex =
-    /^\s*(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/u;
-  for (const line of lines) {
-    const m = pairRegex.exec(line);
-    if (!m) continue;
+    /(?<=^|\s|\*)(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/gu;
+  const joined = text.replace(/\s+/g, ' ');
+  for (const m of joined.matchAll(pairRegex)) {
     const n = Number(m[1]);
     if (!Number.isFinite(n) || n < 1 || n > 200) continue;
     if (out.has(n)) continue;
     const token = m[2]!.toUpperCase();
-    if (/^[ABCD]$/.test(token)) {
-      out.set(n, token as QuestionOption);
-    } else {
-      out.set(n, 'ANNULLED');
-    }
-    // Em linhas "1 A 11 Anulada 21 A" só capturamos o primeiro par com esta
-    // regex por linha. Continuamos lendo resto da linha via regex global.
-    const restRegex =
-      /(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}(?=\s|$|\*)/gu;
-    restRegex.lastIndex = m.index + m[0].length;
-    let rest: RegExpExecArray | null;
-    while ((rest = restRegex.exec(line))) {
-      const rn = Number(rest[1]);
-      if (!Number.isFinite(rn) || rn < 1 || rn > 200) continue;
-      if (out.has(rn)) continue;
-      const rtok = rest[2]!.toUpperCase();
-      out.set(rn, /^[ABCD]$/.test(rtok) ? (rtok as QuestionOption) : 'ANNULLED');
-    }
+    out.set(n, /^[ABCD]$/.test(token) ? (token as QuestionOption) : 'ANNULLED');
   }
 
   return out;

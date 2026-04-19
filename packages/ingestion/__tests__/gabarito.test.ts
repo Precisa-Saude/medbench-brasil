@@ -53,6 +53,23 @@ Questão Gabarito Questão Gabarito Questão Gabarito
     expect(map.size).toBe(30);
   });
 
+  it('reconhece células ENAMED que quebram em múltiplas linhas', () => {
+    // Caso real observado em ENAMED 2025 Q10: o rótulo 'Anulada
+    // Administrati-vamente**' é longo e o extractor do PDF quebra em 3
+    // linhas. Round 2 original (line-by-line) dropou Q10 por não casar
+    // através de newlines. Este teste previne a regressão.
+    const wrapped = `CADERNO 01
+Questão Gabarito Questão Gabarito Questão Gabarito
+9 Anulada 19 D 29 A
+10
+Anulada
+Administrati-vamente**20 C 30 C`;
+    const map = parseGabarito(wrapped);
+    expect(map.get(10)).toBe('ANNULLED');
+    expect(map.get(20)).toBe('C');
+    expect(map.get(30)).toBe('C');
+  });
+
   it('ignora cópia duplicada com formatação grudada', () => {
     // Caso real visto em scripts/data/raw/revalida-2025-1/gabarito.txt: o
     // PDF tem duas cópias; a segunda concatena letras e hífens sem espaço
