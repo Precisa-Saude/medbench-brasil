@@ -64,6 +64,28 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-03-01',
   },
+  'deepseek-ai/DeepSeek-R1': {
+    description:
+      'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
+    homepage: 'https://api-docs.deepseek.com/news/news250120',
+    label: 'DeepSeek R1',
+    modelId: 'deepseek-ai/DeepSeek-R1',
+    provider: 'DeepSeek · Together AI',
+    releaseDate: '2025-01-20',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
+  'deepseek-ai/DeepSeek-V3.1': {
+    description:
+      'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
+    homepage: 'https://api-docs.deepseek.com/',
+    label: 'DeepSeek V3.1',
+    modelId: 'deepseek-ai/DeepSeek-V3.1',
+    provider: 'DeepSeek · Together AI',
+    releaseDate: '2025-08-21',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
   'gemini-2.5-pro': {
     description:
       'Flagship multimodal do Google DeepMind, base do Med-Gemini. Forte em raciocínio clínico e código.',
@@ -119,6 +141,28 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2026-01-01',
   },
+  'meta-llama/Llama-3.3-70B-Instruct-Turbo': {
+    description:
+      'Llama 3.3 70B Instruct da Meta (quant turbo). Llama 4 ainda não tem endpoint serverless no Together AI.',
+    homepage: 'https://ai.meta.com/blog/llama-3-3-new-models/',
+    label: 'Llama 3.3 70B',
+    modelId: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+    provider: 'Meta · Together AI',
+    releaseDate: '2024-12-06',
+    tier: 'open-weight',
+    trainingCutoff: '2023-12-01',
+  },
+  'Qwen/Qwen3-235B-A22B-Instruct-2507-tput': {
+    description:
+      'Qwen 3 235B MoE (22B ativos). Variante 2025-07 com pós-treino para instruction following em pt-BR/en.',
+    homepage: 'https://qwenlm.github.io/',
+    label: 'Qwen 3 235B',
+    modelId: 'Qwen/Qwen3-235B-A22B-Instruct-2507-tput',
+    provider: 'Alibaba · Together AI',
+    releaseDate: '2025-07-01',
+    tier: 'open-weight',
+    trainingCutoff: '2025-04-01',
+  },
   'qwen3.6:35b-a3b-q8_0': {
     description:
       'Qwen 3.6 na variante MoE de 35B (3B ativos por token), quantizado Q8_0 — executado localmente via Ollama.',
@@ -140,50 +184,6 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     releaseDate: '2025-07-01',
     tier: 'proprietaria',
     trainingCutoff: '2024-10-01',
-  },
-  'deepseek-ai/DeepSeek-R1': {
-    description:
-      'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
-    homepage: 'https://api-docs.deepseek.com/news/news250120',
-    label: 'DeepSeek R1',
-    modelId: 'deepseek-ai/DeepSeek-R1',
-    provider: 'DeepSeek · Together AI',
-    releaseDate: '2025-01-20',
-    tier: 'open-weight',
-    trainingCutoff: '2024-07-01',
-  },
-  'deepseek-ai/DeepSeek-V3.1': {
-    description:
-      'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
-    homepage: 'https://api-docs.deepseek.com/',
-    label: 'DeepSeek V3.1',
-    modelId: 'deepseek-ai/DeepSeek-V3.1',
-    provider: 'DeepSeek · Together AI',
-    releaseDate: '2025-08-21',
-    tier: 'open-weight',
-    trainingCutoff: '2024-07-01',
-  },
-  'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8': {
-    description:
-      'Flagship da família Llama 4 da Meta (Maverick, MoE 17B × 128 experts, quantizado FP8).',
-    homepage: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',
-    label: 'Llama 4 Maverick',
-    modelId: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
-    provider: 'Meta · Together AI',
-    releaseDate: '2025-04-05',
-    tier: 'open-weight',
-    trainingCutoff: '2024-08-01',
-  },
-  'Qwen/Qwen3.5-397B-A17B-FP8': {
-    description:
-      'Flagship da família Qwen 3.5 da Alibaba (397B MoE com 17B ativos, quantizado FP8).',
-    homepage: 'https://qwenlm.github.io/',
-    label: 'Qwen 3.5 397B',
-    modelId: 'Qwen/Qwen3.5-397B-A17B-FP8',
-    provider: 'Alibaba · Together AI',
-    releaseDate: '2025-12-01',
-    tier: 'open-weight',
-    trainingCutoff: '2025-04-01',
   },
 };
 
