@@ -4,7 +4,7 @@
 
 Leaderboard contínuo e reproduzível de desempenho de LLMs em provas médicas brasileiras. A contraparte, no nível do modelo de linguagem, do [fhir-brasil](https://fhir-brasil.dev.br) — que resolve interoperabilidade de dados. Enquanto o fhir-brasil prova que é possível construir infraestrutura de saúde em padrão aberto, o **medbench-brasil** mede, com rigor e transparência, o que os modelos de IA realmente sabem (e não sabem) sobre medicina no contexto brasileiro, em português.
 
-Disponível em [medbench-brasil.dev.br](https://medbench-brasil.dev.br).
+Disponível em [medbench-brasil.ia.br](https://medbench-brasil.ia.br).
 
 ---
 
