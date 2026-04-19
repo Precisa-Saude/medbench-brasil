@@ -35,7 +35,25 @@ export interface RunConfig {
   editions: string[];
   excludeImages: boolean;
   excludeTables: boolean;
+  /**
+   * Callback invocado uma vez por chamada ao modelo, com a resposta bruta.
+   * O runner usa isso para persistir log JSONL auditável (ver cli.ts). Se
+   * undefined, raw responses são descartadas após o parsing.
+   */
+  onRawResponse?: (record: RawResponseRecord) => void;
   runsPerQuestion: number;
+}
+
+export interface RawResponseRecord {
+  correct: boolean;
+  editionId: string;
+  elapsedMs: number;
+  modelId: string;
+  parsed: QuestionOption | null;
+  questionId: string;
+  rawResponse: string;
+  requestParams: Record<string, unknown>;
+  run: number;
 }
 
 export interface PerQuestionResult {

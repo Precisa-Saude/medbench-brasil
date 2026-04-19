@@ -157,6 +157,19 @@ export async function runEvaluation(
         const parsed = response.parsedAnswer ?? parseLetter(response.rawResponse);
         const correct = parsed === q.correct;
         records.push({ contamination, correct, parsed, question: q });
+        if (config.onRawResponse) {
+          config.onRawResponse({
+            correct,
+            editionId,
+            elapsedMs: response.timings.durationMs,
+            modelId: provider.id,
+            parsed,
+            questionId: q.id,
+            rawResponse: response.rawResponse,
+            requestParams: response.requestParams,
+            run: run + 1,
+          });
+        }
         done += 1;
         if (correct) correctSoFar += 1;
         const elapsedMs = Date.now() - start;

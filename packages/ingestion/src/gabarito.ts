@@ -18,8 +18,10 @@ export type GabaritoValue = QuestionOption | 'ANNULLED';
  * Qualquer token de 1 caractere que não seja A/B/C/D e apareça em posição
  * gabarito-compatível é tratado como anulada.
  */
-const ANNULLED_MARKERS = /^[-\u2013\u2014\u0336]$/;
-const VALID_TOKEN = /^[A-D]$|^[-\u2013\u2014\u0336]$/;
+// eslint-disable-next-line no-misleading-character-class
+const ANNULLED_MARKERS = /^[-\u2013\u2014\u0336]$/u;
+// eslint-disable-next-line no-misleading-character-class
+const VALID_TOKEN = /^[A-D]$|^[-\u2013\u2014\u0336]$/u;
 
 export function parseGabarito(text: string): Map<number, GabaritoValue> {
   const out = new Map<number, GabaritoValue>();
@@ -49,10 +51,7 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
           const n = pendingNumbers[i]!;
           if (out.has(n)) continue;
           const letter = tokens[i]!;
-          out.set(
-            n,
-            ANNULLED_MARKERS.test(letter) ? 'ANNULLED' : (letter as QuestionOption),
-          );
+          out.set(n, ANNULLED_MARKERS.test(letter) ? 'ANNULLED' : (letter as QuestionOption));
         }
       }
       pendingNumbers = null;
