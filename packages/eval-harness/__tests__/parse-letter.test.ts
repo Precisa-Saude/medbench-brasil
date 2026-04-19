@@ -52,6 +52,28 @@ describe('parseLetter', () => {
     expect(parseLetter('A resposta correta é a alternativa C.')).toBe('C');
   });
 
+  it('letra no início seguida de newline, com justificativa em pt-BR depois', () => {
+    // Caso real GPT-5.4: começa com "B\n\n<justificativa>" sem marcador explícito.
+    // Regra 5 (última letra isolada) pegaria o artigo "a" por engano.
+    const real =
+      'B\n\nTerapia comportamental associada à reposição de nicotina é a conduta mais adequada.';
+    expect(parseLetter(real)).toBe('B');
+
+    // Justificativa com o artigo "A" em posição que confundiria o parser antigo.
+    expect(parseLetter('D\n\nEm mulher em idade reprodutiva, a conduta é acompanhamento.')).toBe(
+      'D',
+    );
+
+    // Letra seguida só de espaços/newline (sem texto adicional).
+    expect(parseLetter('C\n\n')).toBe('C');
+    expect(parseLetter('A\n')).toBe('A');
+  });
+
+  it('não regride: frase de compromisso ganha da letra inicial', () => {
+    // Mesmo começando com "A" (artigo), a frase de compromisso aponta para C.
+    expect(parseLetter('A resposta correta é C) paracetamol')).toBe('C');
+  });
+
   it('retorna null quando nenhuma letra aparece', () => {
     expect(parseLetter('Não sei responder')).toBe(null);
     expect(parseLetter('')).toBe(null);

@@ -26,7 +26,11 @@ function renderUserPrompt(q: Question): string {
  *   2. Frases de compromisso: "resposta (correta )?é (a alternativa )?X",
  *      "é a letra X", "opção X", "alternativa X"
  *   3. Última ocorrência de `X)` (letra seguida de parêntese)
- *   4. Última ocorrência de letra isolada `\bX\b`
+ *   4. Resposta começa com letra isolada seguida de newline ou fim do
+ *      texto: `^X\n` ou `^X$`. Trata modelos que emitem "B\n\n<justificativa>"
+ *      onde a justificativa contém o artigo "a" — a regra 5 (última letra
+ *      isolada) capturaria o artigo por engano.
+ *   5. Última ocorrência de letra isolada `\bX\b`
  */
 export function parseLetter(raw: string): QuestionOption | null {
   const text = raw.trim();
@@ -69,6 +73,12 @@ export function parseLetter(raw: string): QuestionOption | null {
   if (parenMatches.length > 0) {
     return parenMatches[parenMatches.length - 1]![1] as QuestionOption;
   }
+
+  // Letra isolada no início da resposta, seguida de newline ou fim do texto.
+  // Sem essa regra, respostas no formato "B\n\n<justificativa em pt-BR>"
+  // caem na última letra isolada (regra 5) e capturam o artigo "a".
+  const bareStart = upper.match(/^([ABCD])(?:\s*\n|\s*$)/);
+  if (bareStart) return bareStart[1] as QuestionOption;
 
   const loneMatches = [...upper.matchAll(/\b([ABCD])\b/g)];
   if (loneMatches.length > 0) {

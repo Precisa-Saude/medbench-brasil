@@ -37,7 +37,17 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber,
             });
-            const ignoredPatterns = [/\.md$/, /^docs\//, /^\.github\//, /\.json$/, /\.ya?ml$/];
+            const ignoredPatterns = [
+              /\.md$/,
+              /^docs\//,
+              /^\.github\//,
+              /\.json$/,
+              /\.ya?ml$/,
+              // Artefatos de avaliação — gerados pelo harness, não faz sentido
+              // revisar linha a linha (e estouram o budget de contexto).
+              /^results\//,
+              /^probes\//,
+            ];
             const hasCodeChanges = files.some(f => !ignoredPatterns.some(p => p.test(f.filename)));
             if (!hasCodeChanges) {
               console.log('Only docs/config files changed. Skipping review.');
@@ -111,18 +121,33 @@ jobs:
           BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefOid -q .baseRefOid)
           echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
 
+          # Garantir que ambos SHAs estão no clone local. Em workflow_call com
+          # pull_request, o checkout traz o merge commit; ambos SHAs são
+          # alcançáveis via parents, mas fetch explícito elimina o risco de
+          # "fatal: bad revision" se algo mudar no mecanismo de checkout.
+          git fetch --no-tags --depth=100 origin "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
+
+          # Exclusões de pathspec: artefatos de avaliação (results/ e probes/)
+          # são gerados pelo harness e não fazem sentido em diff review; também
+          # estouram o budget de contexto do revisor em PRs com reruns extensos.
+          DIFF_EXCLUDES=(
+            ':(exclude,glob)results/**'
+            ':(exclude,glob)probes/**'
+          )
+
           if [ "${{ needs.check-review-status.outputs.review_round }}" = "2" ]; then
             gh pr view "$PR_NUMBER" --json commits -q '.commits[0].oid' > first_commit.txt
             FIRST_COMMIT=$(cat first_commit.txt)
-            git diff "$FIRST_COMMIT"..HEAD > pr.diff
+            git diff "$FIRST_COMMIT"..HEAD -- "${DIFF_EXCLUDES[@]}" > pr.diff
             echo "Review scope: Changes since first review commit"
           else
-            gh pr diff "$PR_NUMBER" > pr.diff
+            git diff "$BASE_SHA..$HEAD_SHA" -- "${DIFF_EXCLUDES[@]}" > pr.diff
             echo "Review scope: Full PR diff"
           fi
 
-          gh pr view "$PR_NUMBER" --json files -q '.files[].path' > changed_files.txt
-          echo "Changed files:"
+          gh pr view "$PR_NUMBER" --json files -q '.files[].path' \
+            | grep -vE '^results/|^probes/' > changed_files.txt || true
+          echo "Changed files (após exclusão de results/ e probes/):"
           cat changed_files.txt
 
           DIFF_SIZE=$(wc -c < pr.diff)
