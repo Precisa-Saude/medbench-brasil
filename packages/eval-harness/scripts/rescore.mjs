@@ -12,7 +12,7 @@
  * Sobrescreve results/<edition>/<modelSlug>.json. Imprime diff (correct old -> new).
  */
 /* eslint-disable no-console */
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,7 +23,6 @@ import { parseLetter, scoreRun } from '../dist/index.js';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 function rescoreOne(edition, slug) {
-  const editionShort = edition.replace(/^revalida-/, '');
   const resultsDir = join(root, 'results', edition);
   const summaryPath = join(resultsDir, `${slug}.json`);
   const rawPath = join(resultsDir, `${slug}.raw.jsonl`);
@@ -76,15 +75,18 @@ function rescoreOne(edition, slug) {
   }
 
   // runsPerQuestion: o raw tem run=1..N por questão; infere do total.
-  const runsPerQuestion = Math.max(
-    ...Array.from(
-      records.reduce((m, r) => {
-        const k = r.question.id;
-        m.set(k, (m.get(k) ?? 0) + 1);
-        return m;
-      }, new Map()).values(),
-    ),
-  );
+  // Guarda para records vazio (todos os questionIds desconhecidos): evita
+  // Math.max(...[]) = -Infinity que quebraria scoreRun silenciosamente.
+  if (records.length === 0) {
+    console.warn(`  [warn] ${edition}/${slug}: 0 records após parse — skipping.`);
+    return;
+  }
+  const runsPerQ = records.reduce((m, r) => {
+    const k = r.question.id;
+    m.set(k, (m.get(k) ?? 0) + 1);
+    return m;
+  }, new Map());
+  const runsPerQuestion = Math.max(...runsPerQ.values());
   const modelId = lines[0] ? JSON.parse(lines[0]).modelId : slug;
 
   const summary = scoreRun(modelId, runsPerQuestion, records);
@@ -102,10 +104,13 @@ function rescoreOne(edition, slug) {
 function findAllRawSlugs() {
   const resultsRoot = join(root, 'results');
   const out = [];
-  for (const edition of readdirSync(resultsRoot)) {
-    const dir = join(resultsRoot, edition);
+  for (const entry of readdirSync(resultsRoot)) {
+    const dir = join(resultsRoot, entry);
+    // results/ pode conter arquivos diretamente (ex.: README) além dos
+    // subdiretórios por edição — pula se não for diretório.
+    if (!statSync(dir).isDirectory()) continue;
     for (const f of readdirSync(dir)) {
-      if (f.endsWith('.raw.jsonl')) out.push([edition, f.replace(/\.raw\.jsonl$/, '')]);
+      if (f.endsWith('.raw.jsonl')) out.push([entry, f.replace(/\.raw\.jsonl$/, '')]);
     }
   }
   return out;

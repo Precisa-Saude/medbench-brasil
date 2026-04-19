@@ -107,10 +107,13 @@ const samplesN = Number(args.samples ?? 3);
 
 const ed = loadEdition(edition);
 const eligible = ed.questions.filter((q) => !q.annulled && !q.hasImage && !q.hasTable);
-const step = eligible.length / (samplesN + 1);
+// Guarda quando samplesN >= eligible.length: step < 1 geraria índices
+// repetidos/negativos. Clamp para pegar todas as questões disponíveis.
+const effectiveN = Math.min(samplesN, eligible.length);
+const step = eligible.length / (effectiveN + 1);
 const samples = [];
-for (let i = 1; i <= samplesN; i++) {
-  samples.push(eligible[Math.round(i * step) - 1]);
+for (let i = 1; i <= effectiveN; i++) {
+  samples.push(eligible[Math.max(0, Math.round(i * step) - 1)]);
 }
 
 const provider = buildProvider(backend, model);
