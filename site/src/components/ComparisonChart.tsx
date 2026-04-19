@@ -11,9 +11,20 @@ import {
 } from 'recharts';
 
 import { EDITIONS, getEditionMetadata } from '../data/editions';
-import { TIER_COLOR } from '../data/models';
 import type { ModelResult } from '../data/results';
+import { jenksBreaks, jenksClass } from '../lib/jenks';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+
+// Paleta de 4 tons do violeta mais escuro (tier 0 = melhores) ao mais claro
+// (tier 3 = piores). Os valores vêm dos tokens OKLch do tema — mantém
+// consistência visual com os pills flutuantes e com o resto da UI.
+const JENKS_COLORS = [
+  'var(--primary)', // ps-violet-dark
+  'var(--ps-violet)',
+  'oklch(0.72 0.08 290)',
+  'oklch(0.85 0.05 290)',
+];
+const JENKS_K = 4;
 
 /**
  * Comparação multi-modelo por edição.
@@ -47,6 +58,23 @@ export default function ComparisonChart({
 
   const labelToId = new Map(data.map((d) => [d.label, d.modelId]));
 
+  // Agrupa os modelos em 4 classes via Jenks natural breaks sobre as
+  // precisões observadas. Cada barra ganha a cor da sua classe — classes
+  // mais altas ficam mais escuras.
+  const breaks =
+    data.length > 0
+      ? jenksBreaks(
+          data.map((d) => d.accuracy),
+          JENKS_K,
+        )
+      : [];
+  const colorFor = (accuracy: number) => {
+    if (breaks.length === 0) return JENKS_COLORS[0];
+    const cls = jenksClass(accuracy, breaks);
+    // `cls` é 0 = menor classe; invertemos para que as melhores fiquem mais escuras.
+    return JENKS_COLORS[JENKS_K - 1 - cls];
+  };
+
   if (data.length === 0) {
     return (
       <div className="border rounded-lg p-8 text-center text-muted-foreground text-sm">
@@ -69,24 +97,28 @@ export default function ComparisonChart({
     <div className="rounded-lg border bg-card p-4 font-sans">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="inline-block h-2.5 w-2.5 rounded-sm"
-              style={{ backgroundColor: TIER_COLOR.proprietaria }}
-            />
-            Proprietária
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="inline-block h-2.5 w-2.5 rounded-sm"
-              style={{ backgroundColor: TIER_COLOR['open-weight'] }}
-            />
-            Open-weight
-          </span>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
+              <span>menor</span>
+              <span className="inline-flex gap-0.5">
+                {JENKS_COLORS.map((_c, i) => (
+                  <span
+                    key={i}
+                    aria-hidden
+                    className="inline-block h-2.5 w-4"
+                    style={{ backgroundColor: JENKS_COLORS[JENKS_COLORS.length - 1 - i] }}
+                  />
+                ))}
+              </span>
+              <span>maior</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs font-sans text-sm">
+            Cores agrupam os modelos em 4 classes naturais pelo algoritmo Jenks sobre as precisões
+            observadas — classes mais escuras concentram as maiores precisões.
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="relative">
         <div
@@ -170,7 +202,7 @@ export default function ComparisonChart({
             />
             <Bar dataKey="accuracy" name="Precisão" radius={[0, 4, 4, 0]} isAnimationActive={false}>
               {data.map((d) => (
-                <Cell key={d.modelId} fill={TIER_COLOR[d.tier]} />
+                <Cell key={d.modelId} fill={colorFor(d.accuracy)} />
               ))}
               <LabelList
                 dataKey="accuracy"
@@ -199,6 +231,20 @@ export default function ComparisonChart({
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        As quatro tonalidades agrupam os modelos em classes naturais via{' '}
+        <a
+          className="text-ps-violet underline"
+          href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Jenks natural breaks
+        </a>
+        : os cortes são escolhidos por programação dinâmica para minimizar a variância intra-classe
+        das precisões observadas, destacando os agrupamentos reais da distribuição em vez de faixas
+        fixas arbitrárias.
+      </p>
     </div>
   );
 }
