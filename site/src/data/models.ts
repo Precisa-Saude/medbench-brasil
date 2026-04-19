@@ -64,24 +64,24 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-03-01',
   },
-  'deepseek-ai/DeepSeek-R1': {
+  'deepseek/deepseek-r1': {
     description:
       'Modelo de reasoning aberto da DeepSeek, otimizado para cadeias de raciocínio longas antes da resposta final.',
     homepage: 'https://api-docs.deepseek.com/news/news250120',
     label: 'DeepSeek R1',
-    modelId: 'deepseek-ai/DeepSeek-R1',
-    provider: 'DeepSeek · Together AI',
+    modelId: 'deepseek/deepseek-r1',
+    provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-01-20',
     tier: 'open-weight',
     trainingCutoff: '2024-07-01',
   },
-  'deepseek-ai/DeepSeek-V3.1': {
+  'deepseek/deepseek-chat-v3.1': {
     description:
       'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
     homepage: 'https://api-docs.deepseek.com/',
     label: 'DeepSeek V3.1',
-    modelId: 'deepseek-ai/DeepSeek-V3.1',
-    provider: 'DeepSeek · Together AI',
+    modelId: 'deepseek/deepseek-chat-v3.1',
+    provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-08-21',
     tier: 'open-weight',
     trainingCutoff: '2024-07-01',
@@ -141,24 +141,35 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2026-01-01',
   },
-  'meta-llama/Llama-3.3-70B-Instruct-Turbo': {
+  'meta-llama/llama-4-maverick': {
     description:
-      'Llama 3.3 70B Instruct da Meta (quant turbo). Llama 4 ainda não tem endpoint serverless no Together AI.',
-    homepage: 'https://ai.meta.com/blog/llama-3-3-new-models/',
-    label: 'Llama 3.3 70B',
-    modelId: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-    provider: 'Meta · Together AI',
-    releaseDate: '2024-12-06',
+      'Flagship da família Llama 4 da Meta (Maverick, MoE 17B × 128 experts, 400B total). Multimodal nativo.',
+    homepage: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',
+    label: 'Llama 4 Maverick',
+    modelId: 'meta-llama/llama-4-maverick',
+    provider: 'Meta · OpenRouter',
+    releaseDate: '2025-04-05',
     tier: 'open-weight',
-    trainingCutoff: '2023-12-01',
+    trainingCutoff: '2024-08-01',
   },
-  'Qwen/Qwen3-235B-A22B-Instruct-2507-tput': {
+  'meta-llama/llama-4-scout': {
     description:
-      'Qwen 3 235B MoE (22B ativos). Variante 2025-07 com pós-treino para instruction following em pt-BR/en.',
+      'Variante menor da família Llama 4 (Scout, MoE 17B × 16 experts, 109B total). Foco em custo e latência.',
+    homepage: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',
+    label: 'Llama 4 Scout',
+    modelId: 'meta-llama/llama-4-scout',
+    provider: 'Meta · OpenRouter',
+    releaseDate: '2025-04-05',
+    tier: 'open-weight',
+    trainingCutoff: '2024-08-01',
+  },
+  'qwen/qwen3-235b-a22b-2507': {
+    description:
+      'Qwen 3 235B MoE (22B ativos), variante 2025-07 sem thinking — comparável aos outros modelos open-weight sem reasoning estendido.',
     homepage: 'https://qwenlm.github.io/',
     label: 'Qwen 3 235B',
-    modelId: 'Qwen/Qwen3-235B-A22B-Instruct-2507-tput',
-    provider: 'Alibaba · Together AI',
+    modelId: 'qwen/qwen3-235b-a22b-2507',
+    provider: 'Alibaba · OpenRouter',
     releaseDate: '2025-07-01',
     tier: 'open-weight',
     trainingCutoff: '2025-04-01',

@@ -34,7 +34,14 @@ function parseArgs(argv: string[]): Record<string, string> {
   return out;
 }
 
-type Backend = 'anthropic' | 'openai' | 'google' | 'ollama' | 'maritaca' | 'together';
+type Backend =
+  | 'anthropic'
+  | 'openai'
+  | 'google'
+  | 'ollama'
+  | 'maritaca'
+  | 'together'
+  | 'openrouter';
 
 function buildProvider(backend: Backend, args: Record<string, string>): Provider {
   const model = args.model;
@@ -84,6 +91,20 @@ function buildProvider(backend: Backend, args: Record<string, string>): Provider
         label,
         model,
         provider: 'Together AI',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'openrouter': {
+      const apiKey = args.apiKey ?? process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error('OPENROUTER_API_KEY ausente — defina no ambiente antes de rodar.');
+      }
+      return openAiCompatProvider({
+        apiKey,
+        baseUrl: args.baseUrl ?? 'https://openrouter.ai/api/v1',
+        label,
+        model,
+        provider: 'OpenRouter',
         trainingCutoff: cutoff,
       });
     }
