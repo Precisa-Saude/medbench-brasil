@@ -76,4 +76,30 @@
   .font-pausa {
     font-family: 'Roboto Serif', Georgia, serif;
   }
+
+  /* Scrollbar fino, tonalidade da marca — aplicado automaticamente em qualquer
+     elemento com scroll (não precisa de classe). Firefox usa propriedades
+     `scrollbar-*`; Chromium/Safari usam os pseudo-elementos `::-webkit-*`. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 0;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
+  }
 }

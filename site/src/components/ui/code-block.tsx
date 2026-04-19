@@ -6,10 +6,13 @@ export function CodeBlock({
   children,
   className,
   language = 'plain',
+  maxHeight,
 }: {
   children: string;
   className?: string;
   language?: Language;
+  /** Ativa scroll vertical interno quando o conteúdo excede (ex.: "32rem"). */
+  maxHeight?: string | number;
 }) {
   return (
     <div
@@ -18,7 +21,10 @@ export function CodeBlock({
         className,
       )}
     >
-      <pre className="overflow-x-auto p-6 font-mono text-sm leading-relaxed text-white/80">
+      <pre
+        className="overflow-auto p-6 font-mono text-sm leading-relaxed text-white/80"
+        style={maxHeight ? { maxHeight } : undefined}
+      >
         <code>{renderTokens(children, language)}</code>
       </pre>
     </div>

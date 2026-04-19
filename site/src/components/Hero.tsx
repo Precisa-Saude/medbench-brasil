@@ -37,8 +37,16 @@ export function Hero() {
           </h1>
 
           <p className="max-w-3xl font-serif text-xl leading-snug text-primary-foreground/70 sm:text-2xl">
-            Leaderboard reproduzível do desempenho de modelos de linguagem no Revalida. Três
-            execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
+            Leaderboard reproduzível do desempenho de modelos de linguagem no{' '}
+            <a
+              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ps-mint underline decoration-ps-mint/40 underline-offset-4 transition-colors hover:decoration-ps-mint"
+            >
+              Revalida
+            </a>
+            . Três execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -34,7 +34,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'claude-opus-4-5': {
     description:
       'Modelo flagship da Anthropic da geração Claude 4, lançado em meados de 2025 com foco em raciocínio e uso agêntico.',
-    homepage: 'https://www.anthropic.com/claude',
+    homepage: 'https://www.anthropic.com/claude/opus',
     label: 'Claude Opus 4.5',
     modelId: 'claude-opus-4-5',
     provider: 'Anthropic',
@@ -45,7 +45,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'claude-opus-4-6': {
     description:
       'Refresh intermediário do Opus 4 com janela de contexto maior e melhorias em tarefas longas de raciocínio.',
-    homepage: 'https://www.anthropic.com/claude',
+    homepage: 'https://www.anthropic.com/claude/opus',
     label: 'Claude Opus 4.6',
     modelId: 'claude-opus-4-6',
     provider: 'Anthropic',
@@ -56,7 +56,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'claude-opus-4-7': {
     description:
       'Flagship atual da Anthropic (2026), com thinking estendido e ganhos substanciais em benchmarks de saúde e ciência.',
-    homepage: 'https://www.anthropic.com/claude',
+    homepage: 'https://www.anthropic.com/claude/opus',
     label: 'Claude Opus 4.7',
     modelId: 'claude-opus-4-7',
     provider: 'Anthropic',
@@ -111,7 +111,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'gpt-5.1': {
     description:
       'Primeira revisão do GPT-5, lançada no final de 2025 com melhorias em instruction following e custo.',
-    homepage: 'https://openai.com/index/gpt-5/',
+    homepage: 'https://openai.com/gpt-5/',
     label: 'GPT-5.1',
     modelId: 'gpt-5.1',
     provider: 'OpenAI',
@@ -122,7 +122,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'gpt-5.2': {
     description:
       'Atualização intermediária do GPT-5 com correções pós-lançamento e melhor desempenho em tarefas de domínio.',
-    homepage: 'https://openai.com/index/gpt-5/',
+    homepage: 'https://openai.com/gpt-5/',
     label: 'GPT-5.2',
     modelId: 'gpt-5.2',
     provider: 'OpenAI',
@@ -133,7 +133,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   'gpt-5.4': {
     description:
       'Iteração mais recente da linha GPT-5 da OpenAI, com corte de treino em 2026 e melhorias em raciocínio médico.',
-    homepage: 'https://openai.com/index/gpt-5/',
+    homepage: 'https://openai.com/gpt-5/',
     label: 'GPT-5.4',
     modelId: 'gpt-5.4',
     provider: 'OpenAI',

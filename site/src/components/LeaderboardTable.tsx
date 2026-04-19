@@ -6,6 +6,7 @@ import type { ModelResult } from '../data/results';
 import type { ContaminationScope } from './ContaminationToggle';
 import { Pagination } from './ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cutoff';
 
@@ -79,22 +80,45 @@ export default function LeaderboardTable({
             <TableHead>Fornecedor</TableHead>
             <TableHead>Tier</TableHead>
             <SortableHead label="Precisão" k="acc" sort={sort} onClick={toggleSort} align="right" />
-            <SortableHead label="IC 95%" k="ci" sort={sort} onClick={toggleSort} align="right" />
-            <SortableHead label="Limpa" k="clean" sort={sort} onClick={toggleSort} align="right" />
+            <SortableHead
+              label="IC 95%"
+              k="ci"
+              sort={sort}
+              onClick={toggleSort}
+              align="right"
+              tooltip="Faixa plausível da precisão real (Wilson 95%). Faixas sobrepostas = empate estatístico."
+            />
+            <SortableHead
+              label="Limpa"
+              k="clean"
+              sort={sort}
+              onClick={toggleSort}
+              align="right"
+              tooltip="Precisão em edições posteriores ao corte de treino — provas que o modelo não viu."
+            />
             <SortableHead
               label="Contaminada"
               k="cont"
               sort={sort}
               onClick={toggleSort}
               align="right"
+              tooltip="Precisão em edições anteriores ao corte — podem ter aparecido no treino."
             />
-            <SortableHead label="Δ" k="delta" sort={sort} onClick={toggleSort} align="right" />
+            <SortableHead
+              label="Δ"
+              k="delta"
+              sort={sort}
+              onClick={toggleSort}
+              align="right"
+              tooltip="Contaminada − limpa (pp). Positivo sugere memorização."
+            />
             <SortableHead
               label="Corte treino"
               k="cutoff"
               sort={sort}
               onClick={toggleSort}
               align="right"
+              tooltip="Data até a qual o fornecedor coletou dados de treino. Define o que é limpo vs contaminado."
             />
           </TableRow>
         </TableHeader>
@@ -169,26 +193,38 @@ function SortableHead({
   label,
   onClick,
   sort,
+  tooltip,
 }: {
   align: 'left' | 'right';
   k: SortKey;
   label: string;
   onClick: (k: SortKey) => void;
   sort: { dir: 'asc' | 'desc'; key: SortKey };
+  tooltip?: React.ReactNode;
 }) {
   const active = sort.key === k;
+  const button = (
+    <button
+      type="button"
+      onClick={() => onClick(k)}
+      className={`inline-flex items-center gap-1 ${
+        active ? 'text-foreground' : 'hover:text-foreground'
+      } ${tooltip ? 'cursor-pointer underline decoration-dotted decoration-muted-foreground/40 underline-offset-4' : ''}`}
+    >
+      {label}
+      {active && <span aria-hidden>{sort.dir === 'desc' ? '↓' : '↑'}</span>}
+    </button>
+  );
   return (
     <TableHead className={align === 'right' ? 'text-right' : 'text-left'}>
-      <button
-        type="button"
-        onClick={() => onClick(k)}
-        className={`inline-flex items-center gap-1 ${
-          active ? 'text-foreground' : 'hover:text-foreground'
-        }`}
-      >
-        {label}
-        {active && <span aria-hidden>{sort.dir === 'desc' ? '↓' : '↑'}</span>}
-      </button>
+      {tooltip ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent className="max-w-xs font-sans text-sm">{tooltip}</TooltipContent>
+        </Tooltip>
+      ) : (
+        button
+      )}
     </TableHead>
   );
 }

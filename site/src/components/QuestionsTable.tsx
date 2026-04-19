@@ -222,26 +222,35 @@ function QuestionRow({
         <TableCell className="font-mono text-xs text-muted-foreground">{row.editionId}</TableCell>
         <TableCell className="font-mono">{row.number}</TableCell>
         <TableCell className="text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span>{row.specialty.map((s) => specialtyLabel(s)).join(', ')}</span>
-            {row.annulled && <ReasonBadge>anulada</ReasonBadge>}
-            {row.hasImage && <ReasonBadge>imagem</ReasonBadge>}
-            {row.hasTable && <ReasonBadge>tabela</ReasonBadge>}
-          </div>
+          {row.specialty.map((s) => specialtyLabel(s)).join(', ')}
         </TableCell>
         <TableCell className="text-center font-mono font-semibold">{row.correct}</TableCell>
         {models.map((m) => {
           const p = row.byModel[m.modelId];
-          if (!p)
+          if (!p) {
+            const reasonLabel = row.annulled
+              ? 'anulada'
+              : row.hasImage && row.hasTable
+                ? 'imagem + tabela'
+                : row.hasImage
+                  ? 'imagem'
+                  : row.hasTable
+                    ? 'tabela'
+                    : null;
             return (
               <TableCell
                 key={m.modelId}
-                className="text-center text-muted-foreground"
+                className="text-center"
                 title={excluded ? excludeReason : 'Sem dados por questão deste modelo'}
               >
-                —
+                {reasonLabel ? (
+                  <ReasonBadge>{reasonLabel}</ReasonBadge>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
               </TableCell>
             );
+          }
           const runsCorrect = p.runs.filter((r) => r.correct).length;
           const ratio = runsCorrect / p.runs.length;
           const tone =
@@ -254,7 +263,7 @@ function QuestionRow({
             ratio === 1
               ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
               : ratio === 0
-                ? 'border-destructive/20 bg-destructive/10 text-destructive'
+                ? 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400'
                 : 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400';
           return (
             <TableCell key={m.modelId} className="text-center">
@@ -278,10 +287,10 @@ function QuestionRow({
         <tr className="border-b bg-muted/20">
           <td colSpan={4 + models.length} className="px-4 py-4">
             <div className="max-w-3xl space-y-3">
-              <div className="font-serif text-sm leading-relaxed whitespace-pre-wrap">
+              <div className="font-serif text-base leading-relaxed whitespace-pre-wrap">
                 {question.stem}
               </div>
-              <ul className="space-y-1 font-serif text-sm">
+              <ul className="space-y-1.5 font-serif text-base leading-relaxed">
                 {(['A', 'B', 'C', 'D'] as const).map((letter) => (
                   <li
                     key={letter}

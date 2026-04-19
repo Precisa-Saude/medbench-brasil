@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { PageContainer } from '../components/PageContainer';
 import SpecialtyRadar from '../components/SpecialtyRadar';
+import { CodeBlock } from '../components/ui/code-block';
 import { findModel } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
 
@@ -36,17 +37,6 @@ export default function ModelDetail() {
     return letters.size === 1;
   }).length;
   const consistency = perQuestion.length > 0 ? consistent / perQuestion.length : null;
-
-  const letterStats: Record<'A' | 'B' | 'C' | 'D', { chosen: number; wrong: number }> = {
-    A: { chosen: 0, wrong: 0 },
-    B: { chosen: 0, wrong: 0 },
-    C: { chosen: 0, wrong: 0 },
-    D: { chosen: 0, wrong: 0 },
-  };
-  for (const p of perQuestion) {
-    if (p.majority) letterStats[p.majority].chosen += 1;
-    if (p.majority && !p.majorityCorrect) letterStats[p.majority].wrong += 1;
-  }
 
   return (
     <PageContainer>
@@ -130,31 +120,6 @@ export default function ModelDetail() {
           </section>
         )}
 
-        {perQuestion.length > 0 && (
-          <section>
-            <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-4">
-              Distribuição por letra escolhida
-            </h2>
-            <div className="grid grid-cols-4 gap-3 font-sans">
-              {(['A', 'B', 'C', 'D'] as const).map((l) => {
-                const stat = letterStats[l];
-                const errorRate = stat.chosen === 0 ? 0 : stat.wrong / stat.chosen;
-                return (
-                  <div key={l} className="rounded-lg border bg-card p-4">
-                    <div className="text-xs tracking-wide text-muted-foreground uppercase">
-                      Letra {l}
-                    </div>
-                    <div className="mt-2 font-mono text-2xl font-semibold">{stat.chosen}</div>
-                    <div className="text-xs text-muted-foreground">
-                      escolhas · {stat.wrong} erradas ({(errorRate * 100).toFixed(0)}%)
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
         <section>
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
             Precisão por edição
@@ -180,24 +145,49 @@ export default function ModelDetail() {
           </ul>
         </section>
 
-        <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
-            Artefato bruto
-          </h2>
-          <p className="text-sm text-muted-foreground mb-2">
-            O JSON completo (parâmetros de API, system prompt, todas as execuções) fica em
-            <code className="ml-1">results/{model.modelId}.json</code> no repositório.
+        <section className="space-y-3">
+          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Artefato bruto</h2>
+          <p className="text-sm text-muted-foreground">
+            Abaixo, o JSON agregado consumido pelo site — união das execuções deste modelo em todas
+            as edições. Um arquivo por edição fica em{' '}
+            <a
+              className="text-ps-violet underline"
+              href={`https://github.com/Precisa-Saude/medbench-brasil/tree/main/results`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <code>results/&lt;edição&gt;/{model.modelId}.json</code>
+            </a>
+            .
           </p>
-          <a
-            className="text-ps-violet underline text-sm"
-            href={`https://github.com/Precisa-Saude/medbench-brasil/blob/main/results/${model.modelId}.json`}
-          >
-            ver no GitHub
-          </a>
+          <CodeBlock language="json" maxHeight="32rem">
+            {JSON.stringify(toRawArtifact(model), null, 2)}
+          </CodeBlock>
         </section>
       </div>
     </PageContainer>
   );
+}
+
+/**
+ * Remove os campos editoriais (injetados pelo site via `MODELS_METADATA`)
+ * e deixa só o que vem dos artefatos agregados em `results/`.
+ */
+function toRawArtifact(model: ReturnType<typeof findModel>): unknown {
+  if (!model) return null;
+  const {
+    cleanAccuracy: _cleanAccuracy,
+    contaminatedAccuracy: _contaminatedAccuracy,
+    description: _description,
+    homepage: _homepage,
+    label: _label,
+    provider: _provider,
+    releaseDate: _releaseDate,
+    tier: _tier,
+    trainingCutoff: _trainingCutoff,
+    ...rest
+  } = model;
+  return rest;
 }
 
 function Card({ hint, label, value }: { hint?: string; label: string; value: string }) {
