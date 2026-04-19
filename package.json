@@ -16,11 +16,11 @@
     "typecheck": "turbo run typecheck"
   },
   "lint-staged": {
-    "*.ts": [
+    "*.{ts,tsx}": [
       "prettier --write",
       "eslint --fix --max-warnings 0 --no-warn-ignored"
     ],
-    "*.{js,json,md,css}": [
+    "*.{js,jsx,json,md,css,html}": [
       "prettier --write"
     ]
   },
