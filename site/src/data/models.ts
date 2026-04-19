@@ -174,16 +174,16 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     trainingCutoff: '2025-04-01',
   },
-  'qwen3.6:35b-a3b-q8_0': {
+  'qwen/qwen3.6-plus': {
     description:
-      'Qwen 3.6 na variante MoE de 35B (3B ativos por token), quantizado Q8_0 — executado localmente via Ollama.',
+      'Qwen 3.6 Plus — nova arquitetura híbrida (atenção linear + MoE esparso), 283B tokens de treinamento, janela de 1M.',
     homepage: 'https://qwenlm.github.io/',
-    label: 'Qwen 3.6 (36B MoE, Q8_0)',
-    modelId: 'qwen3.6:35b-a3b-q8_0',
-    provider: 'Alibaba · Ollama local',
-    releaseDate: '2025-10-01',
+    label: 'Qwen 3.6 Plus',
+    modelId: 'qwen/qwen3.6-plus',
+    provider: 'Alibaba · OpenRouter',
+    releaseDate: '2026-04-02',
     tier: 'open-weight',
-    trainingCutoff: '2025-09-01',
+    trainingCutoff: '2025-12-01',
   },
   'sabia-4': {
     description:
