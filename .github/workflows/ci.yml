@@ -7,8 +7,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Permissões top-level em read por padrão. Jobs que precisam escrever
+# (release empurra chore(release), deploy usa OIDC) elevam no escopo do
+# próprio job — evita que PRs tenham contents:write.
 permissions:
-  contents: write
+  contents: read
   issues: write
   pull-requests: write
   deployments: write
@@ -56,22 +59,47 @@ jobs:
     needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    # Escopo mínimo necessário para empurrar o chore(release) e criar a
+    # release GitHub. Mesmo com o GitHub App fornecendo o token, o job
+    # precisa do escopo correto a nível de workflow.
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       released: ${{ steps.semantic.outputs.released }}
       version: ${{ steps.semantic.outputs.version }}
+      release_sha: ${{ steps.semantic.outputs.release_sha }}
     steps:
-      - name: Check for package changes
+      - name: Check for package changes across pushed commits
         id: changes
         uses: actions/github-script@v7
         with:
+          # Em push em `main` o payload traz `before` (SHA do tip anterior).
+          # Comparamos `before..after` e acusamos mudança se QUALQUER commit
+          # no range tocou packages/** ou package.json — não apenas o HEAD.
+          # Isso cobre merges com múltiplos commits e empurres em série.
           script: |
-            const { data: commit } = await github.rest.repos.getCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha,
-            });
-            const packageChanged = commit.files?.some(
-              f => f.filename.startsWith('packages/') || f.filename === 'package.json'
+            const before = context.payload.before;
+            const after = context.sha;
+            // `before` é 40 zeros em push para branch recém-criada — nesse
+            // caso considera apenas o commit de topo.
+            const isInitial = !before || /^0+$/.test(before);
+            let filenames = [];
+            if (isInitial) {
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner, repo: context.repo.repo, ref: after,
+              });
+              filenames = (commit.files ?? []).map(f => f.filename);
+            } else {
+              const { data: compare } = await github.rest.repos.compareCommits({
+                owner: context.repo.owner, repo: context.repo.repo,
+                base: before, head: after,
+              });
+              filenames = (compare.files ?? []).map(f => f.filename);
+            }
+            const packageChanged = filenames.some(
+              f => f.startsWith('packages/') || f === 'package.json'
             );
             core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
 
@@ -113,15 +141,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           HUSKY: 0
+        # Distinguir entre:
+        #   (a) 'nenhum release a publicar' — semantic-release sai 0 e
+        #       imprime 'There are no relevant changes…'. Normal, reporta
+        #       released=false e prossegue.
+        #   (b) sucesso — 'Published release' no stdout; extraímos version.
+        #   (c) falha real — exit != 0 e não é caso (a). Relançamos o erro.
+        # VERSION é obrigatoriamente não-vazio antes de setar released=true.
         run: |
-          OUTPUT=$(npx semantic-release 2>&1) || true
+          set +e
+          OUTPUT=$(npx semantic-release 2>&1)
+          EXIT=$?
+          set -e
           echo "$OUTPUT"
+
           if echo "$OUTPUT" | grep -q "Published release"; then
             VERSION=$(echo "$OUTPUT" | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+")
-            echo "released=true" >> $GITHUB_OUTPUT
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            if [ -z "$VERSION" ]; then
+              echo "::error::semantic-release publicou mas não conseguimos extrair a versão do output"
+              exit 1
+            fi
+            RELEASE_SHA=$(git rev-parse HEAD)
+            echo "released=true" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
+          elif [ "$EXIT" -eq 0 ] || echo "$OUTPUT" | grep -qE "no relevant changes|There are no relevant changes"; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
           else
-            echo "released=false" >> $GITHUB_OUTPUT
+            echo "::error::semantic-release falhou com exit $EXIT"
+            exit "$EXIT"
           fi
 
       - name: Skip release (site-only changes)
@@ -135,9 +183,12 @@ jobs:
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
+      # Usa o SHA exato produzido pelo job release. Checkout de `main` teria
+      # race com outro push aterrissando entre release e publish — esse SHA
+      # é o commit `chore(release): X.Y.Z` garantidamente.
       - uses: actions/checkout@v6
         with:
-          ref: main
+          ref: ${{ needs.release.outputs.release_sha }}
 
       - uses: pnpm/action-setup@v4
 
@@ -156,7 +207,10 @@ jobs:
       - name: Publish packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Cada pnpm publish roda em subshell — se falhar, preservamos cwd
+        # via escopo local. `set -e` propaga erro para o job.
         run: |
+          set -e
           publish_if_needed() {
             local dir="$1"
             local pkg_name pkg_version
@@ -167,9 +221,7 @@ jobs:
               echo "Skipping $pkg_name@$pkg_version (already published)"
             else
               echo "Publishing $pkg_name@$pkg_version..."
-              cd "$dir"
-              pnpm publish --provenance --access public --no-git-checks
-              cd "$GITHUB_WORKSPACE"
+              ( cd "$dir" && pnpm publish --provenance --access public --no-git-checks )
             fi
           }
 
@@ -238,11 +290,19 @@ jobs:
     steps:
       - name: Build notification
         id: notify
+        # Constrói o payload via jq para escapar automaticamente aspas,
+        # barras invertidas, newlines e caracteres de controle — interpolar
+        # mensagens de commit ou SHA em string crua é injection-prone.
+        env:
+          GH_SHA: ${{ github.sha }}
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          DEPLOY_RESULT: ${{ needs.deploy-site.result }}
         run: |
-          SHORT_SHA="${{ github.sha }}"
-          SHORT_SHA="${SHORT_SHA:0:7}"
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          DEPLOY_RESULT="${{ needs.deploy-site.result }}"
+          SHORT_SHA="${GH_SHA:0:7}"
+          RUN_URL="${GH_SERVER}/${GH_REPO}/actions/runs/${GH_RUN_ID}"
+          COMMIT_URL="${GH_SERVER}/${GH_REPO}/commit/${GH_SHA}"
 
           if [ "$DEPLOY_RESULT" = "success" ]; then
             HEADER=":rocket: medbench-brasil site deployed"
@@ -254,37 +314,19 @@ jobs:
             TEXT="Deploy failed"
           fi
 
-          cat > /tmp/slack-payload.json << PAYLOAD
-          {
-            "text": "${TEXT}",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "${HEADER}",
-                  "emoji": true
-                }
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "${RESULT_LINE}"
-                }
-              },
-              {
-                "type": "context",
-                "elements": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${SHORT_SHA}> | *Run:* <${RUN_URL}|View logs>"
-                  }
-                ]
-              }
-            ]
-          }
-          PAYLOAD
+          jq -n \
+            --arg text "$TEXT" \
+            --arg header "$HEADER" \
+            --arg result_line "$RESULT_LINE" \
+            --arg context "*Commit:* <${COMMIT_URL}|${SHORT_SHA}> | *Run:* <${RUN_URL}|View logs>" \
+            '{
+              text: $text,
+              blocks: [
+                { type: "header",  text: { type: "plain_text", text: $header, emoji: true } },
+                { type: "section", text: { type: "mrkdwn", text: $result_line } },
+                { type: "context", elements: [ { type: "mrkdwn", text: $context } ] }
+              ]
+            }' > /tmp/slack-payload.json
 
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v2.1.0

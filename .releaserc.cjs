@@ -74,7 +74,27 @@ module.exports = {
     [
       '@semantic-release/git',
       {
-        assets: ['CHANGELOG.md', 'package.json', 'packages/*/package.json'],
+        // Lista os package.json dinamicamente, descartando os privados —
+        // evita stageing de packages/ingestion/package.json (que o
+        // sync-versions.js não toca) no commit chore(release).
+        assets: [
+          'CHANGELOG.md',
+          'package.json',
+          ...require('node:fs')
+            .readdirSync('packages')
+            .map((name) => `packages/${name}`)
+            .filter((dir) => {
+              try {
+                const pkg = JSON.parse(
+                  require('node:fs').readFileSync(`${dir}/package.json`, 'utf-8'),
+                );
+                return pkg.private !== true;
+              } catch {
+                return false;
+              }
+            })
+            .map((dir) => `${dir}/package.json`),
+        ],
         message:
           'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
