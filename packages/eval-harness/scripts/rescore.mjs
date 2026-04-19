@@ -17,10 +17,18 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadEdition } from '@precisa-saude/medbench-dataset';
-import { parseLetter, scoreRun } from '../dist/index.js';
 
 // Raiz do repositório (saímos de packages/eval-harness/scripts/).
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const distPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'index.js');
+if (!existsSync(distPath)) {
+  console.error(
+    `dist/ ausente em packages/eval-harness/. Rode:\n` +
+      `  pnpm --filter @precisa-saude/medbench-harness build\n`,
+  );
+  process.exit(1);
+}
+const { parseLetter, scoreRun } = await import(distPath);
 
 function rescoreOne(edition, slug) {
   const resultsDir = join(root, 'results', edition);
@@ -86,7 +94,16 @@ function rescoreOne(edition, slug) {
     m.set(k, (m.get(k) ?? 0) + 1);
     return m;
   }, new Map());
-  const runsPerQuestion = Math.max(...runsPerQ.values());
+  const counts = [...runsPerQ.values()];
+  const minRuns = Math.min(...counts);
+  const maxRuns = Math.max(...counts);
+  if (minRuns !== maxRuns) {
+    console.warn(
+      `  [warn] ${edition}/${slug}: runs por questão não uniforme (${minRuns}..${maxRuns}) — ` +
+        `usando max, mas accuracy do scoreRun assume uniformidade. Considere --restart do eval.`,
+    );
+  }
+  const runsPerQuestion = maxRuns;
   const modelId = lines[0] ? JSON.parse(lines[0]).modelId : slug;
 
   const summary = scoreRun(modelId, runsPerQuestion, records);

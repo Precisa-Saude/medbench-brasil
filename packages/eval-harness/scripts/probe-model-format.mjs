@@ -21,16 +21,24 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadEdition } from '@precisa-saude/medbench-dataset';
-import {
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const distPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'index.js');
+if (!existsSync(distPath)) {
+  console.error(
+    `dist/ ausente em packages/eval-harness/. Rode:\n` +
+      `  pnpm --filter @precisa-saude/medbench-harness build\n`,
+  );
+  process.exit(1);
+}
+const {
   anthropicProvider,
   googleProvider,
   openAiProvider,
   openAiCompatProvider,
   parseLetter,
   SYSTEM_PROMPT,
-} from '../dist/index.js';
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+} = await import(distPath);
 
 function buildProvider(backend, model) {
   switch (backend) {
@@ -123,7 +131,7 @@ mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, `${slug}.raw.jsonl`);
 if (existsSync(outPath)) writeFileSync(outPath, '');
 
-console.log(`probe: ${backend}:${model} × ${samplesN} questões de ${edition}`);
+console.log(`probe: ${backend}:${model} × ${effectiveN} questões de ${edition}`);
 console.log(`raw: ${outPath}`);
 console.log('');
 
@@ -168,6 +176,6 @@ console.log('');
 console.log('formatos:', Object.entries(formatCounts).map(([k, v]) => `${k}=${v}`).join(', '));
 console.log(
   suspect > 0
-    ? `SUSPEITO — ${suspect}/${samplesN} amostras em formato vulnerável ao bug phantom-A. Rerun recomendado.`
+    ? `SUSPEITO — ${suspect}/${effectiveN} amostras em formato vulnerável ao bug phantom-A. Rerun recomendado.`
     : 'OK — formatos cobertos pelo parser atual. Resumo existente provavelmente correto.',
 );
