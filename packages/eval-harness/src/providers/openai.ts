@@ -31,8 +31,14 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       }
       // Modelos GPT-5.x exigem `max_completion_tokens` (e `max_tokens` é
       // rejeitado). Modelos GPT-4.x aceitam `max_tokens` e rejeitam o novo
-      // nome. Mandamos o correto conforme a família do modelo.
+      // nome.
       const usesNewParamName = /^gpt-5/i.test(opts.model) || /^o[1-9]/i.test(opts.model);
+      // gpt-5-nano, gpt-5-mini e a família o1/o3 rejeitam temperature != 1
+      // (só aceitam o default). Omitimos quando o modelo bate nesse padrão.
+      const omitTemperature =
+        /^gpt-5-nano/i.test(opts.model) ||
+        /^gpt-5-mini/i.test(opts.model) ||
+        /^o[1-9]/i.test(opts.model);
       const requestParams = {
         ...(usesNewParamName ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
         messages: [
@@ -40,7 +46,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
           { content: input.userPrompt, role: 'user' },
         ],
         model: opts.model,
-        temperature,
+        ...(omitTemperature ? {} : { temperature }),
       } as const;
 
       const start = Date.now();
