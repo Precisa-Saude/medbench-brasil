@@ -69,32 +69,33 @@ module.exports = {
     ['@semantic-release/npm', { npmPublish: false }],
 
     // Sync version to all workspace packages
-    ['@semantic-release/exec', { prepareCmd: 'node scripts/sync-versions.js' }],
+    ['@semantic-release/exec', { prepareCmd: 'node scripts/sync-versions.cjs' }],
 
     [
       '@semantic-release/git',
       {
-        // Lista os package.json dinamicamente, descartando os privados —
-        // evita stageing de packages/ingestion/package.json (que o
-        // sync-versions.js não toca) no commit chore(release).
-        assets: [
-          'CHANGELOG.md',
-          'package.json',
-          ...require('node:fs')
-            .readdirSync('packages')
-            .map((name) => `packages/${name}`)
-            .filter((dir) => {
-              try {
-                const pkg = JSON.parse(
-                  require('node:fs').readFileSync(`${dir}/package.json`, 'utf-8'),
-                );
-                return pkg.private !== true;
-              } catch {
-                return false;
-              }
-            })
-            .map((dir) => `${dir}/package.json`),
-        ],
+        // Assets computados a partir da mesma fonte do sync-versions.cjs —
+        // um único lugar define o conjunto de pacotes publicáveis. O helper
+        // é tolerante (nunca lança); em cenários de CWD errado ou
+        // `packages/` ausente, retorna lista vazia e o release segue com
+        // apenas CHANGELOG + root package.json.
+        assets: (() => {
+          try {
+            const {
+              listPublishablePackages,
+            } = require('./scripts/list-publishable-packages.cjs');
+            const pkgAssets = listPublishablePackages().map(
+              (dir) => `${dir}/package.json`,
+            );
+            return ['CHANGELOG.md', 'package.json', ...pkgAssets];
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn(
+              `[releaserc] list-publishable-packages falhou (${err?.message ?? err}); usando só root package.json + CHANGELOG`,
+            );
+            return ['CHANGELOG.md', 'package.json'];
+          }
+        })(),
         message:
           'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },

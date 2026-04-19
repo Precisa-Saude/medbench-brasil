@@ -2,7 +2,13 @@
   "name": "@precisa-saude/medbench-dataset",
   "version": "0.1.0",
   "description": "Dataset estruturado de questões de provas médicas brasileiras (Revalida)",
-  "keywords": ["revalida", "medical-exams", "brazil", "llm-benchmark", "dataset"],
+  "keywords": [
+    "revalida",
+    "medical-exams",
+    "brazil",
+    "llm-benchmark",
+    "dataset"
+  ],
   "homepage": "https://github.com/Precisa-Saude/medbench-brasil/tree/main/packages/dataset#readme",
   "bugs": "https://github.com/Precisa-Saude/medbench-brasil/issues",
   "repository": {
@@ -28,7 +34,10 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "data"],
+  "files": [
+    "dist",
+    "data"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist .turbo",

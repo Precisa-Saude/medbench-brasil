@@ -69,21 +69,23 @@ jobs:
     outputs:
       released: ${{ steps.semantic.outputs.released }}
       version: ${{ steps.semantic.outputs.version }}
-      release_sha: ${{ steps.semantic.outputs.release_sha }}
+      # Fallback para `github.sha` em no-op — evita que consumers
+      # desprevenidos (sem guarda em `released == 'true'`) façam checkout
+      # do branch default com string vazia.
+      release_sha: ${{ steps.semantic.outputs.release_sha || github.sha }}
     steps:
       - name: Check for package changes across pushed commits
         id: changes
         uses: actions/github-script@v7
         with:
-          # Em push em `main` o payload traz `before` (SHA do tip anterior).
-          # Comparamos `before..after` e acusamos mudança se QUALQUER commit
-          # no range tocou packages/** ou package.json — não apenas o HEAD.
-          # Isso cobre merges com múltiplos commits e empurres em série.
+          # Compara `before..after` do push payload e acusa mudança se qualquer
+          # commit do range tocou `packages/**` ou `package.json`. Paginamos
+          # explicitamente via `github.paginate` porque a API `compareCommits`
+          # trunca em 300 arquivos por página — um push grande com muitos
+          # arquivos poderia silenciosamente perder a detecção.
           script: |
             const before = context.payload.before;
             const after = context.sha;
-            // `before` é 40 zeros em push para branch recém-criada — nesse
-            // caso considera apenas o commit de topo.
             const isInitial = !before || /^0+$/.test(before);
             let filenames = [];
             if (isInitial) {
@@ -92,16 +94,22 @@ jobs:
               });
               filenames = (commit.files ?? []).map(f => f.filename);
             } else {
-              const { data: compare } = await github.rest.repos.compareCommits({
-                owner: context.repo.owner, repo: context.repo.repo,
-                base: before, head: after,
-              });
-              filenames = (compare.files ?? []).map(f => f.filename);
+              const pages = await github.paginate(
+                github.rest.repos.compareCommitsWithBasehead,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100,
+                },
+              );
+              filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
             }
             const packageChanged = filenames.some(
               f => f.startsWith('packages/') || f === 'package.json'
             );
             core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
+            core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);
 
       - name: Generate GitHub App token
         id: app-token
@@ -141,13 +149,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           HUSKY: 0
-        # Distinguir entre:
-        #   (a) 'nenhum release a publicar' — semantic-release sai 0 e
-        #       imprime 'There are no relevant changes…'. Normal, reporta
-        #       released=false e prossegue.
-        #   (b) sucesso — 'Published release' no stdout; extraímos version.
-        #   (c) falha real — exit != 0 e não é caso (a). Relançamos o erro.
-        # VERSION é obrigatoriamente não-vazio antes de setar released=true.
+        # Três cenários:
+        #   (a) sucesso com release: stdout contém 'Published release' →
+        #       extraímos a versão da tag criada (`git describe`) em vez de
+        #       regex no stdout (mais resiliente a mudanças de formato).
+        #   (b) no-op: exit 0 E stdout contém 'no relevant changes' →
+        #       released=false. Exigir AMBAS as condições (e não a disjunção)
+        #       evita mascarar falhas silenciosas onde o tool exitou 0 sem
+        #       publicar nem explicar.
+        #   (c) erro real: qualquer outra combinação → exit não-zero.
         run: |
           set +e
           OUTPUT=$(npx semantic-release 2>&1)
@@ -156,20 +166,24 @@ jobs:
           echo "$OUTPUT"
 
           if echo "$OUTPUT" | grep -q "Published release"; then
-            VERSION=$(echo "$OUTPUT" | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+")
+            # Tag recém-criada por @semantic-release/github é vX.Y.Z.
+            RAW_TAG=$(git describe --tags --abbrev=0)
+            VERSION="${RAW_TAG#v}"
             if [ -z "$VERSION" ]; then
-              echo "::error::semantic-release publicou mas não conseguimos extrair a versão do output"
+              echo "::error::semantic-release publicou mas git describe não encontrou tag"
               exit 1
             fi
             RELEASE_SHA=$(git rev-parse HEAD)
-            echo "released=true" >> "$GITHUB_OUTPUT"
-            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-            echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
-          elif [ "$EXIT" -eq 0 ] || echo "$OUTPUT" | grep -qE "no relevant changes|There are no relevant changes"; then
+            {
+              echo "released=true"
+              echo "version=$VERSION"
+              echo "release_sha=$RELEASE_SHA"
+            } >> "$GITHUB_OUTPUT"
+          elif [ "$EXIT" -eq 0 ] && echo "$OUTPUT" | grep -qE "no relevant changes|There are no relevant changes"; then
             echo "released=false" >> "$GITHUB_OUTPUT"
           else
-            echo "::error::semantic-release falhou com exit $EXIT"
-            exit "$EXIT"
+            echo "::error::semantic-release saiu com exit=$EXIT sem indicador reconhecido de release ou no-op"
+            exit "${EXIT:-1}"
           fi
 
       - name: Skip release (site-only changes)
