@@ -60,15 +60,33 @@ export default function ComparisonChart({
   const Y_AXIS_WIDTH = 140;
   const LEFT_MARGIN = 8;
   const RIGHT_MARGIN = 24;
-  const TOP_MARGIN = 56;
+  const TOP_MARGIN = 32;
 
   const cutoffPct = edition.cutoffScore * 100;
   const humanPct = edition.estimatedHumanMean * 100;
 
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
-      <div className="mb-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="inline-block h-2.5 w-2.5 rounded-sm"
+              style={{ backgroundColor: TIER_COLOR.proprietaria }}
+            />
+            Proprietária
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="inline-block h-2.5 w-2.5 rounded-sm"
+              style={{ backgroundColor: TIER_COLOR['open-weight'] }}
+            />
+            Open-weight
+          </span>
+        </div>
       </div>
       <div className="relative">
         <div
@@ -79,11 +97,10 @@ export default function ComparisonChart({
             right: RIGHT_MARGIN,
           }}
         >
-          <FloatingLabel leftPercent={humanPct} topOffset={0}>
+          <FloatingLabel leftPercent={humanPct}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                  <DashIcon />
+                <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
                   Humano
                 </span>
               </TooltipTrigger>
@@ -92,14 +109,10 @@ export default function ComparisonChart({
               </TooltipContent>
             </Tooltip>
           </FloatingLabel>
-          <FloatingLabel
-            leftPercent={cutoffPct}
-            topOffset={Math.abs(cutoffPct - humanPct) < 15 ? 22 : 0}
-          >
+          <FloatingLabel leftPercent={cutoffPct}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                  <DashIcon />
+                <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
                   Corte
                 </span>
               </TooltipTrigger>
@@ -127,6 +140,7 @@ export default function ComparisonChart({
             <YAxis
               type="category"
               dataKey="label"
+              padding={{ bottom: 16, top: 0 }}
               tick={(props) => {
                 const { payload, x, y } = props as {
                   payload: { value: string };
@@ -199,40 +213,17 @@ export default function ComparisonChart({
 function FloatingLabel({
   children,
   leftPercent,
-  topOffset = 0,
 }: {
   children: React.ReactNode;
   leftPercent: number;
-  topOffset?: number;
 }) {
   return (
     <div
-      className="absolute flex -translate-x-1/2 items-start"
-      style={{ left: `${leftPercent}%`, top: `${topOffset}px` }}
+      className="absolute top-0 flex -translate-x-1/2 items-start"
+      style={{ left: `${leftPercent}%` }}
     >
       {children}
     </div>
-  );
-}
-
-/**
- * Mini SVG replicando exatamente a linha pontilhada das ReferenceLines
- * (1.5px de espessura, dash 4 × 4) em `currentColor`, para que o ícone
- * dentro do pill leia visualmente igual ao traço real no chart.
- */
-function DashIcon() {
-  return (
-    <svg aria-hidden width="14" height="2" viewBox="0 0 14 2" className="shrink-0">
-      <line
-        x1="0"
-        y1="1"
-        x2="14"
-        y2="1"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeDasharray="4 4"
-      />
-    </svg>
   );
 }
 

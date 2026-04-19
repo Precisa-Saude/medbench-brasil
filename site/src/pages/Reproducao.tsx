@@ -148,9 +148,27 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
             6. Publique no leaderboard oficial
           </h2>
           <p>
-            Abra um PR com (a) o <code>results/&lt;modelId&gt;.json</code> gerado e (b) uma entrada
-            em <code>site/src/data/models.ts</code> com rótulo, fornecedor, tier, data de lançamento
-            e corte de treino (com link para a fonte oficial).
+            Abra um PR com (a) o <code>results/&lt;edição&gt;/&lt;modelId&gt;.json</code> gerado e
+            (b) uma entrada em <code>site/src/data/models.ts</code> chaveada pelo{' '}
+            <code>modelId</code>. Exemplo:
+          </p>
+          <CodeBlock language="json">{`// site/src/data/models.ts — MODELS_METADATA
+{
+  "meta-llama/llama-4-maverick": {
+    "label": "Llama 4 Maverick",
+    "modelId": "meta-llama/llama-4-maverick",
+    "provider": "Meta · OpenRouter",
+    "tier": "open-weight",
+    "releaseDate": "2025-04-05",
+    "trainingCutoff": "2024-08-01",
+    "homepage": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
+    "description": "Flagship da família Llama 4 da Meta (MoE 17B × 128 experts, 400B total). Multimodal nativo."
+  }
+}`}</CodeBlock>
+          <p className="text-sm text-muted-foreground">
+            <code>trainingCutoff</code> deve vir da documentação oficial do fornecedor (ADR 0002);{' '}
+            <code>tier</code> é <code>&quot;proprietaria&quot;</code> ou{' '}
+            <code>&quot;open-weight&quot;</code>.
           </p>
         </section>
 

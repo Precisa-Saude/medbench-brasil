@@ -75,10 +75,10 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3 font-sans">
+      <div className="flex flex-wrap items-end gap-4 font-sans">
         <FilterField label="Edição">
           <Select value={editionFilter} onValueChange={setEditionFilter}>
-            <SelectTrigger className="h-9 w-40">
+            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -94,7 +94,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
         <FilterField label="Especialidade">
           <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
-            <SelectTrigger className="h-9 w-56">
+            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -110,7 +110,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
         <FilterField label="Filtro">
           <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-            <SelectTrigger className="h-9 w-56">
+            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -127,9 +127,15 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Edição</TableHead>
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>Especialidade</TableHead>
+              <TableHead className="sticky left-0 z-20 w-[110px] min-w-[110px] bg-muted">
+                Edição
+              </TableHead>
+              <TableHead className="sticky left-[110px] z-20 w-[56px] min-w-[56px] bg-muted">
+                #
+              </TableHead>
+              <TableHead className="sticky left-[166px] z-20 w-[200px] min-w-[200px] bg-muted after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
+                Especialidade
+              </TableHead>
               <TableHead className="text-center">Gabarito</TableHead>
               {models.map((m) => (
                 <TableHead
@@ -218,10 +224,14 @@ function QuestionRow({
           : '';
   return (
     <>
-      <TableRow className="cursor-pointer" onClick={onToggle}>
-        <TableCell className="font-mono text-xs text-muted-foreground">{row.editionId}</TableCell>
-        <TableCell className="font-mono">{row.number}</TableCell>
-        <TableCell className="text-xs text-muted-foreground">
+      <TableRow className="group cursor-pointer" onClick={onToggle}>
+        <TableCell className="sticky left-0 z-10 w-[110px] min-w-[110px] bg-background font-mono text-xs text-muted-foreground transition-colors group-hover:bg-muted/50">
+          {row.editionId}
+        </TableCell>
+        <TableCell className="sticky left-[110px] z-10 w-[56px] min-w-[56px] bg-background font-mono transition-colors group-hover:bg-muted/50">
+          {row.number}
+        </TableCell>
+        <TableCell className="sticky left-[166px] z-10 w-[200px] min-w-[200px] bg-background text-xs text-muted-foreground transition-colors group-hover:bg-muted/50 after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
           {row.specialty.map((s) => specialtyLabel(s)).join(', ')}
         </TableCell>
         <TableCell className="text-center font-mono font-semibold">{row.correct}</TableCell>

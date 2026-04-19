@@ -149,13 +149,7 @@ export default function LeaderboardTable({
                   : '—'}
               </TableCell>
               <TableCell
-                className={`text-right font-mono ${
-                  d === null
-                    ? 'text-muted-foreground'
-                    : d > 0.02
-                      ? 'text-ps-amber'
-                      : 'text-muted-foreground'
-                }`}
+                className="text-right font-mono text-muted-foreground"
                 title={
                   d === null
                     ? 'Sem runs em ambos os buckets'

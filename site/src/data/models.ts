@@ -64,17 +64,6 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'proprietaria',
     trainingCutoff: '2025-03-01',
   },
-  'deepseek/deepseek-chat-v3.1': {
-    description:
-      'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
-    homepage: 'https://api-docs.deepseek.com/',
-    label: 'DeepSeek V3.1',
-    modelId: 'deepseek/deepseek-chat-v3.1',
-    provider: 'DeepSeek · OpenRouter',
-    releaseDate: '2025-08-21',
-    tier: 'open-weight',
-    trainingCutoff: '2024-07-01',
-  },
   'deepseek/deepseek-chat-v3-0324': {
     description:
       'Versão original do DeepSeek V3 (snapshot de 2025-03-24), antecessora imediata do V3.1. Sem reasoning explícito.',
@@ -83,6 +72,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     modelId: 'deepseek/deepseek-chat-v3-0324',
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-03-24',
+    tier: 'open-weight',
+    trainingCutoff: '2024-07-01',
+  },
+  'deepseek/deepseek-chat-v3.1': {
+    description:
+      'Modelo de chat aberto da DeepSeek, foco em uso geral sem cadeia de reasoning explícita.',
+    homepage: 'https://api-docs.deepseek.com/',
+    label: 'DeepSeek V3.1',
+    modelId: 'deepseek/deepseek-chat-v3.1',
+    provider: 'DeepSeek · OpenRouter',
+    releaseDate: '2025-08-21',
     tier: 'open-weight',
     trainingCutoff: '2024-07-01',
   },
@@ -185,17 +185,6 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     trainingCutoff: '2024-08-01',
   },
-  'qwen/qwen3.5-122b-a10b': {
-    description:
-      'Qwen 3.5 flagship MoE (122B total, 10B ativos). Antecessora imediata do Qwen 3.6 Plus.',
-    homepage: 'https://qwenlm.github.io/',
-    label: 'Qwen 3.5 122B',
-    modelId: 'qwen/qwen3.5-122b-a10b',
-    provider: 'Alibaba · OpenRouter',
-    releaseDate: '2026-01-01',
-    tier: 'open-weight',
-    trainingCutoff: '2025-08-01',
-  },
   'mistralai/mistral-large-2411': {
     description:
       'Versão de nov/2024 do Mistral Large — antecessora imediata do Mistral Large 2512.',
@@ -228,6 +217,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     releaseDate: '2025-07-01',
     tier: 'open-weight',
     trainingCutoff: '2025-04-01',
+  },
+  'qwen/qwen3.5-122b-a10b': {
+    description:
+      'Qwen 3.5 flagship MoE (122B total, 10B ativos). Antecessora imediata do Qwen 3.6 Plus.',
+    homepage: 'https://qwenlm.github.io/',
+    label: 'Qwen 3.5 122B',
+    modelId: 'qwen/qwen3.5-122b-a10b',
+    provider: 'Alibaba · OpenRouter',
+    releaseDate: '2026-01-01',
+    tier: 'open-weight',
+    trainingCutoff: '2025-08-01',
   },
   'qwen/qwen3.6-plus': {
     description:

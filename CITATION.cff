@@ -5,7 +5,7 @@ type: dataset
 authors:
   - family-names: "Lüder"
     given-names: "Rafael"
-    email: "rlueder@pm.me"
+    email: "rafael@precisa-saude.com.br"
     affiliation: "Precisa Saúde"
 repository-code: "https://github.com/Precisa-Saude/medbench-brasil"
 url: "https://medbench-brasil.dev.br"
