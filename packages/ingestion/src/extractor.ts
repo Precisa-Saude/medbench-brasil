@@ -1,8 +1,7 @@
 import { extractBytes } from '@kreuzberg/node';
 
 /**
- * Wrapper sobre @kreuzberg/node — mesmo padrão do
- * `@kreuzberg/node` wrapper.
+ * Wrapper sobre @kreuzberg/node.
  *
  * Tentativa 1: extração direta (PDFs digitais).
  * Tentativa 2: fallback para OCR Tesseract em `por+eng` quando o conteúdo

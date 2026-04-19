@@ -2,7 +2,14 @@
   "name": "@precisa-saude/medbench-harness",
   "version": "0.1.0",
   "description": "Harness reproduzível de avaliação de LLMs em provas médicas brasileiras",
-  "keywords": ["llm", "benchmark", "evaluation", "medical", "brazil", "revalida"],
+  "keywords": [
+    "llm",
+    "benchmark",
+    "evaluation",
+    "medical",
+    "brazil",
+    "revalida"
+  ],
   "homepage": "https://github.com/Precisa-Saude/medbench-brasil/tree/main/packages/eval-harness#readme",
   "bugs": "https://github.com/Precisa-Saude/medbench-brasil/issues",
   "repository": {
@@ -41,7 +48,9 @@
   "bin": {
     "medbench": "./dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist .turbo",
@@ -51,7 +60,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@precisa-saude/medbench-dataset": "workspace:*"
+    "@precisa-saude/medbench-dataset": "workspace:*",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "tsup": "^8.3.5",

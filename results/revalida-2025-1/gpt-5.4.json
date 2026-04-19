@@ -1,0 +1,44 @@
+{
+  "accuracy": 0.9215686274509803,
+  "ci95": [
+    0.8819669106042639,
+    0.9486569149322802
+  ],
+  "contaminationSplit": {
+    "clean": null,
+    "contaminated": {
+      "accuracy": 0.9215686274509803,
+      "n": 255
+    }
+  },
+  "correct": 235,
+  "modelId": "gpt-5.4",
+  "perSpecialty": {
+    "pediatria": {
+      "accuracy": 0.9393939393939394,
+      "n": 66
+    },
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8541666666666666,
+      "n": 48
+    },
+    "saude-publica": {
+      "accuracy": 0.9,
+      "n": 30
+    },
+    "clinica-medica": {
+      "accuracy": 0.8947368421052632,
+      "n": 57
+    },
+    "cirurgia": {
+      "accuracy": 1,
+      "n": 39
+    },
+    "medicina-familia-comunidade": {
+      "accuracy": 1,
+      "n": 15
+    }
+  },
+  "runsPerQuestion": 3,
+  "total": 255
+}

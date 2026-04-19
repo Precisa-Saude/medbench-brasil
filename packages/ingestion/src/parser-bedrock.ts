@@ -13,9 +13,8 @@ interface BedrockParserArgs {
 /**
  * Invoca Claude via AWS Bedrock para estruturar questões via tool_use.
  *
- * Usa o mesmo padrão de `Claude Bedrock tool_use`
- * — `anthropic_version: bedrock-2023-05-31`, tool_choice
- * obrigando o tool específico, temperature 0.1.
+ * Payload: `anthropic_version: bedrock-2023-05-31`, tool_choice obrigando o
+ * tool específico, temperature 0.1.
  *
  * Credenciais AWS lidas do ambiente padrão (`AWS_PROFILE`, `~/.aws/credentials`,
  * IAM role, etc.). Nenhuma configuração explícita — reusa o que já está no

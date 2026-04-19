@@ -76,6 +76,24 @@ function inverseNormal(p: number): number {
 const SD = 0.11;
 
 export const EDITIONS: Record<string, EditionMetadata> = {
+  'revalida-2024-1': {
+    cutoffScore: 0.6,
+    estimatedHumanMean: estimateHumanMean(0.6, 0.18, SD),
+    estimatedHumanSd: SD,
+    id: 'revalida-2024-1',
+    label: 'Revalida 2024/1',
+    passRate: 0.18,
+    publishedAt: '2024-04-14',
+  },
+  'revalida-2024-2': {
+    cutoffScore: 0.6,
+    estimatedHumanMean: estimateHumanMean(0.6, 0.18, SD),
+    estimatedHumanSd: SD,
+    id: 'revalida-2024-2',
+    label: 'Revalida 2024/2',
+    passRate: 0.18,
+    publishedAt: '2024-10-20',
+  },
   'revalida-2025-1': {
     cutoffScore: 0.6,
     estimatedHumanMean: estimateHumanMean(0.6, 0.18, SD),

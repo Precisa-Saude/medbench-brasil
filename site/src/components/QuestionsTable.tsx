@@ -3,6 +3,9 @@ import { useMemo, useState } from 'react';
 import { allQuestions, getEdition } from '../data/dataset';
 import type { ModelResult, PerQuestionResult } from '../data/results';
 import { SPECIALTY_LABELS, specialtyLabel } from '../data/specialties';
+import { Pagination } from './ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 type Filter = 'all' | 'divergent' | 'no-one-correct' | 'all-correct';
 
@@ -17,22 +20,24 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
   const [specialtyFilter, setSpecialtyFilter] = useState<string>('all');
   const [filter, setFilter] = useState<Filter>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const withPerQuestion = models.filter((m) => (m.perQuestion?.length ?? 0) > 0);
-  const allHavePerQuestion = models.length > 0 && withPerQuestion.length === models.length;
 
   const rows = useMemo(() => {
     const out: Array<{
+      annulled: boolean;
       byModel: Record<string, PerQuestionResult | undefined>;
       correct: 'A' | 'B' | 'C' | 'D';
       editionId: string;
-      editionLabel: string;
+      hasImage: boolean;
+      hasTable: boolean;
       number: number;
       questionId: string;
       specialty: string[];
     }> = [];
     for (const q of questions) {
-      if (q.annulled) continue;
       if (editionFilter !== 'all' && q.editionId !== editionFilter) continue;
       if (specialtyFilter !== 'all' && !q.specialty.includes(specialtyFilter as never)) continue;
       const byModel: Record<string, PerQuestionResult | undefined> = {};
@@ -40,17 +45,22 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         byModel[m.modelId] = m.perQuestion?.find((p) => p.questionId === q.id);
       }
       if (filter !== 'all' && withPerQuestion.length > 0) {
-        const answers = withPerQuestion.map((m) => byModel[m.modelId]?.majority).filter(Boolean);
-        const corrects = withPerQuestion.map((m) => byModel[m.modelId]?.majorityCorrect ?? false);
+        // Só considera modelos que efetivamente responderam esta questão.
+        const answered = withPerQuestion.filter((m) => byModel[m.modelId] !== undefined);
+        if (answered.length === 0) continue; // questão excluída (anulada/imagem/tabela)
+        const answers = answered.map((m) => byModel[m.modelId]!.majority).filter(Boolean);
+        const corrects = answered.map((m) => byModel[m.modelId]!.majorityCorrect);
         if (filter === 'divergent' && new Set(answers).size < 2) continue;
         if (filter === 'no-one-correct' && corrects.some(Boolean)) continue;
         if (filter === 'all-correct' && corrects.some((c) => !c)) continue;
       }
       out.push({
+        annulled: q.annulled,
         byModel,
         correct: q.correct,
         editionId: q.editionId,
-        editionLabel: getEdition(q.editionId)?.id ?? q.editionId,
+        hasImage: q.hasImage,
+        hasTable: q.hasTable,
         number: q.number,
         questionId: q.id,
         specialty: q.specialty,
@@ -59,66 +69,81 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
     return out;
   }, [questions, models, editionFilter, specialtyFilter, filter, withPerQuestion]);
 
+  const totalRows = rows.length;
+  const start = (page - 1) * pageSize;
+  const pageRows = rows.slice(start, start + pageSize);
+
   return (
     <div className="space-y-4">
-      {!allHavePerQuestion && (
-        <div className="border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-300/40 p-3 text-sm">
-          {withPerQuestion.length === 0
-            ? 'Nenhum artefato em `results/` contém dados por questão ainda. Re-execute o harness com a versão atual do scorer para popular esta tabela.'
-            : `${models.length - withPerQuestion.length} modelo(s) sem dados por questão — re-execute o harness para incluí-los.`}
-        </div>
-      )}
+      <div className="flex flex-wrap items-end gap-3 font-sans">
+        <FilterField label="Edição">
+          <Select value={editionFilter} onValueChange={setEditionFilter}>
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {editions.map((e) => (
+                <SelectItem key={e} value={e}>
+                  {e}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
 
-      <div className="flex flex-wrap items-center gap-3 font-sans text-sm">
-        <Select
-          label="Edição"
-          value={editionFilter}
-          onChange={setEditionFilter}
-          options={[
-            { label: 'Todas', value: 'all' },
-            ...editions.map((e) => ({ label: e, value: e })),
-          ]}
-        />
-        <Select
-          label="Especialidade"
-          value={specialtyFilter}
-          onChange={setSpecialtyFilter}
-          options={[
-            { label: 'Todas', value: 'all' },
-            ...Object.entries(SPECIALTY_LABELS).map(([k, v]) => ({ label: v, value: k })),
-          ]}
-        />
-        <Select
-          label="Filtro"
-          value={filter}
-          onChange={(v) => setFilter(v as Filter)}
-          options={[
-            { label: 'Todas as questões', value: 'all' },
-            { label: 'Modelos divergem', value: 'divergent' },
-            { label: 'Ninguém acertou', value: 'no-one-correct' },
-            { label: 'Todos acertaram', value: 'all-correct' },
-          ]}
-        />
-        <div className="text-muted-foreground ml-auto">{rows.length} questões</div>
+        <FilterField label="Especialidade">
+          <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+            <SelectTrigger className="h-9 w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {Object.entries(SPECIALTY_LABELS).map(([k, v]) => (
+                <SelectItem key={k} value={k}>
+                  {v}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterField>
+
+        <FilterField label="Filtro">
+          <Select value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+            <SelectTrigger className="h-9 w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as questões</SelectItem>
+              <SelectItem value="divergent">Modelos divergem</SelectItem>
+              <SelectItem value="no-one-correct">Ninguém acertou</SelectItem>
+              <SelectItem value="all-correct">Todos acertaram</SelectItem>
+            </SelectContent>
+          </Select>
+        </FilterField>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full font-sans text-sm">
-          <thead className="bg-muted text-muted-foreground font-sans text-xs uppercase">
-            <tr>
-              <th className="text-left px-3 py-2">Edição</th>
-              <th className="text-left px-3 py-2">#</th>
-              <th className="text-left px-3 py-2">Especialidade</th>
-              <th className="text-center px-3 py-2">Gabarito</th>
+      <div className="overflow-hidden rounded-lg border">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead>Edição</TableHead>
+              <TableHead className="w-12">#</TableHead>
+              <TableHead>Especialidade</TableHead>
+              <TableHead className="text-center">Gabarito</TableHead>
               {models.map((m) => (
-                <th key={m.modelId} className="text-center px-3 py-2" title={m.label}>
-                  {m.label.split(' ')[0]}
-                </th>
+                <TableHead
+                  key={m.modelId}
+                  className="text-center whitespace-nowrap"
+                  title={m.label}
+                >
+                  {m.label}
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pageRows.map((row) => (
               <QuestionRow
                 key={row.questionId}
                 row={row}
@@ -129,10 +154,30 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
                 }
               />
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalRows={totalRows}
+          onPageChange={setPage}
+          onPageSizeChange={(s) => {
+            setPageSize(s);
+            setPage(1);
+          }}
+          itemsLabel="questões"
+        />
       </div>
     </div>
+  );
+}
+
+function FilterField({ children, label }: { children: React.ReactNode; label: string }) {
+  return (
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      {children}
+    </label>
   );
 }
 
@@ -146,9 +191,12 @@ function QuestionRow({
   models: ModelResult[];
   onToggle: () => void;
   row: {
+    annulled: boolean;
     byModel: Record<string, PerQuestionResult | undefined>;
     correct: 'A' | 'B' | 'C' | 'D';
     editionId: string;
+    hasImage: boolean;
+    hasTable: boolean;
     number: number;
     questionId: string;
     specialty: string[];
@@ -158,46 +206,82 @@ function QuestionRow({
     () => getEdition(row.editionId)?.questions.find((q) => q.id === row.questionId),
     [row.editionId, row.questionId],
   );
+  const excluded = row.annulled || row.hasImage || row.hasTable;
+  const excludeReason = row.annulled
+    ? 'Questão anulada após recurso'
+    : row.hasImage && row.hasTable
+      ? 'Depende de imagem e tabela'
+      : row.hasImage
+        ? 'Depende de imagem'
+        : row.hasTable
+          ? 'Depende de tabela'
+          : '';
   return (
     <>
-      <tr className="border-t hover:bg-muted/30 cursor-pointer" onClick={onToggle}>
-        <td className="px-3 py-2 text-muted-foreground font-mono text-xs">{row.editionId}</td>
-        <td className="px-3 py-2 font-mono">{row.number}</td>
-        <td className="px-3 py-2 text-muted-foreground text-xs">
-          {row.specialty.map((s) => specialtyLabel(s)).join(', ')}
-        </td>
-        <td className="px-3 py-2 text-center font-mono font-semibold">{row.correct}</td>
+      <TableRow className="cursor-pointer" onClick={onToggle}>
+        <TableCell className="font-mono text-xs text-muted-foreground">{row.editionId}</TableCell>
+        <TableCell className="font-mono">{row.number}</TableCell>
+        <TableCell className="text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span>{row.specialty.map((s) => specialtyLabel(s)).join(', ')}</span>
+            {row.annulled && <ReasonBadge>anulada</ReasonBadge>}
+            {row.hasImage && <ReasonBadge>imagem</ReasonBadge>}
+            {row.hasTable && <ReasonBadge>tabela</ReasonBadge>}
+          </div>
+        </TableCell>
+        <TableCell className="text-center font-mono font-semibold">{row.correct}</TableCell>
         {models.map((m) => {
           const p = row.byModel[m.modelId];
           if (!p)
             return (
-              <td key={m.modelId} className="px-3 py-2 text-center text-muted-foreground">
+              <TableCell
+                key={m.modelId}
+                className="text-center text-muted-foreground"
+                title={excluded ? excludeReason : 'Sem dados por questão deste modelo'}
+              >
                 —
-              </td>
+              </TableCell>
             );
           const runsCorrect = p.runs.filter((r) => r.correct).length;
           const ratio = runsCorrect / p.runs.length;
-          const bg =
+          const tone =
             ratio === 1
-              ? 'bg-green-500/20 text-green-700 dark:text-green-300'
+              ? 'bg-emerald-600 text-white'
               : ratio === 0
-                ? 'bg-red-500/20 text-red-700 dark:text-red-300'
-                : 'bg-amber-500/20 text-amber-700 dark:text-amber-300';
+                ? 'bg-red-600 text-white'
+                : 'bg-amber-500 text-white';
+          const pillTone =
+            ratio === 1
+              ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+              : ratio === 0
+                ? 'border-destructive/20 bg-destructive/10 text-destructive'
+                : 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400';
           return (
-            <td key={m.modelId} className="px-3 py-2 text-center">
-              <span className={`inline-block px-2 py-0.5 rounded font-mono text-xs ${bg}`}>
-                {p.majority ?? '?'} · {runsCorrect}/{p.runs.length}
-              </span>
-            </td>
+            <TableCell key={m.modelId} className="text-center">
+              <div className="inline-flex items-center gap-1.5">
+                <span
+                  className={`inline-flex h-6 w-6 items-center justify-center rounded-full font-mono text-xs font-bold ${tone}`}
+                >
+                  {p.majority ?? '?'}
+                </span>
+                <span
+                  className={`inline-block rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold ${pillTone}`}
+                >
+                  {runsCorrect}/{p.runs.length}
+                </span>
+              </div>
+            </TableCell>
           );
         })}
-      </tr>
+      </TableRow>
       {expanded && question && (
-        <tr className="border-t bg-muted/20">
+        <tr className="border-b bg-muted/20">
           <td colSpan={4 + models.length} className="px-4 py-4">
-            <div className="space-y-3 max-w-3xl">
-              <div className="whitespace-pre-wrap text-sm">{question.stem}</div>
-              <ul className="space-y-1 text-sm">
+            <div className="max-w-3xl space-y-3">
+              <div className="font-serif text-sm leading-relaxed whitespace-pre-wrap">
+                {question.stem}
+              </div>
+              <ul className="space-y-1 font-serif text-sm">
                 {(['A', 'B', 'C', 'D'] as const).map((letter) => (
                   <li
                     key={letter}
@@ -209,23 +293,23 @@ function QuestionRow({
                 ))}
               </ul>
               <div className="text-xs text-muted-foreground">Execuções por modelo:</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-1 gap-2 text-xs md:grid-cols-2">
                 {models.map((m) => {
                   const p = row.byModel[m.modelId];
                   return (
-                    <div key={m.modelId} className="border rounded p-2">
+                    <div key={m.modelId} className="rounded border p-2">
                       <div className="font-sans font-semibold">{m.label}</div>
                       {p ? (
-                        <div className="flex gap-1 mt-1 font-mono">
+                        <div className="mt-1 flex gap-1 font-mono">
                           {p.runs.map((r, i) => (
                             <span
                               key={i}
-                              className={`inline-block px-1.5 py-0.5 rounded ${
+                              className={`inline-block rounded px-1.5 py-0.5 font-semibold ${
                                 r.correct
-                                  ? 'bg-green-500/20'
+                                  ? 'bg-emerald-600 text-white'
                                   : r.parsed
-                                    ? 'bg-red-500/20'
-                                    : 'bg-muted'
+                                    ? 'bg-red-600 text-white'
+                                    : 'bg-muted text-muted-foreground'
                               }`}
                             >
                               {r.parsed ?? '?'}
@@ -233,7 +317,7 @@ function QuestionRow({
                           ))}
                         </div>
                       ) : (
-                        <div className="text-muted-foreground mt-1">sem dados por questão</div>
+                        <div className="mt-1 text-muted-foreground">sem dados por questão</div>
                       )}
                     </div>
                   );
@@ -247,31 +331,10 @@ function QuestionRow({
   );
 }
 
-function Select<T extends string>({
-  label,
-  onChange,
-  options,
-  value,
-}: {
-  label: string;
-  onChange: (v: T) => void;
-  options: Array<{ label: string; value: string }>;
-  value: T;
-}) {
+function ReasonBadge({ children }: { children: React.ReactNode }) {
   return (
-    <label className="inline-flex items-center gap-2">
-      <span className="text-muted-foreground">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="border rounded-md bg-card px-2 py-1 font-sans"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <span className="inline-block rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+      {children}
+    </span>
   );
 }

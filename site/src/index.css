@@ -8,6 +8,8 @@
     --foreground: oklch(0.25 0.06 292);
     --card: oklch(0.96 0.005 61);
     --card-foreground: oklch(0.25 0.06 292);
+    --popover: oklch(0.98 0.003 61);
+    --popover-foreground: oklch(0.25 0.06 292);
     --primary: oklch(0.39 0.082 292);
     --primary-foreground: oklch(0.97 0.005 292);
     --secondary: oklch(0.89 0.023 65);
@@ -46,6 +48,7 @@
 
   html {
     scroll-padding-top: 5rem;
+    scrollbar-gutter: stable;
   }
 
   body {

@@ -11,9 +11,8 @@ import {
 /**
  * Parsing de texto extraído do PDF em questões estruturadas via Claude tool_use.
  *
- * Backend padrão: AWS Bedrock (reusa credenciais AWS do ambiente, consistente
- * via Bedrock). Alternativa: API Anthropic direta via opção
- * `backend: 'anthropic-api'`.
+ * Backend padrão: AWS Bedrock (reusa credenciais AWS do ambiente).
+ * Alternativa: API Anthropic direta via opção `backend: 'anthropic-api'`.
  *
  * Preprocessamento — não viola ADR 0002 de integridade do benchmark.
  */

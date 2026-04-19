@@ -1,0 +1,44 @@
+{
+  "accuracy": 0.8666666666666667,
+  "ci95": [
+    0.8194559760636875,
+    0.9029935838215859
+  ],
+  "contaminationSplit": {
+    "clean": {
+      "accuracy": 0.8666666666666667,
+      "n": 255
+    },
+    "contaminated": null
+  },
+  "correct": 221,
+  "modelId": "claude-opus-4-7",
+  "perSpecialty": {
+    "saude-publica": {
+      "accuracy": 0.7333333333333333,
+      "n": 30
+    },
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8958333333333334,
+      "n": 48
+    },
+    "pediatria": {
+      "accuracy": 0.8636363636363636,
+      "n": 66
+    },
+    "cirurgia": {
+      "accuracy": 0.9230769230769231,
+      "n": 39
+    },
+    "clinica-medica": {
+      "accuracy": 0.8421052631578947,
+      "n": 57
+    },
+    "medicina-familia-comunidade": {
+      "accuracy": 1,
+      "n": 15
+    }
+  },
+  "runsPerQuestion": 3,
+  "total": 255
+}

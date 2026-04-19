@@ -9,5 +9,7 @@ coverage/
 # Dados brutos extraídos da INEP (PDFs + gabaritos)
 scripts/data/raw/
 
-# Resultados de avaliação gerados pelo harness
-results/
+# Resultados de avaliação: NÃO ignorar.
+# São o dado canônico do leaderboard — consumidos pelo site em build time
+# via `import.meta.glob('../../../results/**/*.json')` e precisam estar no
+# repositório para o deploy do Cloudflare Pages.

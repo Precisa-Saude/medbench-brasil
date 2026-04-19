@@ -23,7 +23,7 @@ export default function ModelSelector({
             key={m.modelId}
             type="button"
             onClick={() => toggle(m.modelId)}
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-sans transition ${
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 font-sans text-xs transition ${
               on ? 'bg-card text-foreground' : 'bg-muted text-muted-foreground opacity-70'
             }`}
             aria-pressed={on}

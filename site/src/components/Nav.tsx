@@ -6,11 +6,10 @@ import { useDesktop, useWideGrid } from '@/hooks/useWideGrid';
 import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
-  { col: 5, href: '/', label: 'Leaderboard', span: 2 },
-  { col: 7, href: '/questoes', label: 'Questões', span: 1 },
-  { col: 8, href: '/metodologia', label: 'Metodologia', span: 2 },
-  { col: 10, href: '/replicacao', label: 'Replicação', span: 2 },
-  { col: 12, href: '/dataset', label: 'Dataset', span: 1 },
+  { col: 5, href: '/questoes', label: 'Questões', span: 2 },
+  { col: 7, href: '/metodologia', label: 'Metodologia', span: 2 },
+  { col: 9, href: '/reproducao', label: 'Reprodução', span: 2 },
+  { col: 11, href: '/dataset', label: 'Dataset', span: 2 },
 ] as const;
 
 const gridStyle = {
@@ -44,7 +43,6 @@ export function Nav() {
           <NavLink
             key={link.href}
             to={link.href}
-            end={link.href === '/'}
             className={({ isActive }) =>
               cn(
                 'hidden h-full items-center justify-center border-b-2 font-margem text-base font-medium transition-colors md:flex',
@@ -90,7 +88,6 @@ export function Nav() {
             <NavLink
               key={link.href}
               to={link.href}
-              end={link.href === '/'}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 cn(
