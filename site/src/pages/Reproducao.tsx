@@ -39,7 +39,8 @@ pnpm install`}</CodeBlock>
           <CodeBlock language="bash">{`# .env.local
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
-GOOGLE_API_KEY=AIza...       # ou GEMINI_API_KEY
+GOOGLE_API_KEY=AIza...          # ou GEMINI_API_KEY
+OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
 # Para modelos locais (Ollama) nada é necessário além do servidor em localhost:11434`}</CodeBlock>
           <p className="text-sm text-muted-foreground">
             <code>.env.local</code> já está no <code>.gitignore</code> — a chave nunca vai para o
@@ -82,6 +83,29 @@ GOOGLE_API_KEY=AIza...       # ou GEMINI_API_KEY
   --backend google --model gemini-2.5-pro \\
   --edition revalida-2025-1 --runs 3 \\
   --cutoff 2025-01-01 --label "Gemini 2.5 Pro"`}</CodeBlock>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="font-sans text-lg font-semibold tracking-tight">
+              OpenRouter (Llama 4, DeepSeek, Qwen, etc.)
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Gateway unificado para modelos open-weight sem hospedar localmente. Use o{' '}
+              <code>modelId</code> no formato do{' '}
+              <a
+                className="underline text-ps-violet"
+                href="https://openrouter.ai/models"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                catálogo OpenRouter
+              </a>
+              . Declare o corte de treino com base na documentação oficial do fornecedor do modelo.
+            </p>
+            <CodeBlock language="bash">{`pnpm --filter @precisa-saude/medbench-harness exec medbench \\
+  --backend openrouter --model meta-llama/llama-4-maverick \\
+  --edition revalida-2025-1 --runs 3 \\
+  --cutoff 2024-08-01 --label "Llama 4 Maverick"`}</CodeBlock>
           </div>
 
           <div className="space-y-2">

@@ -73,21 +73,100 @@ export default function Metodologia() {
 
         <section>
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Fontes</h2>
-          <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
+          <ul className="mt-3 list-disc list-inside space-y-2 text-foreground">
             <li>
               Provas e gabaritos:{' '}
               <a
                 className="underline text-ps-violet"
                 href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 INEP Revalida
               </a>
             </li>
             <li>
-              Taxas de aprovação: Painel Revalida INEP; pedidos via Lei de Acesso à Informação
-              quando necessário
+              Cortes de treino dos modelos — documentação oficial de cada fornecedor:
+              <ul className="mt-2 ml-6 list-[circle] list-outside space-y-1 text-sm">
+                <li>
+                  Anthropic (Claude Opus 4.5/4.6/4.7):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://docs.anthropic.com/en/docs/about-claude/models/overview"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    docs.anthropic.com/models/overview
+                  </a>
+                </li>
+                <li>
+                  OpenAI (GPT-5.1/5.2/5.4):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://platform.openai.com/docs/models"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    platform.openai.com/docs/models
+                  </a>
+                </li>
+                <li>
+                  Google (Gemini 2.5 Pro / 3.1 Pro):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://ai.google.dev/gemini-api/docs/models"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ai.google.dev/gemini-api/docs/models
+                  </a>
+                </li>
+                <li>
+                  Meta (Llama 4 Scout/Maverick):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://ai.meta.com/blog/llama-4-multimodal-intelligence/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ai.meta.com/blog/llama-4-multimodal-intelligence
+                  </a>
+                </li>
+                <li>
+                  DeepSeek (V3.1 / R1):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://api-docs.deepseek.com/news/news250120"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    api-docs.deepseek.com
+                  </a>
+                </li>
+                <li>
+                  Alibaba Qwen (3.5 / 3.6):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://qwenlm.github.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    qwenlm.github.io
+                  </a>
+                </li>
+                <li>
+                  Maritaca AI (Sabiá 4):{' '}
+                  <a
+                    className="underline text-ps-violet"
+                    href="https://maritaca.ai/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    maritaca.ai
+                  </a>
+                </li>
+              </ul>
             </li>
-            <li>Cortes de treino dos modelos: documentação oficial de cada fornecedor</li>
           </ul>
         </section>
       </div>
