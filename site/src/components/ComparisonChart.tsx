@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bar,
@@ -14,6 +15,16 @@ import { EDITIONS, getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+
+/**
+ * Família do modelo derivada do prefixo alfabético do label:
+ * "Claude Opus 4.7" → "Claude", "GPT-5.2" → "GPT", "DeepSeek R1" → "DeepSeek".
+ * Agrupa rótulos que não têm espaço antes da versão (caso do GPT-5.x).
+ */
+function modelFamily(label: string): string {
+  const match = label.match(/^([A-Za-zÀ-ú]+)/);
+  return match ? match[1] : label;
+}
 
 // Paleta de 4 tons do violeta mais escuro (tier 0 = melhores) ao mais claro
 // (tier 3 = piores). Os valores vêm dos tokens OKLch do tema — mantém
@@ -44,8 +55,36 @@ export default function ComparisonChart({
 }) {
   const navigate = useNavigate();
   const edition = getEditionMetadata(editionId);
+
+  // Famílias disponíveis vêm dos modelos que têm dados nessa edição — ordenadas
+  // para estabilidade visual entre re-renders.
+  const allFamilies = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of models) {
+      if (m.accuracyByEdition[editionId] !== undefined) set.add(modelFamily(m.label));
+    }
+    return [...set].sort();
+  }, [models, editionId]);
+
+  // Conjunto opt-in: chips começam inativos e o chart mostra todos os modelos.
+  // Assim que o usuário clica em um chip, filtramos para as famílias nele.
+  // Conjunto vazio = sem filtro (mostra tudo).
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const hasFilter = selected.size > 0;
+  const isActive = (family: string) => selected.has(family);
+  const isVisible = (family: string) => !hasFilter || selected.has(family);
+  const toggle = (family: string) => {
+    setSelected((cur) => {
+      const next = new Set(cur);
+      if (next.has(family)) next.delete(family);
+      else next.add(family);
+      return next;
+    });
+  };
+
   const data = models
     .filter((m) => m.accuracyByEdition[editionId] !== undefined)
+    .filter((m) => isVisible(modelFamily(m.label)))
     .map((m) => ({
       accuracy: m.accuracyByEdition[editionId]!.accuracy * 100,
       ciHigh: m.ci95[1] * 100,
@@ -94,157 +133,189 @@ export default function ComparisonChart({
   const humanPct = edition.estimatedHumanMean * 100;
 
   return (
-    <div className="rounded-lg border bg-card p-4 font-sans">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
-              <span>menor</span>
-              <span className="inline-flex gap-0.5">
-                {JENKS_COLORS.map((_c, i) => (
-                  <span
-                    key={i}
-                    aria-hidden
-                    className="inline-block h-2.5 w-4"
-                    style={{ backgroundColor: JENKS_COLORS[JENKS_COLORS.length - 1 - i] }}
-                  />
-                ))}
-              </span>
-              <span>maior</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="max-w-xs font-sans text-sm">
-            Cores agrupam os modelos em 4 classes naturais pelo algoritmo Jenks sobre as precisões
-            observadas — classes mais escuras concentram as maiores precisões.
-          </TooltipContent>
-        </Tooltip>
-      </div>
-      <div className="relative">
-        <div
-          className="absolute top-0 z-10 text-xs"
-          style={{
-            height: TOP_MARGIN,
-            left: Y_AXIS_WIDTH + LEFT_MARGIN,
-            right: RIGHT_MARGIN,
-          }}
-        >
-          <FloatingLabel leftPercent={humanPct}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                  Humano
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs font-sans text-sm">
-                Média humana estimada da taxa de aprovação ({(edition.passRate * 100).toFixed(0)}%).
-              </TooltipContent>
-            </Tooltip>
-          </FloatingLabel>
-          <FloatingLabel leftPercent={cutoffPct}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                  Corte
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs font-sans text-sm">
-                Nota de corte oficial da INEP para aprovação nesta edição.
-              </TooltipContent>
-            </Tooltip>
-          </FloatingLabel>
+    <div className="space-y-3 font-sans">
+      {allFamilies.length > 1 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">Famílias:</span>
+          {allFamilies.map((family) => {
+            const active = isActive(family);
+            return (
+              <button
+                key={family}
+                type="button"
+                onClick={() => toggle(family)}
+                aria-pressed={active}
+                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  active
+                    ? 'border-primary/30 bg-primary/10 text-primary'
+                    : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                {family}
+              </button>
+            );
+          })}
         </div>
-        <ResponsiveContainer width="100%" height={Math.max(260, data.length * 42 + 100)}>
-          <BarChart
-            data={data}
-            layout="vertical"
-            margin={{ bottom: 8, left: LEFT_MARGIN, right: RIGHT_MARGIN, top: TOP_MARGIN }}
+      )}
+      <div className="rounded-lg border bg-card p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
+                <span>menor</span>
+                <span className="inline-flex gap-0.5">
+                  {JENKS_COLORS.map((_c, i) => (
+                    <span
+                      key={i}
+                      aria-hidden
+                      className="inline-block h-2.5 w-4"
+                      style={{ backgroundColor: JENKS_COLORS[JENKS_COLORS.length - 1 - i] }}
+                    />
+                  ))}
+                </span>
+                <span>maior</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs font-sans text-sm">
+              Cores agrupam os modelos em 4 classes naturais pelo algoritmo Jenks sobre as precisões
+              observadas — classes mais escuras concentram as maiores precisões.
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="relative">
+          <div
+            className="absolute top-0 z-10 text-xs"
+            style={{
+              height: TOP_MARGIN,
+              left: Y_AXIS_WIDTH + LEFT_MARGIN,
+              right: RIGHT_MARGIN,
+            }}
           >
-            <XAxis
-              type="number"
-              domain={[0, 100]}
-              ticks={Array.from(
-                new Set([0, 25, 50, 75, 100, Math.round(cutoffPct), Math.round(humanPct)]),
-              ).sort((a, b) => a - b)}
-              tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-              unit="%"
-            />
-            <YAxis
-              type="category"
-              dataKey="label"
-              padding={{ bottom: 16, top: 0 }}
-              tick={(props) => {
-                const { payload, x, y } = props as {
-                  payload: { value: string };
-                  x: number;
-                  y: number;
-                };
-                const modelId = labelToId.get(payload.value);
-                return (
-                  <g transform={`translate(${x},${y})`}>
-                    <text
-                      x={-4}
-                      y={0}
-                      dy={4}
-                      textAnchor="end"
-                      fill="var(--ps-violet)"
-                      fontSize={12}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => modelId && navigate(`/models/${modelId}`)}
-                    >
-                      <title>Ver detalhes de {payload.value}</title>
-                      {payload.value}
-                    </text>
-                  </g>
-                );
-              }}
-              width={140}
-            />
-            <Bar dataKey="accuracy" name="Precisão" radius={[0, 4, 4, 0]} isAnimationActive={false}>
-              {data.map((d) => (
-                <Cell key={d.modelId} fill={colorFor(d.accuracy)} />
-              ))}
-              <LabelList
-                dataKey="accuracy"
-                position="insideRight"
-                offset={10}
-                fill="#ffffff"
-                fontSize={12}
-                fontWeight={700}
-                formatter={(v: number) => `${v.toFixed(1)}%`}
+            <FloatingLabel leftPercent={humanPct}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
+                    Humano
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs font-sans text-sm">
+                  Média humana estimada da taxa de aprovação ({(edition.passRate * 100).toFixed(0)}
+                  %).
+                </TooltipContent>
+              </Tooltip>
+            </FloatingLabel>
+            <FloatingLabel leftPercent={cutoffPct}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
+                    Corte
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs font-sans text-sm">
+                  Nota de corte oficial da INEP para aprovação nesta edição.
+                </TooltipContent>
+              </Tooltip>
+            </FloatingLabel>
+          </div>
+          <ResponsiveContainer width="100%" height={Math.max(260, data.length * 42 + 100)}>
+            <BarChart
+              data={data}
+              layout="vertical"
+              margin={{ bottom: 8, left: LEFT_MARGIN, right: RIGHT_MARGIN, top: TOP_MARGIN }}
+            >
+              <XAxis
+                type="number"
+                domain={[0, 100]}
+                ticks={Array.from(
+                  new Set([0, 25, 50, 75, 100, Math.round(cutoffPct), Math.round(humanPct)]),
+                ).sort((a, b) => a - b)}
+                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                unit="%"
               />
-            </Bar>
-            <ReferenceLine
-              x={edition.cutoffScore * 100}
-              stroke="#ffffff"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              ifOverflow="extendDomain"
-            />
-            <ReferenceLine
-              x={edition.estimatedHumanMean * 100}
-              stroke="#ffffff"
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              ifOverflow="extendDomain"
-            />
-          </BarChart>
-        </ResponsiveContainer>
+              <YAxis
+                type="category"
+                dataKey="label"
+                padding={{ bottom: 16, top: 0 }}
+                tick={(props) => {
+                  const { payload, x, y } = props as {
+                    payload: { value: string };
+                    x: number;
+                    y: number;
+                  };
+                  const modelId = labelToId.get(payload.value);
+                  return (
+                    <g transform={`translate(${x},${y})`}>
+                      <text
+                        x={-4}
+                        y={0}
+                        dy={4}
+                        textAnchor="end"
+                        fill="var(--ps-violet)"
+                        fontSize={12}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => modelId && navigate(`/models/${modelId}`)}
+                      >
+                        <title>Ver detalhes de {payload.value}</title>
+                        {payload.value}
+                      </text>
+                    </g>
+                  );
+                }}
+                width={140}
+              />
+              <Bar
+                dataKey="accuracy"
+                name="Precisão"
+                radius={[0, 4, 4, 0]}
+                isAnimationActive={false}
+                barSize={28}
+              >
+                {data.map((d) => (
+                  <Cell key={d.modelId} fill={colorFor(d.accuracy)} />
+                ))}
+                <LabelList
+                  dataKey="accuracy"
+                  position="insideRight"
+                  offset={10}
+                  fill="#ffffff"
+                  fontSize={12}
+                  fontWeight={700}
+                  formatter={(v: number) => `${v.toFixed(1)}%`}
+                />
+              </Bar>
+              <ReferenceLine
+                x={edition.cutoffScore * 100}
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                ifOverflow="extendDomain"
+              />
+              <ReferenceLine
+                x={edition.estimatedHumanMean * 100}
+                stroke="#ffffff"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                ifOverflow="extendDomain"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          As quatro tonalidades agrupam os modelos em classes naturais via{' '}
+          <a
+            className="text-ps-violet underline"
+            href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Jenks natural breaks
+          </a>
+          : os cortes são escolhidos por programação dinâmica para minimizar a variância
+          intra-classe das precisões observadas, destacando os agrupamentos reais da distribuição em
+          vez de faixas fixas arbitrárias.
+        </p>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        As quatro tonalidades agrupam os modelos em classes naturais via{' '}
-        <a
-          className="text-ps-violet underline"
-          href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Jenks natural breaks
-        </a>
-        : os cortes são escolhidos por programação dinâmica para minimizar a variância intra-classe
-        das precisões observadas, destacando os agrupamentos reais da distribuição em vez de faixas
-        fixas arbitrárias.
-      </p>
     </div>
   );
 }
