@@ -41,6 +41,12 @@ export interface RunConfig {
    * undefined, raw responses são descartadas após o parsing.
    */
   onRawResponse?: (record: RawResponseRecord) => void;
+  /**
+   * Resultados de execuções anteriores (do JSONL bruto). Se presente, o runner
+   * reaproveita essas respostas em vez de chamar o provider — retomada sem
+   * custo após falha no meio do run. Chave lógica: (editionId, questionId, run).
+   */
+  priorRecords?: RawResponseRecord[];
   runsPerQuestion: number;
 }
 

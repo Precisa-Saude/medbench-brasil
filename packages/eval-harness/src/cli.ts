@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { config as loadDotenv } from 'dotenv';
@@ -139,6 +139,8 @@ Opções de eval:
   --runs N                    (padrão: 3)
   --out DIR                   (padrão: results/)
   --no-raw-log                Desabilita JSONL bruto (por padrão ativado)
+  --restart                   Descarta JSONL prévio e recomeça do zero
+                              (padrão: retoma de onde parou)
 
 Opções de smoke:
   --samples N                 (padrão: 8)
@@ -225,6 +227,7 @@ async function runEval(args: Record<string, string>) {
   const concurrency = args.concurrency ? Number(args.concurrency) : defaultConcurrency;
   const edition = args.edition ?? 'revalida-2025-1';
   const logRaw = args['no-raw-log'] !== 'true';
+  const forceRestart = args.restart === 'true';
 
   console.log(`avaliando ${provider.label} via ${provider.provider} em ${edition}…`);
 
@@ -236,8 +239,28 @@ async function runEval(args: Record<string, string>) {
   const outPath = join(outDir, `${slug}.json`);
   const rawLogPath = join(outDir, `${slug}.raw.jsonl`);
 
-  // Zera o log bruto se já existir — cada run reescreve.
-  if (logRaw) writeFileSync(rawLogPath, '');
+  // Retomada: se existe JSONL prévio, carrega os registros e reaproveita.
+  // Com --restart, descarta e recomeça do zero.
+  const priorRecords: RawResponseRecord[] = [];
+  if (logRaw && existsSync(rawLogPath) && !forceRestart) {
+    const raw = readFileSync(rawLogPath, 'utf8');
+    for (const line of raw.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        priorRecords.push(JSON.parse(trimmed) as RawResponseRecord);
+      } catch {
+        // linha corrompida — ignora, será re-executada
+      }
+    }
+    if (priorRecords.length > 0) {
+      console.log(
+        `retomando: ${priorRecords.length} execuções encontradas em ${rawLogPath} (use --restart para descartar)`,
+      );
+    }
+  } else if (logRaw) {
+    writeFileSync(rawLogPath, '');
+  }
 
   const result = await runEvaluation(provider, {
     concurrency,
@@ -249,6 +272,7 @@ async function runEval(args: Record<string, string>) {
           appendFileSync(rawLogPath, `${JSON.stringify(record)}\n`);
         }
       : undefined,
+    priorRecords,
     runsPerQuestion: Number(args.runs ?? 3),
   });
 

@@ -136,11 +136,37 @@ export async function runEvaluation(
     );
 
     const contamination = getModelContaminationRisk(edition, provider.trainingCutoff);
+
+    // Índice de resultados prévios (resume após falha parcial). Chave:
+    // `${editionId}\t${questionId}\trun${run+1}`.
+    const priorIndex = new Map<string, NonNullable<typeof config.priorRecords>[number]>();
+    for (const rec of config.priorRecords ?? []) {
+      if (rec.editionId !== editionId) continue;
+      priorIndex.set(`${rec.editionId}\t${rec.questionId}\trun${rec.run}`, rec);
+    }
+
     const tasks: Array<{ q: Question; run: number }> = [];
+    let resumed = 0;
     for (const q of questions) {
       for (let run = 0; run < config.runsPerQuestion; run++) {
+        const key = `${editionId}\t${q.id}\trun${run + 1}`;
+        const prior = priorIndex.get(key);
+        if (prior) {
+          records.push({
+            contamination,
+            correct: prior.correct,
+            parsed: prior.parsed,
+            question: q,
+          });
+          resumed += 1;
+          continue;
+        }
         tasks.push({ q, run });
       }
+    }
+    if (resumed > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`  retomando: ${resumed} execuções reaproveitadas do JSONL prévio`);
     }
     const total = tasks.length;
     const concurrency = Math.max(1, config.concurrency ?? 1);
