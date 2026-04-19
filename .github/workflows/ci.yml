@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Permissões top-level em read por padrão. Jobs que precisam escrever
+# (release empurra chore(release), deploy usa OIDC) elevam no escopo do
+# próprio job — evita que PRs tenham contents:write.
 permissions:
   contents: read
   issues: write
@@ -50,6 +53,195 @@ jobs:
       pr_number: ${{ github.event.pull_request.number }}
     secrets: inherit
 
+  # ── Release (main only, after checks pass, skip when no package changes) ──
+  release:
+    name: Release
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    # Escopo mínimo necessário para empurrar o chore(release) e criar a
+    # release GitHub. Mesmo com o GitHub App fornecendo o token, o job
+    # precisa do escopo correto a nível de workflow.
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.semantic.outputs.released }}
+      version: ${{ steps.semantic.outputs.version }}
+      # Fallback para `github.sha` em no-op — evita que consumers
+      # desprevenidos (sem guarda em `released == 'true'`) façam checkout
+      # do branch default com string vazia.
+      release_sha: ${{ steps.semantic.outputs.release_sha || github.sha }}
+    steps:
+      - name: Check for package changes across pushed commits
+        id: changes
+        uses: actions/github-script@v7
+        with:
+          # Compara `before..after` do push payload e acusa mudança se qualquer
+          # commit do range tocou `packages/**` ou `package.json`. Paginamos
+          # explicitamente via `github.paginate` porque a API `compareCommits`
+          # trunca em 300 arquivos por página — um push grande com muitos
+          # arquivos poderia silenciosamente perder a detecção.
+          script: |
+            const before = context.payload.before;
+            const after = context.sha;
+            const isInitial = !before || /^0+$/.test(before);
+            let filenames = [];
+            if (isInitial) {
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner, repo: context.repo.repo, ref: after,
+              });
+              filenames = (commit.files ?? []).map(f => f.filename);
+            } else {
+              const pages = await github.paginate(
+                github.rest.repos.compareCommitsWithBasehead,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100,
+                },
+              );
+              filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
+            }
+            const packageChanged = filenames.some(
+              f => f.startsWith('packages/') || f === 'package.json'
+            );
+            core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
+            core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);
+
+      - name: Generate GitHub App token
+        id: app-token
+        if: steps.changes.outputs.packages_changed == 'true'
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        if: steps.changes.outputs.packages_changed == 'true'
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v4
+        if: steps.changes.outputs.packages_changed == 'true'
+
+      - uses: actions/setup-node@v6
+        if: steps.changes.outputs.packages_changed == 'true'
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        if: steps.changes.outputs.packages_changed == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        if: steps.changes.outputs.packages_changed == 'true'
+        run: pnpm turbo run build
+
+      - name: Run semantic-release
+        id: semantic
+        if: steps.changes.outputs.packages_changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          HUSKY: 0
+        # Três cenários:
+        #   (a) sucesso com release: stdout contém 'Published release' →
+        #       extraímos a versão da tag criada (`git describe`) em vez de
+        #       regex no stdout (mais resiliente a mudanças de formato).
+        #   (b) no-op: exit 0 E stdout contém 'no relevant changes' →
+        #       released=false. Exigir AMBAS as condições (e não a disjunção)
+        #       evita mascarar falhas silenciosas onde o tool exitou 0 sem
+        #       publicar nem explicar.
+        #   (c) erro real: qualquer outra combinação → exit não-zero.
+        run: |
+          set +e
+          OUTPUT=$(npx semantic-release 2>&1)
+          EXIT=$?
+          set -e
+          echo "$OUTPUT"
+
+          if echo "$OUTPUT" | grep -q "Published release"; then
+            # Tag recém-criada por @semantic-release/github é vX.Y.Z.
+            RAW_TAG=$(git describe --tags --abbrev=0)
+            VERSION="${RAW_TAG#v}"
+            if [ -z "$VERSION" ]; then
+              echo "::error::semantic-release publicou mas git describe não encontrou tag"
+              exit 1
+            fi
+            RELEASE_SHA=$(git rev-parse HEAD)
+            {
+              echo "released=true"
+              echo "version=$VERSION"
+              echo "release_sha=$RELEASE_SHA"
+            } >> "$GITHUB_OUTPUT"
+          elif [ "$EXIT" -eq 0 ] && echo "$OUTPUT" | grep -qE "no relevant changes|There are no relevant changes"; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::semantic-release saiu com exit=$EXIT sem indicador reconhecido de release ou no-op"
+            exit "${EXIT:-1}"
+          fi
+
+      - name: Skip release (site-only changes)
+        if: steps.changes.outputs.packages_changed != 'true'
+        run: echo "Somente alterações no site detectadas — release ignorado"
+
+  # ── Publish to npm (only after release) ────────────────────
+  publish:
+    name: Publish to npm
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # Usa o SHA exato produzido pelo job release. Checkout de `main` teria
+      # race com outro push aterrissando entre release e publish — esse SHA
+      # é o commit `chore(release): X.Y.Z` garantidamente.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release.outputs.release_sha }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm turbo run build
+
+      - name: Publish packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Cada pnpm publish roda em subshell — se falhar, preservamos cwd
+        # via escopo local. `set -e` propaga erro para o job.
+        run: |
+          set -e
+          publish_if_needed() {
+            local dir="$1"
+            local pkg_name pkg_version
+            pkg_name=$(node -p "require('./$dir/package.json').name")
+            pkg_version=$(node -p "require('./$dir/package.json').version")
+
+            if npm view "$pkg_name@$pkg_version" version 2>/dev/null; then
+              echo "Skipping $pkg_name@$pkg_version (already published)"
+            else
+              echo "Publishing $pkg_name@$pkg_version..."
+              ( cd "$dir" && pnpm publish --provenance --access public --no-git-checks )
+            fi
+          }
+
+          publish_if_needed packages/dataset
+          publish_if_needed packages/eval-harness
+
   build-site:
     name: Build Site
     needs: build-and-test
@@ -63,7 +255,10 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @medbench-brasil/site build
+      # `turbo run build --filter=<site>...` inclui as deps do workspace
+      # (medbench-dataset, medbench-harness). Sem o `...`, o tsc do site
+      # quebra por não achar os tipos/dist dos pacotes consumidos.
+      - run: pnpm turbo run build --filter=@medbench-brasil/site...
       - uses: actions/upload-artifact@v6
         with:
           name: site-dist
@@ -99,3 +294,57 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
+
+  # ── Slack notification after deploy (push to main only) ────
+  notify:
+    name: Notify
+    needs: [build-and-test, build-site, deploy-site]
+    if: always() && github.event_name != 'pull_request' && needs.deploy-site.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build notification
+        id: notify
+        # Constrói o payload via jq para escapar automaticamente aspas,
+        # barras invertidas, newlines e caracteres de controle — interpolar
+        # mensagens de commit ou SHA em string crua é injection-prone.
+        env:
+          GH_SHA: ${{ github.sha }}
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          DEPLOY_RESULT: ${{ needs.deploy-site.result }}
+        run: |
+          SHORT_SHA="${GH_SHA:0:7}"
+          RUN_URL="${GH_SERVER}/${GH_REPO}/actions/runs/${GH_RUN_ID}"
+          COMMIT_URL="${GH_SERVER}/${GH_REPO}/commit/${GH_SHA}"
+
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            HEADER=":rocket: medbench-brasil site deployed"
+            RESULT_LINE=":white_check_mark: *Site* — deployed to Cloudflare Pages"
+            TEXT="Deploy successful"
+          else
+            HEADER=":rotating_light: medbench-brasil site deploy failed"
+            RESULT_LINE=":x: *Site* — deploy failed"
+            TEXT="Deploy failed"
+          fi
+
+          jq -n \
+            --arg text "$TEXT" \
+            --arg header "$HEADER" \
+            --arg result_line "$RESULT_LINE" \
+            --arg context "*Commit:* <${COMMIT_URL}|${SHORT_SHA}> | *Run:* <${RUN_URL}|View logs>" \
+            '{
+              text: $text,
+              blocks: [
+                { type: "header",  text: { type: "plain_text", text: $header, emoji: true } },
+                { type: "section", text: { type: "mrkdwn", text: $result_line } },
+                { type: "context", elements: [ { type: "mrkdwn", text: $context } ] }
+              ]
+            }' > /tmp/slack-payload.json
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload-file-path: /tmp/slack-payload.json
