@@ -51,6 +51,24 @@ const artifacts = import.meta.glob<RawEvaluationArtifact>('../../../results/*/*.
   import: 'default',
 });
 
+// Artefatos antigos (pré-update do scorer) não trazem accuracyByEdition. Como
+// o path do arquivo já carrega a edição (results/<edition>/<model>.json),
+// reconstruímos o campo quando estiver ausente — assim os gráficos por edição
+// não deixam de fora modelos válidos só por falta de metadado na versão v0
+// do artefato.
+function backfillEdition(path: string, raw: RawEvaluationArtifact): RawEvaluationArtifact {
+  if (raw.accuracyByEdition && Object.keys(raw.accuracyByEdition).length > 0) {
+    return raw;
+  }
+  const editionMatch = path.match(/\/results\/([^/]+)\/[^/]+\.json$/);
+  if (!editionMatch) return raw;
+  const editionId = editionMatch[1]!;
+  return {
+    ...raw,
+    accuracyByEdition: { [editionId]: { accuracy: raw.accuracy, n: raw.total } },
+  };
+}
+
 type SplitBucket = { accuracy: number; n: number } | null;
 
 function mergeBuckets(a: SplitBucket, b: SplitBucket): SplitBucket {
@@ -132,10 +150,11 @@ function normalise(raw: RawEvaluationArtifact): ModelResult {
 }
 
 const byModel = new Map<string, RawEvaluationArtifact[]>();
-for (const raw of Object.values(artifacts)) {
-  const list = byModel.get(raw.modelId) ?? [];
-  list.push(raw);
-  byModel.set(raw.modelId, list);
+for (const [path, raw] of Object.entries(artifacts)) {
+  const enriched = backfillEdition(path, raw);
+  const list = byModel.get(enriched.modelId) ?? [];
+  list.push(enriched);
+  byModel.set(enriched.modelId, list);
 }
 
 export const MODELS: ModelResult[] = [...byModel.values()]
