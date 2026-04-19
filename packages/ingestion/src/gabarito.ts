@@ -27,6 +27,9 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
   const out = new Map<number, GabaritoValue>();
   const lines = text.split('\n');
 
+  // Formato Revalida (linha-a-linha):
+  //   Questão 1 2 3 4 ...
+  //   Gabarito B A A B ...
   let pendingNumbers: number[] | null = null;
   for (const line of lines) {
     const trimmed = line.trim();
@@ -40,11 +43,6 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
     }
     if (/^Gabarito\b/i.test(trimmed) && pendingNumbers) {
       const tokens = trimmed.split(/\s+/).slice(1);
-      // PDFs da INEP às vezes duplicam o gabarito com formatação "grudada"
-      // (ex.: "C B- A" para Q21=C, Q22=B, Q23=anulada). Só aceitamos o par
-      // Questão/Gabarito quando todos os tokens são letras A–D ou um
-      // marcador de anulada, e o total de letras bate com o total de
-      // números. Isso faz a primeira ocorrência (limpa) vencer.
       const allValid = tokens.every((t) => VALID_TOKEN.test(t));
       if (allValid && tokens.length === pendingNumbers.length) {
         for (let i = 0; i < pendingNumbers.length; i++) {
@@ -55,6 +53,28 @@ export function parseGabarito(text: string): Map<number, GabaritoValue> {
         }
       }
       pendingNumbers = null;
+    }
+  }
+
+  // Formato ENAMED (tabela interleaved):
+  //   1 A 11 Anulada 21 A
+  //   2 Excluída* 12 D 22 A
+  //   ...
+  // Aplicamos como fallback — só preenche números ainda não capturados pelo
+  // formato Revalida acima. Anulada, Excluída, Anulada Administrativamente
+  // tratados como 'ANNULLED' (questão removida do cálculo de precisão).
+  const pairRegex =
+    /\b(\d{1,3})\s+(A|B|C|D|Anulada(?:\s+Administrati-?\s*vamente)?|Exclu[íi]da)\*{0,2}\b/giu;
+  const joined = text.replace(/\n/g, ' ');
+  for (const m of joined.matchAll(pairRegex)) {
+    const n = Number(m[1]);
+    if (!Number.isFinite(n) || n < 1 || n > 1000) continue;
+    if (out.has(n)) continue;
+    const token = m[2]!;
+    if (/^[ABCD]$/.test(token)) {
+      out.set(n, token as QuestionOption);
+    } else {
+      out.set(n, 'ANNULLED');
     }
   }
 
