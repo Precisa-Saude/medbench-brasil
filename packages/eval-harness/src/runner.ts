@@ -32,22 +32,35 @@ export function parseLetter(raw: string): QuestionOption | null {
   const text = raw.trim();
   const upper = text.toUpperCase();
 
+  // Ordem dos padrões (do sinal mais forte para o mais fraco):
+  //   1. Strict commit: "resposta/alternativa/letra/opção" + "correta/é/foi"
+  //      — take LAST, cobre modelos que argumentam várias letras antes de fechar.
+  //   2. Bold **X** (fallback se não houve commit explícito) — take FIRST.
+  //   3. Loose commit: só a palavra de compromisso — "Resposta: A".
+  //   4. Última ocorrência de X)
+  //   5. Última letra isolada \bX\b.
+  const commitWord = String.raw`(?:\bresposta\b|\balternativa\b|\bletra\b|\bop[cç][aã]o\b)`;
+  const commitSuffix = String.raw`(?:\bcorreta\b|\bé\b|\bser[íi]a?\b|\bfoi\b)`;
+  const strictPhrase = new RegExp(`${commitWord}[\\s,.:*\\-–]*${commitSuffix}`, 'gi');
+  const loosePhrase = new RegExp(commitWord, 'gi');
+
+  const strictMatches = [...text.matchAll(strictPhrase)];
+  for (let i = strictMatches.length - 1; i >= 0; i--) {
+    const m = strictMatches[i]!;
+    if (m.index === undefined) continue;
+    const lookahead = text.slice(m.index + m[0].length, m.index + m[0].length + 80);
+    const firstLetter = lookahead.match(/\b([ABCD])\b/);
+    if (firstLetter) return firstLetter[1] as QuestionOption;
+  }
+
   const bold = upper.match(/\*\*\s*([ABCD])\s*\*\*/);
   if (bold) return bold[1] as QuestionOption;
 
-  // Depois de um marcador de compromisso ("resposta correta é", "alternativa",
-  // etc.) o modelo emite a letra dentro de ~80 chars. Capturamos a PRIMEIRA
-  // letra MAIÚSCULA nesse intervalo (as letras-resposta são sempre maiúsculas
-  // enquanto os artigos pt-BR "a"/"o" são minúsculos, então isso desambigua).
-  // Resolve o caso real "A resposta correta é:\n\n**C) ..." que caía em
-  // `LAST X)` e colhia a letra errada de uma lista de justificativas no fim.
-  const commitmentPhrase =
-    /(?:resposta|alternativa|letra|op[cç][aã]o)\s*(?:correta)?\s*(?:é|ser[íi]a?|foi)?/i;
-  const phraseMatch = text.match(commitmentPhrase);
-  if (phraseMatch?.index !== undefined) {
-    const after = text.slice(phraseMatch.index + phraseMatch[0].length);
-    const lookahead = after.slice(0, 80);
-    // Case-sensitive: só captura letra MAIÚSCULA, ignora artigos "a"/"o"
+  const looseMatches = [...text.matchAll(loosePhrase)];
+  for (let i = looseMatches.length - 1; i >= 0; i--) {
+    const m = looseMatches[i]!;
+    if (m.index === undefined) continue;
+    const lookahead = text.slice(m.index + m[0].length, m.index + m[0].length + 80);
     const firstLetter = lookahead.match(/\b([ABCD])\b/);
     if (firstLetter) return firstLetter[1] as QuestionOption;
   }
