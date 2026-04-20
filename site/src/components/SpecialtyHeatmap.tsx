@@ -5,7 +5,17 @@ import type { ModelResult } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
 import { perSpecialtyForScope } from '../lib/metrics';
 import type { ContaminationScope } from './ContaminationToggle';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+
+/**
+ * Retorna a precisão agregada do modelo no escopo ativo, para que a ordem
+ * das linhas do heatmap bata com as células exibidas (em `clean`, por ex.,
+ * ordenar por `accuracy` geral deixaria a sequência inconsistente).
+ */
+function scopeAccuracy(m: ModelResult, scope: ContaminationScope): number {
+  if (scope === 'clean') return m.cleanAccuracy ?? -1;
+  if (scope === 'contaminated') return m.contaminatedAccuracy ?? -1;
+  return m.accuracy;
+}
 
 /**
  * Interpolação linear em OKLch entre um violeta médio (baixa precisão) e o
@@ -51,7 +61,7 @@ export default function SpecialtyHeatmap({
         const bucket = perModel.get(m.modelId);
         return bucket && Object.keys(bucket).length > 0;
       })
-      .sort((a, b) => b.accuracy - a.accuracy);
+      .sort((a, b) => scopeAccuracy(b, contaminationScope) - scopeAccuracy(a, contaminationScope));
 
     return { cells: perModel, orderedModels, orderedSpecialties };
   }, [models, contaminationScope]);
@@ -123,23 +133,19 @@ export default function SpecialtyHeatmap({
                     );
                   }
                   const bg = colorFor(cell.accuracy);
+                  // Tooltip nativo (atributo `title`) em vez de Radix por célula:
+                  // para N modelos × M specialties o Radix cria um portal por
+                  // célula (facilmente 400+ instâncias), inviável em grids grandes.
+                  const tip = `${m.label}\n${specialtyLabel(sp)}: ${(cell.accuracy * 100).toFixed(1)}% (n=${cell.n})`;
                   return (
-                    <Tooltip key={sp}>
-                      <TooltipTrigger asChild>
-                        <div
-                          className="flex cursor-default items-center justify-center py-2 font-sans font-semibold"
-                          style={{ backgroundColor: bg, color: '#ffffff' }}
-                        >
-                          {(cell.accuracy * 100).toFixed(0)}%
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent className="font-sans">
-                        <div className="font-semibold">{m.label}</div>
-                        <div>
-                          {specialtyLabel(sp)}: {(cell.accuracy * 100).toFixed(1)}% (n={cell.n})
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div
+                      key={sp}
+                      title={tip}
+                      className="flex cursor-default items-center justify-center py-2 font-sans font-semibold"
+                      style={{ backgroundColor: bg, color: '#ffffff' }}
+                    >
+                      {(cell.accuracy * 100).toFixed(0)}%
+                    </div>
                   );
                 })}
               </div>

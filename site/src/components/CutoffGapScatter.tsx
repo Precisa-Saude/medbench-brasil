@@ -40,12 +40,16 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
         tier: m.tier,
       });
     }
-    const grouped: Record<ModelTier, Point[]> = { 'open-weight': [], proprietaria: [] };
-    for (const p of points) grouped[p.tier].push(p);
+    // Agrupa dinamicamente para não perder pontos caso um novo `ModelTier`
+    // seja adicionado sem atualizar este componente.
+    const grouped: Partial<Record<ModelTier, Point[]>> = {};
+    for (const p of points) {
+      (grouped[p.tier] ??= []).push(p);
+    }
     return grouped;
   }, [models]);
 
-  const allPoints = [...byTier.proprietaria, ...byTier['open-weight']];
+  const allPoints = Object.values(byTier).flatMap((pts) => pts ?? []);
   if (allPoints.length === 0) {
     return (
       <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -128,17 +132,19 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
               );
             }}
           />
-          {(Object.keys(byTier) as ModelTier[]).map((tier) =>
-            byTier[tier].length > 0 ? (
+          {(Object.keys(byTier) as ModelTier[]).map((tier) => {
+            const data = byTier[tier];
+            if (!data || data.length === 0) return null;
+            return (
               <Scatter
                 key={tier}
-                data={byTier[tier]}
+                data={data}
                 fill={TIER_COLOR[tier]}
                 isAnimationActive={false}
                 name={TIER_LABEL[tier]}
               />
-            ) : null,
-          )}
+            );
+          })}
         </ScatterChart>
       </ResponsiveContainer>
       <p className="mt-3 text-base text-muted-foreground">

@@ -12,6 +12,16 @@ type Row = {
   modelId: string;
 };
 
+// Dot tem 12px (`size-3`); sem compensação, os extremos (0% e 100%)
+// transbordam a faixa porque `-translate-x-1/2` só corrige metade do dot.
+// Esta função remapeia: 0% → +6px, 100% → -6px, 50% → 0 — mantendo o
+// centro do dot dentro do contêiner em toda a escala.
+const DOT_HALF_PX = 6;
+function pctToLeft(pct: number): string {
+  const shift = DOT_HALF_PX - (DOT_HALF_PX * 2 * pct) / 100;
+  return `calc(${pct}% + ${shift}px)`;
+}
+
 export default function ContaminationDumbbell({ models }: { models: ModelResult[] }) {
   const navigate = useNavigate();
 
@@ -85,9 +95,9 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
                   className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded"
                   style={{
                     backgroundColor: row.delta > 0 ? 'var(--destructive)' : 'var(--ps-green)',
-                    left: `${left}%`,
+                    left: pctToLeft(left),
                     opacity: 0.35,
-                    width: `${right - left}%`,
+                    width: `calc(${pctToLeft(right)} - ${pctToLeft(left)})`,
                   }}
                 />
                 <Dot
@@ -153,7 +163,7 @@ function Dot({
         <span
           aria-label={tooltip}
           className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 cursor-default rounded-full border-2 border-card"
-          style={{ backgroundColor: color, left: `${leftPercent}%` }}
+          style={{ backgroundColor: color, left: pctToLeft(leftPercent) }}
         />
       </TooltipTrigger>
       <TooltipContent className="font-sans">{tooltip}</TooltipContent>

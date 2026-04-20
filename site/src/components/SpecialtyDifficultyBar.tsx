@@ -12,7 +12,8 @@ import {
 
 import type { ModelResult } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
-import { poolSpecialtyMean } from '../lib/metrics';
+import { perSpecialtyForScope, poolSpecialtyMean } from '../lib/metrics';
+import type { ContaminationScope } from './ContaminationToggle';
 
 type Row = {
   modelAcc: number | null;
@@ -23,16 +24,23 @@ type Row = {
 
 export default function SpecialtyDifficultyBar({
   allModels,
+  contaminationScope = 'all',
   model,
 }: {
   allModels: ModelResult[];
+  /** Respeita o mesmo escopo que outras visualizações da página, se houver toggle. */
+  contaminationScope?: ContaminationScope;
   model: ModelResult;
 }) {
   const rows = useMemo<Row[]>(() => {
-    const pool = poolSpecialtyMean(allModels, model.modelId);
+    const pool = poolSpecialtyMean(allModels, {
+      excludeModelId: model.modelId,
+      scope: contaminationScope,
+    });
+    const mineBucket = perSpecialtyForScope(model, contaminationScope);
     const result: Row[] = [];
     for (const [sp, pb] of Object.entries(pool)) {
-      const mine = model.perSpecialty[sp];
+      const mine = mineBucket[sp];
       result.push({
         modelAcc: mine ? mine.accuracy * 100 : null,
         poolAcc: pb.accuracy * 100,
@@ -41,7 +49,7 @@ export default function SpecialtyDifficultyBar({
       });
     }
     return result.sort((a, b) => a.poolAcc - b.poolAcc);
-  }, [allModels, model]);
+  }, [allModels, contaminationScope, model]);
 
   if (rows.length === 0) {
     return (

@@ -41,18 +41,22 @@ export default function ModelDetail() {
   }).length;
   const consistency = perQuestion.length > 0 ? consistent / perQuestion.length : null;
 
+  // Ordena por timestamp real (publishedAt da edição é ISO "YYYY-MM-DD").
+  // Edições sem metadata ou com data não-parseável vão para o fim — não dá
+  // para posicioná-las no eixo temporal sem inventar uma data.
   const trendData = Object.entries(model.accuracyByEdition)
     .map(([eid, b]) => {
       const ed = EDITIONS[eid];
+      const ts = ed ? Date.parse(ed.publishedAt) : NaN;
       return {
         edition: ed?.label ?? eid,
         estimatedHumanMean: ed ? ed.estimatedHumanMean * 100 : undefined,
         modelScore: b.accuracy * 100,
         passingScore: ed ? ed.cutoffScore * 100 : undefined,
-        publishedAt: ed?.publishedAt ?? eid,
+        sortKey: Number.isNaN(ts) ? Number.POSITIVE_INFINITY : ts,
       };
     })
-    .sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
+    .sort((a, b) => a.sortKey - b.sortKey);
 
   return (
     <PageContainer>
