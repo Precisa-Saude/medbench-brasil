@@ -1,6 +1,6 @@
 {
   "name": "medbench-brasil",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Leaderboard contínuo de desempenho de LLMs em provas médicas brasileiras",
   "type": "module",

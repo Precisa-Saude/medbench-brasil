@@ -1,3 +1,14 @@
+## [1.1.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.1.0...v1.1.1) (2026-04-20)
+
+### Refactoring
+
+* dedupe providers, split CLI e cleanup geral ([#12](https://github.com/Precisa-Saude/medbench-brasil/issues/12)) ([5997181](https://github.com/Precisa-Saude/medbench-brasil/commit/599718121c3b8503fb2e81222c621d996bd0bd05))
+
+### CI/CD
+
+* **ci:** [skip ci] no commit empty injetado para forçar release ([#13](https://github.com/Precisa-Saude/medbench-brasil/issues/13)) ([ff4b06f](https://github.com/Precisa-Saude/medbench-brasil/commit/ff4b06f41a578e85ed0e4183b288155923e921d8))
+* **ci:** substitui force_release path por workflow publish-tag standalone ([#14](https://github.com/Precisa-Saude/medbench-brasil/issues/14)) ([eaaaecf](https://github.com/Precisa-Saude/medbench-brasil/commit/eaaaecf94f1822657bd9409cc83ec79a9b4cedb7)), closes [#11](https://github.com/Precisa-Saude/medbench-brasil/issues/11) [#13](https://github.com/Precisa-Saude/medbench-brasil/issues/13)
+
 ## [1.1.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.0.0...v1.1.0) (2026-04-20)
 
 ### Features
