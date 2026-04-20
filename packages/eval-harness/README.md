@@ -63,41 +63,37 @@ medbench eval \
 
 Comuns a `smoke` e `eval`:
 
-| Flag            | Valor                                                                             | Padrão             |
-| --------------- | --------------------------------------------------------------------------------- | ------------------ |
-| `--backend`     | `anthropic` \| `openai` \| `google` \| `ollama` \| `maritaca` \| `together` \| `openrouter` | **obrigatório**    |
-| `--model`       | identificador do modelo (ex.: `claude-opus-4-7`, `gpt-5`, `google/gemini-3.1-pro-preview`) | **obrigatório**    |
-| `--edition`     | `revalida-2025-1`, `revalida-2024-2`, etc.                                        | `revalida-2025-1`  |
-| `--label`       | nome legível exibido no site                                                      | derivado do modelo |
-| `--cutoff`      | data de corte de treino do modelo (`YYYY-MM-DD`)                                  | —                  |
-| `--concurrency` | requisições simultâneas                                                           | 10 (APIs), 1 (ollama) |
-| `--apiKey`      | chave explícita (sobrescreve variável de ambiente)                                | —                  |
-| `--baseUrl`     | endpoint custom (ollama, maritaca, together, openrouter)                          | padrão do backend  |
+| Flag            | Valor                                                                                       | Padrão                |
+| --------------- | ------------------------------------------------------------------------------------------- | --------------------- |
+| `--backend`     | `anthropic` \| `openai` \| `google` \| `ollama` \| `maritaca` \| `together` \| `openrouter` | **obrigatório**       |
+| `--model`       | identificador do modelo (ex.: `claude-opus-4-7`, `gpt-5`, `google/gemini-3.1-pro-preview`)  | **obrigatório**       |
+| `--edition`     | `revalida-2025-1`, `revalida-2024-2`, etc.                                                  | `revalida-2025-1`     |
+| `--label`       | nome legível exibido no site                                                                | derivado do modelo    |
+| `--cutoff`      | data de corte de treino do modelo (`YYYY-MM-DD`)                                            | —                     |
+| `--concurrency` | requisições simultâneas                                                                     | 10 (APIs), 1 (ollama) |
+| `--apiKey`      | chave explícita (sobrescreve variável de ambiente)                                          | —                     |
+| `--baseUrl`     | endpoint custom (ollama, maritaca, together, openrouter)                                    | padrão do backend     |
 
 Específicas de `eval`:
 
-| Flag            | Valor                                             | Padrão     |
-| --------------- | ------------------------------------------------- | ---------- |
-| `--runs`        | execuções por questão                             | `3`        |
-| `--out`         | diretório de saída                                | `results/` |
-| `--no-raw-log`  | desabilita JSONL bruto                            | ativado    |
-| `--restart`     | descarta JSONL prévio e recomeça do zero          | retoma     |
+| Flag           | Valor                                    | Padrão     |
+| -------------- | ---------------------------------------- | ---------- |
+| `--runs`       | execuções por questão                    | `3`        |
+| `--out`        | diretório de saída                       | `results/` |
+| `--no-raw-log` | desabilita JSONL bruto                   | ativado    |
+| `--restart`    | descarta JSONL prévio e recomeça do zero | retoma     |
 
 Específicas de `smoke`:
 
-| Flag          | Valor                                        | Padrão |
-| ------------- | -------------------------------------------- | ------ |
-| `--samples`   | número de questões estratificadas            | `8`    |
-| `--threshold` | taxa mínima de parses corretos para aprovar  | `0.7`  |
+| Flag          | Valor                                       | Padrão |
+| ------------- | ------------------------------------------- | ------ |
+| `--samples`   | número de questões estratificadas           | `8`    |
+| `--threshold` | taxa mínima de parses corretos para aprovar | `0.7`  |
 
 ## Uso como biblioteca
 
 ```ts
-import {
-  runEvaluation,
-  anthropicProvider,
-  SYSTEM_PROMPT,
-} from '@precisa-saude/medbench-harness';
+import { runEvaluation, anthropicProvider, SYSTEM_PROMPT } from '@precisa-saude/medbench-harness';
 import type { Provider, RunConfig } from '@precisa-saude/medbench-harness';
 
 const provider = anthropicProvider({
@@ -143,17 +139,17 @@ Cada `medbench eval` produz, em `results/<edition>/<model-slug>.*`:
 
 Conforme o `--backend` escolhido:
 
-| Backend      | Variável               |
-| ------------ | ---------------------- |
-| `anthropic`  | `ANTHROPIC_API_KEY`    |
-| `openai`     | `OPENAI_API_KEY`       |
-| `google`     | `GOOGLE_API_KEY`       |
-| `openrouter` | `OPENROUTER_API_KEY`   |
-| `maritaca`   | `MARITACA_API_KEY`     |
-| `together`   | `TOGETHER_API_KEY`     |
-| `ollama`     | — (roda local)         |
+| Backend      | Variável             |
+| ------------ | -------------------- |
+| `anthropic`  | `ANTHROPIC_API_KEY`  |
+| `openai`     | `OPENAI_API_KEY`     |
+| `google`     | `GOOGLE_API_KEY`     |
+| `openrouter` | `OPENROUTER_API_KEY` |
+| `maritaca`   | `MARITACA_API_KEY`   |
+| `together`   | `TOGETHER_API_KEY`   |
+| `ollama`     | — (roda local)       |
 
-Carregadas automaticamente via `dotenv` a partir de `.env.local` (preferido) ou `.env` no `cwd` — não é preciso `export` no shell.
+Carregadas automaticamente via `dotenv` a partir de `.env.local` (preferido) ou `.env` no `cwd` — não é preciso `export` no shell. Para começar, copie o [`.env.example`](https://github.com/Precisa-Saude/medbench-brasil/blob/main/.env.example) da raiz do repo para `.env.local` e preencha as chaves dos backends que vai usar.
 
 ## Licença
 

@@ -1,14 +1,8 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
+import type { ProviderBaseOptions } from './_http.js';
+import { fetchWithTimeout } from './_http.js';
 
-interface GoogleProviderOptions {
-  apiKey?: string;
-  label?: string;
-  maxTokens?: number;
-  model: string;
-  temperature?: number;
-  timeoutMs?: number;
-  trainingCutoff?: string;
-}
+type GoogleProviderOptions = ProviderBaseOptions;
 
 /**
  * Provider Google Gemini — single-turn, sem `tools`, sem Google Search, sem
@@ -51,20 +45,22 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
       };
 
       const start = Date.now();
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent?key=${apiKey}`;
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      let res: Response;
-      try {
-        res = await fetch(url, {
+      // API key via header `x-goog-api-key` — evita que a chave apareça em
+      // logs de proxy, histórico de processos ou mensagens de erro que
+      // incluam a URL. A API Gemini aceita ambos os estilos.
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent`;
+      const res = await fetchWithTimeout(
+        url,
+        {
           body: JSON.stringify(requestParams),
-          headers: { 'content-type': 'application/json' },
+          headers: {
+            'content-type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
           method: 'POST',
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
+        },
+        timeoutMs,
+      );
       const durationMs = Date.now() - start;
 
       if (!res.ok) {

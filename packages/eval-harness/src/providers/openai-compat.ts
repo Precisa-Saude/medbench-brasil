@@ -1,18 +1,12 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
+import type { ProviderBaseOptions } from './_http.js';
+import { fetchWithTimeout } from './_http.js';
 
-interface OpenAICompatOptions {
-  apiKey?: string;
+interface OpenAICompatOptions extends ProviderBaseOptions {
   /** Base URL sem o path — ex.: `http://localhost:11434/v1` para Ollama. */
   baseUrl: string;
-  label?: string;
-  maxTokens?: number;
-  model: string;
   /** Nome do fornecedor para display — ex.: 'Ollama', 'vLLM'. */
   provider: string;
-  temperature?: number;
-  /** Timeout por requisição em ms (padrão 300000 — inferência local costuma ser lenta). */
-  timeoutMs?: number;
-  trainingCutoff?: string;
 }
 
 /**
@@ -46,22 +40,18 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
       } as const;
 
       const start = Date.now();
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      let res: Response;
-      try {
-        res = await fetch(`${opts.baseUrl.replace(/\/$/, '')}/chat/completions`, {
+      const res = await fetchWithTimeout(
+        `${opts.baseUrl.replace(/\/$/, '')}/chat/completions`,
+        {
           body: JSON.stringify(requestParams),
           headers: {
             ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
             'content-type': 'application/json',
           },
           method: 'POST',
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
+        },
+        timeoutMs,
+      );
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
