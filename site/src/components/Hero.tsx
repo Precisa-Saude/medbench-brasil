@@ -59,18 +59,21 @@ export function Hero() {
             execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
           </p>
 
-          {/* Cada CTA ocupa 3 colunas do grid principal (3*col-w + 2 gaps de
-              1rem) — alinha com o resto da página. Empilhados verticalmente. */}
-          <div className="flex flex-col items-center gap-3">
+          {/* CTAs empilhados e com larguras iguais: o `grid-cols-1` iguala os
+              dois botões à coluna única, o `w-[calc(...)]` dá a largura-alvo
+              (3 colunas do grid da página), e o `min-w-fit` expande a coluna
+              para acomodar o botão mais largo ("Reproduza os testes →") em
+              viewports estreitos, evitando clipping e wrap. */}
+          <div className="grid w-[calc(3*var(--col-w)+2rem)] min-w-fit grid-cols-1 gap-3">
             <Link
               to="/metodologia"
-              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
+              className="flex items-center justify-center whitespace-nowrap rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
             >
               Metodologia
             </Link>
             <Link
               to="/reproducao"
-              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
+              className="flex items-center justify-center whitespace-nowrap rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
             >
               Reproduza os testes →
             </Link>
