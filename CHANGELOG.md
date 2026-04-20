@@ -1,3 +1,26 @@
+## [1.1.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.0.0...v1.1.0) (2026-04-20)
+
+### Features
+
+* **results:** revalida-2024-2 sweep (20 de 21 modelos) ([#10](https://github.com/Precisa-Saude/medbench-brasil/issues/10)) ([d315df7](https://github.com/Precisa-Saude/medbench-brasil/commit/d315df70bc891e27932b3ae36fc0d08e209fc960))
+
+### Bug Fixes
+
+* manual release trigger via workflow_dispatch ([e208418](https://github.com/Precisa-Saude/medbench-brasil/commit/e2084189e882ce4e1c848f962865bc35cb74a858))
+
+### Documentation
+
+* adiciona READMEs para medbench-dataset e medbench-harness ([#9](https://github.com/Precisa-Saude/medbench-brasil/issues/9)) ([2eb9f32](https://github.com/Precisa-Saude/medbench-brasil/commit/2eb9f3237100b351b9e7762cdf5c97da87c48954))
+* reescreve motivação e adiciona referências acadêmicas ([#8](https://github.com/Precisa-Saude/medbench-brasil/issues/8)) ([a6622a2](https://github.com/Precisa-Saude/medbench-brasil/commit/a6622a2bde95082290b5be35a838be6e72beb183))
+
+### CI/CD
+
+* **ci:** adiciona workflow_dispatch com force_release para release manual ([#11](https://github.com/Precisa-Saude/medbench-brasil/issues/11)) ([c064ce4](https://github.com/Precisa-Saude/medbench-brasil/commit/c064ce426f1f0335dc006140b2ba093c6228f29f)), closes [6/#7](https://github.com/6/medbench-brasil/issues/7) [#9](https://github.com/Precisa-Saude/medbench-brasil/issues/9)
+
+### Chores
+
+* atualiza domínio de medbench-brasil.dev.br para .ia.br ([#5](https://github.com/Precisa-Saude/medbench-brasil/issues/5)) ([610af9e](https://github.com/Precisa-Saude/medbench-brasil/commit/610af9e529a4fe8ce68f3b918e534a5b65b2337b))
+
 ## 1.0.0 (2026-04-19)
 
 ### Features
