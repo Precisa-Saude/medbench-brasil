@@ -8,7 +8,7 @@ import { Pagination } from './ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
-type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cutoff';
+type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cutoff' | 'pass';
 
 function pickAccuracy(m: ModelResult, scope: ContaminationScope): number | null {
   if (scope === 'clean') return m.cleanAccuracy;
@@ -19,6 +19,21 @@ function pickAccuracy(m: ModelResult, scope: ContaminationScope): number | null 
 function delta(m: ModelResult): number | null {
   if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) return null;
   return m.contaminatedAccuracy - m.cleanAccuracy;
+}
+
+/**
+ * Conta em quantas edições o modelo supera a nota de corte oficial. Usa
+ * apenas edições em que o modelo tem resultado — assim não penaliza modelos
+ * novos que ainda não rodaram em todas as provas.
+ */
+function passRatio(m: ModelResult): { denominator: number; numerator: number } | null {
+  const entries = Object.values(m.accuracyByEdition);
+  const scorable = entries.filter((e) => e.passesCutoff !== undefined);
+  if (scorable.length === 0) return null;
+  return {
+    denominator: scorable.length,
+    numerator: scorable.filter((e) => e.passesCutoff).length,
+  };
 }
 
 export default function LeaderboardTable({
@@ -43,8 +58,22 @@ export default function LeaderboardTable({
 
   const sortedRows = useMemo(() => {
     const rows = models
-      .map((m) => ({ acc: pickAccuracy(m, contaminationScope), d: delta(m), model: m }))
-      .filter((r): r is { acc: number; d: number | null; model: ModelResult } => r.acc !== null);
+      .map((m) => ({
+        acc: pickAccuracy(m, contaminationScope),
+        d: delta(m),
+        model: m,
+        pass: passRatio(m),
+      }))
+      .filter(
+        (
+          r,
+        ): r is {
+          acc: number;
+          d: number | null;
+          model: ModelResult;
+          pass: ReturnType<typeof passRatio>;
+        } => r.acc !== null,
+      );
 
     const mul = sort.dir === 'desc' ? -1 : 1;
     const get = (row: (typeof rows)[number]): number => {
@@ -61,6 +90,8 @@ export default function LeaderboardTable({
           return row.model.ci95[1] - row.model.ci95[0];
         case 'cutoff':
           return row.model.trainingCutoff ? Date.parse(row.model.trainingCutoff) : -Infinity;
+        case 'pass':
+          return row.pass ? row.pass.numerator / row.pass.denominator : -Infinity;
       }
     };
     return [...rows].sort((a, b) => (get(a) - get(b)) * mul);
@@ -113,6 +144,14 @@ export default function LeaderboardTable({
               tooltip="Contaminada − limpa (pp). Positivo sugere memorização."
             />
             <SortableHead
+              label="Aprova"
+              k="pass"
+              sort={sort}
+              onClick={toggleSort}
+              align="right"
+              tooltip="Edições em que o modelo atinge a nota de corte oficial sobre total de edições avaliadas."
+            />
+            <SortableHead
               label="Corte treino"
               k="cutoff"
               sort={sort}
@@ -123,7 +162,7 @@ export default function LeaderboardTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pageRows.map(({ acc, d, model }, idx) => (
+          {pageRows.map(({ acc, d, model, pass }, idx) => (
             <TableRow key={model.modelId}>
               <TableCell className="text-muted-foreground">{start + idx + 1}</TableCell>
               <TableCell>
@@ -157,6 +196,16 @@ export default function LeaderboardTable({
                 }
               >
                 {d === null ? '—' : `${d >= 0 ? '+' : ''}${(d * 100).toFixed(1)}pp`}
+              </TableCell>
+              <TableCell
+                className="text-right font-mono text-muted-foreground"
+                title={
+                  pass
+                    ? `${pass.numerator} de ${pass.denominator} edições acima da nota de corte`
+                    : 'Sem corte oficial disponível para as edições avaliadas'
+                }
+              >
+                {pass ? `${pass.numerator}/${pass.denominator}` : '—'}
               </TableCell>
               <TableCell className="text-right font-mono text-muted-foreground">
                 {model.trainingCutoff ?? '—'}

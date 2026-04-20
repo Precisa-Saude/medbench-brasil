@@ -23,13 +23,14 @@ export interface PerQuestionResult {
 
 export interface RawEvaluationArtifact {
   accuracy: number;
-  accuracyByEdition?: Record<string, { accuracy: number; n: number }>;
+  accuracyByEdition?: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
   ci95: [number, number];
   contaminationSplit: {
     clean: { accuracy: number; n: number } | null;
     contaminated: { accuracy: number; n: number } | null;
   };
   correct: number;
+  macroF1?: number;
   modelId: string;
   perQuestion?: PerQuestionResult[];
   perSpecialty: Record<string, { accuracy: number; n: number }>;
@@ -38,7 +39,7 @@ export interface RawEvaluationArtifact {
 }
 
 export interface ModelResult extends RawEvaluationArtifact, ModelMetadata {
-  accuracyByEdition: Record<string, { accuracy: number; n: number }>;
+  accuracyByEdition: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
   cleanAccuracy: number | null;
   contaminatedAccuracy: number | null;
 }

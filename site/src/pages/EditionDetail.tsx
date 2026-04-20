@@ -6,6 +6,20 @@ import { getEdition } from '../data/dataset';
 import { getEditionMetadata } from '../data/editions';
 import { MODELS } from '../data/results';
 
+/**
+ * Tabela oficial do MEC (Portaria INEP nº 478/2025 — Enade):
+ *   Nível 1: <40%, Nível 2: 40–59%, Nível 3: 60–74%,
+ *   Nível 4: 75–89%, Nível 5: ≥90%.
+ * Ver Correia et al., PROPOR 2026, secção 5.3 para aplicação a LLMs.
+ */
+function rateToEnadeLevel(rate: number): 1 | 2 | 3 | 4 | 5 {
+  if (rate < 0.4) return 1;
+  if (rate < 0.6) return 2;
+  if (rate < 0.75) return 3;
+  if (rate < 0.9) return 4;
+  return 5;
+}
+
 export default function EditionDetail() {
   const { id } = useParams<{ id: string }>();
   if (!id) return null;
@@ -14,6 +28,11 @@ export default function EditionDetail() {
   const modelsForEdition = MODELS.filter(
     (m) => m.accuracyByEdition[id] !== undefined || MODELS.length > 0,
   );
+
+  const modelsWithResult = MODELS.filter((m) => m.accuracyByEdition[id]);
+  const approved = modelsWithResult.filter((m) => m.accuracyByEdition[id]?.passesCutoff).length;
+  const enadeLevel =
+    modelsWithResult.length > 0 ? rateToEnadeLevel(approved / modelsWithResult.length) : null;
 
   return (
     <PageContainer>
@@ -47,6 +66,33 @@ export default function EditionDetail() {
               label="Anuladas"
               value={String(data.questions.filter((q) => q.annulled).length)}
             />
+          </section>
+        )}
+
+        {enadeLevel !== null && (
+          <section className="rounded-lg border bg-card p-6 font-sans">
+            <div className="flex items-baseline justify-between gap-4 flex-wrap">
+              <div>
+                <div className="text-sm uppercase tracking-wide text-muted-foreground">
+                  Classe de LLMs — Conceito Enade
+                </div>
+                <div className="mt-1 flex items-baseline gap-3">
+                  <div className="text-4xl font-bold">Nível {enadeLevel}</div>
+                  <div className="text-muted-foreground text-sm">
+                    {approved}/{modelsWithResult.length} modelos aprovados (
+                    {((approved / modelsWithResult.length) * 100).toFixed(0)}%)
+                  </div>
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground max-w-md">
+                Aplicação do Conceito Enade 1–5 do MEC aos modelos avaliados, tratando-os como uma
+                turma de egressos. Ver{' '}
+                <Link to="/metodologia" className="underline text-ps-violet">
+                  metodologia
+                </Link>{' '}
+                e Correia et al., PROPOR 2026.
+              </div>
+            </div>
           </section>
         )}
 
