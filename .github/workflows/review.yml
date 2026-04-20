@@ -31,11 +31,16 @@ jobs:
           script: |
             const prNumber = ${{ inputs.pr_number }};
 
-            // Skip review for docs/config-only changes
-            const { data: files } = await github.rest.pulls.listFiles({
+            // Skip review for docs/config-only changes. Pagina pra pegar TODOS
+            // os arquivos — `listFiles` retorna 30 por página; em PRs grandes
+            // (ex.: batches de resultados .json) os .tsx/.ts reais caiam na
+            // página 2+ e a detecção de "código mudou" resultava em falso
+            // negativo, pulando o review.
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: prNumber,
+              per_page: 100,
             });
             const ignoredPatterns = [
               /\.md$/,
