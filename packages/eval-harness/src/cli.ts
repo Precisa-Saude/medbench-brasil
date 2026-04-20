@@ -14,8 +14,9 @@ import { config as loadDotenv } from 'dotenv';
 
 // Carrega .env.local (preferido) e .env no cwd antes de instanciar providers,
 // para que API keys possam vir de arquivos locais e não de `export` shell.
-loadDotenv({ path: '.env.local' });
-loadDotenv();
+// `quiet: true` suprime os banners promocionais do dotenv v17+.
+loadDotenv({ path: '.env.local', quiet: true });
+loadDotenv({ quiet: true });
 
 import type { EditionId } from '@precisa-saude/medbench-dataset';
 import { loadEdition } from '@precisa-saude/medbench-dataset';
@@ -284,12 +285,14 @@ function runReport(args: Record<string, string>) {
 }
 
 async function main() {
-  const [command, ...rest] = process.argv.slice(2);
+  const argv = process.argv.slice(2);
+  const helpRequested = argv.includes('--help') || argv.includes('-h');
+  const [command, ...rest] = argv;
   const args = parseArgs(rest);
 
-  if (args.help || !command) {
+  if (helpRequested || !command) {
     printUsage();
-    process.exit(args.help ? 0 : 1);
+    process.exit(helpRequested ? 0 : 1);
   }
 
   const needsProvider = command === 'smoke' || command === 'eval';
