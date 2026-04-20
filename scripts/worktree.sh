@@ -4,6 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PARENT_DIR="$(dirname "$REPO_ROOT")"
 PORT_REGISTRY="/tmp/medbench-worktree-ports.json"
+PORT_LOCKDIR="/tmp/medbench-worktree-ports.lock.d"
 SITE_PORT_BASE=4321
 SITE_PORT_OFFSET=10
 PORT_INCREMENT=10
@@ -23,6 +24,28 @@ require_jq() {
   fi
 }
 
+# Lock de registry via mkdir — portátil (POSIX-atômico) e não depende de
+# flock, que não vem por padrão no macOS. Serializa sessões concorrentes
+# de setup/teardown para evitar race conditions no port registry.
+acquire_registry_lock() {
+  local tries=0 max_tries=100
+  while ! mkdir "$PORT_LOCKDIR" 2>/dev/null; do
+    tries=$((tries + 1))
+    if (( tries > max_tries )); then
+      echo "Erro: timeout (~10s) esperando lock em $PORT_LOCKDIR" >&2
+      echo "       se nenhuma outra sessão estiver rodando, rode: rmdir $PORT_LOCKDIR" >&2
+      exit 1
+    fi
+    sleep 0.1
+  done
+  trap 'rmdir "$PORT_LOCKDIR" 2>/dev/null || true' EXIT
+}
+
+release_registry_lock() {
+  rmdir "$PORT_LOCKDIR" 2>/dev/null || true
+  trap - EXIT
+}
+
 branch_to_dir() {
   # Converte branch para um nome de diretório seguro: feat/foo -> feat-foo
   echo "medbench-brasil-${1//\//-}"
@@ -39,21 +62,25 @@ log_file() {
 allocate_port() {
   local branch="$1"
   ensure_registry
+  acquire_registry_lock
 
   local existing
   existing=$(jq -r --arg b "$branch" '.[$b].site // empty' "$PORT_REGISTRY" 2>/dev/null)
   if [[ -n "$existing" ]]; then
+    release_registry_lock
     return
   fi
 
-  local max_slot=0
-  while IFS= read -r slot; do
-    if [[ -n "$slot" && "$slot" -gt "$max_slot" ]]; then
-      max_slot="$slot"
-    fi
-  done < <(jq -r 'to_entries[] | .value.slot' "$PORT_REGISTRY" 2>/dev/null)
+  # Coleta slots já usados (ignorando valores não-numéricos) e procura
+  # o menor inteiro >= 1 livre — assim slots reciclam após teardown,
+  # em vez de crescerem indefinidamente.
+  local used_slots next_slot=1
+  used_slots=$(jq -r 'to_entries[] | .value.slot' "$PORT_REGISTRY" 2>/dev/null \
+    | grep -E '^[0-9]+$' | sort -n | uniq)
+  while printf '%s\n' "$used_slots" | grep -qx "$next_slot"; do
+    next_slot=$((next_slot + 1))
+  done
 
-  local next_slot=$((max_slot + 1))
   local site_port=$((SITE_PORT_BASE + SITE_PORT_OFFSET + (next_slot - 1) * PORT_INCREMENT))
 
   jq --arg branch "$branch" \
@@ -61,6 +88,8 @@ allocate_port() {
      --argjson site "$site_port" \
      '. + {($branch): {slot: $slot, site: $site}}' \
      "$PORT_REGISTRY" > "${PORT_REGISTRY}.tmp" && mv "${PORT_REGISTRY}.tmp" "$PORT_REGISTRY"
+
+  release_registry_lock
 }
 
 get_site_port() {
@@ -70,8 +99,10 @@ get_site_port() {
 free_port() {
   local branch="$1"
   ensure_registry
+  acquire_registry_lock
   jq --arg b "$branch" 'del(.[$b])' "$PORT_REGISTRY" > "${PORT_REGISTRY}.tmp" \
     && mv "${PORT_REGISTRY}.tmp" "$PORT_REGISTRY"
+  release_registry_lock
 }
 
 detect_branch() {
@@ -79,29 +110,41 @@ detect_branch() {
     echo "$1"
     return
   fi
-  local dirname
-  dirname=$(basename "$(pwd)")
-  if [[ "$dirname" == medbench-brasil-* ]]; then
-    # Reverter - para / só funciona se nunca houver dashes no nome; por isso
-    # sempre passamos a branch explicitamente em setup/teardown
-    echo "${dirname#medbench-brasil-}"
+  # Pergunta ao git direto: assim branches com "/" (ex.: feat/novo-chart)
+  # são recuperadas corretamente mesmo que branch_to_dir colapse "/" em "-"
+  # no nome do diretório do worktree.
+  git branch --show-current 2>/dev/null || echo ""
+}
+
+# Port utilities — preferem lsof (macOS), caem para ss/fuser quando
+# indisponíveis (Linux sem lsof instalado por padrão).
+_listeners_on_port() {
+  local port="$1"
+  if command -v lsof &>/dev/null; then
+    lsof -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null || true
+  elif command -v ss &>/dev/null; then
+    ss -tlnp 2>/dev/null | awk -v p=":$port" '$4 ~ p {print $NF}' \
+      | grep -oE 'pid=[0-9]+' | cut -d= -f2 || true
+  elif command -v fuser &>/dev/null; then
+    fuser -n tcp "$port" 2>/dev/null | tr -s ' ' '\n' | grep -E '^[0-9]+$' || true
   else
-    echo ""
+    echo "Aviso: lsof/ss/fuser não encontrados — impossível inspecionar porta $port" >&2
+    return 0
   fi
 }
 
 is_port_in_use() {
-  lsof -iTCP:"$1" -sTCP:LISTEN &>/dev/null
+  [[ -n "$(_listeners_on_port "$1")" ]]
 }
 
 kill_port() {
   local port="$1"
   local pids
-  pids=$(lsof -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null || true)
+  pids=$(_listeners_on_port "$port")
   if [[ -n "$pids" ]]; then
     echo "$pids" | xargs kill 2>/dev/null || true
     sleep 1
-    pids=$(lsof -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null || true)
+    pids=$(_listeners_on_port "$port")
     if [[ -n "$pids" ]]; then
       echo "$pids" | xargs kill -9 2>/dev/null || true
     fi
@@ -194,6 +237,11 @@ cmd_dev() {
   echo ""
 
   cd "$wt_dir"
+
+  # Sem o trap, Ctrl-C interrompe apenas o `tee` e deixa pnpm/vite órfãos
+  # (a shell faz pipe cada lado num processo separado). pkill -P mata os
+  # filhos deste shell ao receber INT/TERM.
+  trap 'pkill -P $$ 2>/dev/null || true; exit 130' INT TERM
   pnpm --filter @medbench-brasil/site dev -- --port "$site_port" 2>&1 | tee "$logfile"
 }
 
@@ -264,7 +312,9 @@ cmd_teardown() {
 
   if [[ "$keep_branch" == true ]]; then
     echo "Preservando branch local: $branch"
-  elif git -C "$REPO_ROOT" branch --list "$branch" | grep -q "$branch"; then
+  elif git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$branch"; then
+    # show-ref --verify faz match exato do ref — mais seguro que
+    # branch --list | grep (substring-match em `feat/foo` × `feat/foobar`).
     echo "Apagando branch local: $branch"
     git -C "$REPO_ROOT" branch -d "$branch" 2>/dev/null || \
       git -C "$REPO_ROOT" branch -D "$branch"

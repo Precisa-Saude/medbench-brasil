@@ -96,16 +96,18 @@ cd ../medbench-brasil-feat-novo-chart
 
 ### Rodando o dev server a partir do Claude Code
 
-`worktree.sh dev` roda o Vite em foreground. Se chamado como um Bash tool call normal, será morto no timeout do comando. Para manter o dev server ativo, rode com `nohup` + `run_in_background: true`:
+`worktree.sh dev` roda o Vite em foreground. Se chamado como um Bash tool call normal, será morto no timeout do comando. Para manter o dev server ativo, rode com `nohup` + `run_in_background: true` (troque `feat/novo-chart` pela sua branch):
 
 ```bash
-cd /Users/rafael/Github/medbench-brasil-<branch>
-SITE_PORT=$(jq -r --arg b "<branch>" '.[$b].site' /tmp/medbench-worktree-ports.json)
-LOG=/tmp/medbench-site-<branch>.log
+BRANCH="feat/novo-chart"
+DIR_SUFFIX="${BRANCH//\//-}"
+cd "/Users/rafael/Github/medbench-brasil-$DIR_SUFFIX"
+SITE_PORT=$(jq -r --arg b "$BRANCH" '.[$b].site' /tmp/medbench-worktree-ports.json)
+LOG="/tmp/medbench-site-$DIR_SUFFIX.log"
 nohup pnpm --filter @medbench-brasil/site dev -- --port "$SITE_PORT" > "$LOG" 2>&1 &
 ```
 
-Verifique com `sleep 5 && curl -sI http://localhost:$SITE_PORT | head -1`. Para parar: `./scripts/worktree.sh stop <branch>`.
+Verifique com `sleep 5 && curl -sI http://localhost:$SITE_PORT | head -1`. Para parar: `./scripts/worktree.sh stop feat/novo-chart`.
 
 ### Limpeza
 
