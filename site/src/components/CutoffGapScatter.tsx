@@ -14,6 +14,11 @@ import {
 import { type ModelTier, TIER_COLOR, TIER_LABEL } from '../data/models';
 import type { ModelResult } from '../data/results';
 
+// Fallbacks para tiers novos que ainda não tenham cor/label editorial:
+// mantém o ponto visível em vez de sumir com `undefined` em fill/name.
+const tierColor = (tier: ModelTier): string => TIER_COLOR[tier] ?? 'var(--muted-foreground)';
+const tierLabel = (tier: ModelTier): string => TIER_LABEL[tier] ?? tier;
+
 type Point = {
   cutoffMs: number;
   cutoffStr: string;
@@ -67,14 +72,14 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-semibold">Corte de treino × memorização</h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          {(Object.keys(TIER_LABEL) as ModelTier[]).map((tier) => (
+          {(Object.keys(byTier) as ModelTier[]).map((tier) => (
             <div key={tier} className="flex items-center gap-1.5">
               <span
                 aria-hidden
                 className="inline-block size-2.5 rounded-full"
-                style={{ backgroundColor: TIER_COLOR[tier] }}
+                style={{ backgroundColor: tierColor(tier) }}
               />
-              <span>{TIER_LABEL[tier]}</span>
+              <span>{tierLabel(tier)}</span>
             </div>
           ))}
         </div>
@@ -139,9 +144,9 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
               <Scatter
                 key={tier}
                 data={data}
-                fill={TIER_COLOR[tier]}
+                fill={tierColor(tier)}
                 isAnimationActive={false}
-                name={TIER_LABEL[tier]}
+                name={tierLabel(tier)}
               />
             );
           })}

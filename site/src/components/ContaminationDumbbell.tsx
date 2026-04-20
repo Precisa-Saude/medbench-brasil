@@ -90,14 +90,16 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
               <div className="relative h-7">
                 {/* Eixo 0–100% */}
                 <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border" />
-                {/* Segmento ligando os dois pontos, colorido pelo sinal do Δ */}
+                {/* Segmento ligando os dois pontos, colorido pelo sinal do Δ.
+                    Width é calculado diretamente pela diferença de pct + shift,
+                    sem subtração de calc() aninhada. */}
                 <div
                   className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded"
                   style={{
                     backgroundColor: row.delta > 0 ? 'var(--destructive)' : 'var(--ps-green)',
                     left: pctToLeft(left),
                     opacity: 0.35,
-                    width: `calc(${pctToLeft(right)} - ${pctToLeft(left)})`,
+                    width: `calc(${right - left}% + ${-(DOT_HALF_PX * 2 * (right - left)) / 100}px)`,
                   }}
                 />
                 <Dot
