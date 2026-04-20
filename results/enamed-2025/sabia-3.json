@@ -2158,21 +2158,13 @@
     }
   ],
   "perSpecialty": {
-    "clinica-medica": {
-      "accuracy": 0.9466666666666667,
-      "n": 75
-    },
     "ginecologia-obstetricia": {
       "accuracy": 0.8,
       "n": 45
     },
-    "medicina-familia-comunidade": {
-      "accuracy": 0.8205128205128205,
-      "n": 39
-    },
-    "saude-publica": {
-      "accuracy": 0.9,
-      "n": 30
+    "clinica-medica": {
+      "accuracy": 0.9466666666666667,
+      "n": 75
     },
     "pediatria": {
       "accuracy": 0.8333333333333334,
@@ -2181,6 +2173,14 @@
     "cirurgia": {
       "accuracy": 1,
       "n": 15
+    },
+    "saude-publica": {
+      "accuracy": 0.9,
+      "n": 30
+    },
+    "medicina-familia-comunidade": {
+      "accuracy": 0.8205128205128205,
+      "n": 39
     }
   },
   "runsPerQuestion": 3,

@@ -2166,17 +2166,17 @@
       "accuracy": 0.8666666666666667,
       "n": 45
     },
-    "medicina-familia-comunidade": {
-      "accuracy": 0.8461538461538461,
-      "n": 39
+    "pediatria": {
+      "accuracy": 0.8333333333333334,
+      "n": 48
     },
     "saude-publica": {
       "accuracy": 0.7666666666666667,
       "n": 30
     },
-    "pediatria": {
-      "accuracy": 0.8333333333333334,
-      "n": 48
+    "medicina-familia-comunidade": {
+      "accuracy": 0.8461538461538461,
+      "n": 39
     },
     "cirurgia": {
       "accuracy": 0.9333333333333333,

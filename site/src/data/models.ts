@@ -23,14 +23,33 @@ export interface ModelMetadata {
   /** ISO YYYY-MM-DD do lançamento público do modelo. Usado no eixo X do scatter. */
   releaseDate: string;
   tier: ModelTier;
-  /** ISO YYYY-MM-DD — fonte oficial do fornecedor. Ver docs/contamination.md. */
+  /**
+   * ISO YYYY-MM-DD. `undefined` quando o fornecedor não publica o corte — nesse
+   * caso a edição é classificada como `unknown`, sem inferir clean/contaminated.
+   * Ver docs/contamination.md.
+   */
   trainingCutoff: string | undefined;
+  /**
+   * URL exata onde o corte acima é publicado pelo fornecedor (docs, model card,
+   * paper, release notes). Exibido na página do modelo e na Metodologia.
+   * `undefined` quando `trainingCutoff` também é `undefined`.
+   */
+  trainingCutoffSource: string | undefined;
 }
 
-// Cortes de treino abaixo são estimativas públicas (documentação do fornecedor
-// quando disponível, caso contrário a data mais recente plausível). Sempre
-// que uma fonte oficial for localizada, atualizar e referenciar no comentário.
+// Regra: `trainingCutoff` vem exclusivamente de documentação publicada pelo
+// fornecedor (docs de API, model card no HF, tech report no arXiv, release
+// notes). Quando o fornecedor não publica, o campo fica `undefined` e a
+// contaminação é classificada como `unknown` — nunca estimamos. A fonte exata
+// de cada valor está em `trainingCutoffSource` e no comentário acima da
+// entrada, incluindo a citação verbatim quando disponível.
 export const MODELS_METADATA: Record<string, ModelMetadata> = {
+  // Anthropic publica dois cutoffs por modelo: "training data cutoff" (janela
+  // ampla do corpus) e "reliable knowledge cutoff" (data em que o
+  // conhecimento é considerado confiável). Usamos o training data cutoff —
+  // é o mais conservador para contaminação (qualquer dado dentro da janela
+  // pode ter sido memorizado). Fonte:
+  // https://platform.claude.com/docs/en/about-claude/models/overview
   'claude-opus-4-5': {
     description:
       'Modelo flagship da Anthropic da geração Claude 4, lançado em meados de 2025 com foco em raciocínio e uso agêntico.',
@@ -40,7 +59,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2025-07-01',
     tier: 'proprietaria',
-    trainingCutoff: '2024-07-01',
+    // "Claude Opus 4.5 ... Training data cutoff Aug 2025" — tabela Models overview.
+    trainingCutoff: '2025-08-01',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
   },
   'claude-opus-4-6': {
     description:
@@ -51,7 +72,10 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2025-10-01',
     tier: 'proprietaria',
-    trainingCutoff: '2024-11-01',
+    // "Claude Opus 4.6: trained on data up until August 2025" — Anthropic Help Center.
+    trainingCutoff: '2025-08-01',
+    trainingCutoffSource:
+      'https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data',
   },
   'claude-opus-4-7': {
     description:
@@ -62,8 +86,16 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2026-02-01',
     tier: 'proprietaria',
-    trainingCutoff: '2025-03-01',
+    // "Claude Opus 4.7: trained on data up until January 2026" — Anthropic Help Center.
+    trainingCutoff: '2026-01-01',
+    trainingCutoffSource:
+      'https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data',
   },
+  // DeepSeek só publica cutoff explícito para V3-Base ("July 2024", paper
+  // DeepSeek-R1, arXiv:2501.12948, seção Decontamination). V3-0324 e V3.1
+  // descendem desse base — adotamos o mesmo cutoff como lower bound; não há
+  // declaração oficial de que snapshots posteriores tenham incorporado dados
+  // mais recentes.
   'deepseek/deepseek-chat-v3-0324': {
     description:
       'Versão original do DeepSeek V3 (snapshot de 2025-03-24), antecessora imediata do V3.1. Sem reasoning explícito.',
@@ -73,7 +105,10 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-03-24',
     tier: 'open-weight',
+    // Herdado de V3-Base. DeepSeek não publicou cutoff separado para o
+    // snapshot 0324; tratamos como mesmo corte por inheritance da base.
     trainingCutoff: '2024-07-01',
+    trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
   },
   'deepseek/deepseek-chat-v3.1': {
     description:
@@ -84,7 +119,10 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-08-21',
     tier: 'open-weight',
+    // Herdado de V3-Base. A extensão de long context da V3.1 adiciona corpus
+    // de data não divulgada — adotamos o cutoff do base como limite inferior.
     trainingCutoff: '2024-07-01',
+    trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
   },
   'deepseek/deepseek-r1': {
     description:
@@ -95,7 +133,10 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-01-20',
     tier: 'open-weight',
+    // "DeepSeek-V3 base has a knowledge cutoff date of July 2024" —
+    // DeepSeek-R1 paper, arXiv:2501.12948, seção Decontamination.
     trainingCutoff: '2024-07-01',
+    trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
   },
   'gemini-2.5-pro': {
     description:
@@ -106,7 +147,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Google',
     releaseDate: '2025-03-25',
     tier: 'proprietaria',
+    // "Knowledge cutoff: January 2025" — Gemini API docs, tabela do modelo.
     trainingCutoff: '2025-01-01',
+    trainingCutoffSource: 'https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro',
   },
   'google/gemini-3.1-pro-preview': {
     description:
@@ -117,7 +160,10 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Google',
     releaseDate: '2026-02-19',
     tier: 'proprietaria',
-    trainingCutoff: '2025-11-01',
+    // "Knowledge cutoff: January 2025" — Gemini API docs. Google não
+    // diferenciou cutoff entre Gemini 3 Pro e 3.1 Pro em nenhuma doc oficial.
+    trainingCutoff: '2025-01-01',
+    trainingCutoffSource: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview',
   },
   'gpt-5.1': {
     description:
@@ -128,7 +174,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'OpenAI',
     releaseDate: '2025-11-13',
     tier: 'proprietaria',
-    trainingCutoff: '2025-06-01',
+    // "Sep 30, 2024 knowledge cutoff" — OpenAI developer docs (página do modelo).
+    trainingCutoff: '2024-09-30',
+    trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-5.1',
   },
   'gpt-5.2': {
     description:
@@ -139,18 +187,24 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'OpenAI',
     releaseDate: '2025-12-11',
     tier: 'proprietaria',
-    trainingCutoff: '2025-06-01',
+    // "Aug 31, 2025 knowledge cutoff" — OpenAI developer docs. Mesmo corte
+    // para as variantes Instant/Thinking/Pro conforme anúncio oficial.
+    trainingCutoff: '2025-08-31',
+    trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-5.2',
   },
   'gpt-5.4': {
     description:
-      'Iteração mais recente da linha GPT-5 da OpenAI, com corte de treino em 2026 e melhorias em raciocínio médico.',
+      'Iteração mais recente da linha GPT-5 da OpenAI, com melhorias em raciocínio médico.',
     homepage: 'https://openai.com/gpt-5/',
     label: 'GPT-5.4',
     modelId: 'gpt-5.4',
     provider: 'OpenAI',
     releaseDate: '2026-03-05',
     tier: 'proprietaria',
-    trainingCutoff: '2026-01-01',
+    // "Aug 31, 2025 knowledge cutoff" — OpenAI developer docs. Não houve
+    // refresh de corpus entre GPT-5.2 e 5.4 (mesma data).
+    trainingCutoff: '2025-08-31',
+    trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-5.4',
   },
   'meta-llama/llama-3.3-70b-instruct': {
     description:
@@ -161,7 +215,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Meta · OpenRouter',
     releaseDate: '2024-12-06',
     tier: 'open-weight',
+    // "Data Freshness: The pretraining data has a cutoff of December 2023" — model card HF.
     trainingCutoff: '2023-12-01',
+    trainingCutoffSource: 'https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct',
   },
   'meta-llama/llama-4-maverick': {
     description:
@@ -172,7 +228,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Meta · OpenRouter',
     releaseDate: '2025-04-05',
     tier: 'open-weight',
+    // "Data Freshness: The pretraining data has a cutoff of August 2024" — model card HF.
     trainingCutoff: '2024-08-01',
+    trainingCutoffSource: 'https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct',
   },
   'meta-llama/llama-4-scout': {
     description:
@@ -183,8 +241,14 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Meta · OpenRouter',
     releaseDate: '2025-04-05',
     tier: 'open-weight',
+    // "Data Freshness: The pretraining data has a cutoff of August 2024" — model card HF.
     trainingCutoff: '2024-08-01',
+    trainingCutoffSource: 'https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct',
   },
+  // Mistral não publica cutoff por modelo na documentação oficial nem nos
+  // model cards. O único valor encontrado nos SYSTEM_PROMPT.txt dos repos HF
+  // ("2023-10-01") é boilerplate reusado inclusive no Large 3 (Dez 2025) —
+  // claramente não corresponde ao corpus real. Ficam `undefined`.
   'mistralai/mistral-large-2411': {
     description:
       'Versão de nov/2024 do Mistral Large — antecessora imediata do Mistral Large 2512.',
@@ -194,7 +258,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Mistral · OpenRouter',
     releaseDate: '2024-11-18',
     tier: 'open-weight',
-    trainingCutoff: '2024-07-01',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'mistralai/mistral-large-2512': {
     description:
@@ -205,8 +270,11 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Mistral · OpenRouter',
     releaseDate: '2025-12-01',
     tier: 'open-weight',
-    trainingCutoff: '2025-06-01',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
+  // Alibaba/Qwen não publica pretraining data cutoff em blog, model card HF
+  // ou tech report para a família Qwen3/3.5/3.6. Ficam `undefined`.
   'qwen/qwen3-235b-a22b-2507': {
     description:
       'Qwen 3 235B MoE (22B ativos), variante 2025-07 sem thinking — comparável aos outros modelos open-weight sem reasoning estendido.',
@@ -216,7 +284,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Alibaba · OpenRouter',
     releaseDate: '2025-07-01',
     tier: 'open-weight',
-    trainingCutoff: '2025-04-01',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'qwen/qwen3.5-122b-a10b': {
     description:
@@ -227,7 +296,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Alibaba · OpenRouter',
     releaseDate: '2026-01-01',
     tier: 'open-weight',
-    trainingCutoff: '2025-08-01',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'qwen/qwen3.6-plus': {
     description:
@@ -238,7 +308,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Alibaba · OpenRouter',
     releaseDate: '2026-04-02',
     tier: 'open-weight',
-    trainingCutoff: '2025-12-01',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'sabia-3': {
     description:
@@ -249,7 +320,11 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Maritaca AI',
     releaseDate: '2024-09-01',
     tier: 'proprietaria',
-    trainingCutoff: '2024-03-01',
+    // "Knowledge Cutoff: Mid-2023" — Sabiá-3 technical report (Table 1),
+    // arXiv:2410.12049. Também: "Até meados de 2023" em docs.maritaca.ai/pt/modelos.
+    // Representamos "mid-2023" como 2023-06-01.
+    trainingCutoff: '2023-06-01',
+    trainingCutoffSource: 'https://arxiv.org/abs/2410.12049',
   },
   'sabia-4': {
     description:
@@ -260,7 +335,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Maritaca AI',
     releaseDate: '2025-07-01',
     tier: 'proprietaria',
-    trainingCutoff: '2024-10-01',
+    // "atualizado até agosto de 2024" — docs.maritaca.ai/pt/modelos (Sabiá 4).
+    trainingCutoff: '2024-08-01',
+    trainingCutoffSource: 'https://docs.maritaca.ai/pt/modelos',
   },
 };
 
@@ -273,6 +350,7 @@ export function getModelMetadata(modelId: string): ModelMetadata {
       releaseDate: '',
       tier: 'open-weight',
       trainingCutoff: undefined,
+      trainingCutoffSource: undefined,
     }
   );
 }
