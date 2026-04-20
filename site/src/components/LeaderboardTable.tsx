@@ -33,7 +33,7 @@ export default function LeaderboardTable({
     key: 'acc',
   });
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
 
   function toggleSort(key: SortKey) {
     setSort((cur) =>

@@ -92,7 +92,13 @@ export default function Leaderboard() {
                     </Select>
                   )}
                 </div>
-                <ComparisonChart editionId={edition} models={MODELS} />
+                {/* Espelha o toggle do ranking — sem isso, o chart parece
+                    "faltar modelos" em 2024/1 porque está em "Apenas limpas"
+                    e só 2 modelos tinham cutoff anterior à edição. */}
+                <div className="flex justify-center">
+                  <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
+                </div>
+                <ComparisonChart contaminationScope={scope} editionId={edition} models={MODELS} />
               </section>
             </>
           )}

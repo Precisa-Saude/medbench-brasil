@@ -1,0 +1,2186 @@
+{
+  "accuracy": 0.8577235772357723,
+  "accuracyByEdition": {
+    "enamed-2025": {
+      "accuracy": 0.8577235772357723,
+      "n": 246
+    }
+  },
+  "ci95": [
+    0.8085578022032754,
+    0.8958885349959739
+  ],
+  "contaminationSplit": {
+    "clean": {
+      "accuracy": 0.8577235772357723,
+      "n": 246
+    },
+    "contaminated": null
+  },
+  "correct": 211,
+  "modelId": "qwen/qwen3.5-122b-a10b",
+  "perQuestion": [
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q01",
+      "questionNumber": 1,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q03",
+      "questionNumber": 3,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q04",
+      "questionNumber": 4,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q05",
+      "questionNumber": 5,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q06",
+      "questionNumber": 6,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q08",
+      "questionNumber": 8,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q12",
+      "questionNumber": 12,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q13",
+      "questionNumber": 13,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q14",
+      "questionNumber": 14,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q16",
+      "questionNumber": 16,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q17",
+      "questionNumber": 17,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "cirurgia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q18",
+      "questionNumber": 18,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q19",
+      "questionNumber": 19,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q20",
+      "questionNumber": 20,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q21",
+      "questionNumber": 21,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q22",
+      "questionNumber": 22,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q23",
+      "questionNumber": 23,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q25",
+      "questionNumber": 25,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "B"
+        },
+        {
+          "correct": false,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q26",
+      "questionNumber": 26,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q27",
+      "questionNumber": 27,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q28",
+      "questionNumber": 28,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q29",
+      "questionNumber": 29,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q30",
+      "questionNumber": 30,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q31",
+      "questionNumber": 31,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q32",
+      "questionNumber": 32,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q33",
+      "questionNumber": 33,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q34",
+      "questionNumber": 34,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q35",
+      "questionNumber": 35,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q36",
+      "questionNumber": 36,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q37",
+      "questionNumber": 37,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q39",
+      "questionNumber": 39,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q42",
+      "questionNumber": 42,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q44",
+      "questionNumber": 44,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q45",
+      "questionNumber": 45,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q47",
+      "questionNumber": 47,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q48",
+      "questionNumber": 48,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q49",
+      "questionNumber": 49,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q50",
+      "questionNumber": 50,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q51",
+      "questionNumber": 51,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q52",
+      "questionNumber": 52,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q54",
+      "questionNumber": 54,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q55",
+      "questionNumber": 55,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q56",
+      "questionNumber": 56,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q57",
+      "questionNumber": 57,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q58",
+      "questionNumber": 58,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q59",
+      "questionNumber": 59,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q60",
+      "questionNumber": 60,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "cirurgia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q61",
+      "questionNumber": 61,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q62",
+      "questionNumber": 62,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q63",
+      "questionNumber": 63,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q64",
+      "questionNumber": 64,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q65",
+      "questionNumber": 65,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q66",
+      "questionNumber": 66,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q67",
+      "questionNumber": 67,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "cirurgia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q68",
+      "questionNumber": 68,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q69",
+      "questionNumber": 69,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q70",
+      "questionNumber": 70,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q71",
+      "questionNumber": 71,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q72",
+      "questionNumber": 72,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q73",
+      "questionNumber": 73,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q74",
+      "questionNumber": 74,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "cirurgia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q75",
+      "questionNumber": 75,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q77",
+      "questionNumber": 77,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade",
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q78",
+      "questionNumber": 78,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q79",
+      "questionNumber": 79,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q80",
+      "questionNumber": 80,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q81",
+      "questionNumber": 81,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "cirurgia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q82",
+      "questionNumber": 82,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q83",
+      "questionNumber": 83,
+      "runs": [
+        {
+          "correct": false,
+          "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q84",
+      "questionNumber": 84,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade",
+        "saude-publica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q85",
+      "questionNumber": 85,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q86",
+      "questionNumber": 86,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q87",
+      "questionNumber": 87,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q89",
+      "questionNumber": 89,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q90",
+      "questionNumber": 90,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "B",
+      "editionId": "enamed-2025",
+      "majority": "B",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q91",
+      "questionNumber": 91,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": false,
+      "questionId": "enamed-2025-q92",
+      "questionNumber": 92,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q93",
+      "questionNumber": 93,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        }
+      ],
+      "specialty": [
+        "clinica-medica"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q94",
+      "questionNumber": 94,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "D",
+      "editionId": "enamed-2025",
+      "majority": "D",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q96",
+      "questionNumber": 96,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "medicina-familia-comunidade"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "C",
+      "editionId": "enamed-2025",
+      "majority": "C",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q97",
+      "questionNumber": 97,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": true,
+          "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
+        }
+      ],
+      "specialty": [
+        "pediatria"
+      ]
+    },
+    {
+      "contamination": "likely-clean",
+      "correctAnswer": "A",
+      "editionId": "enamed-2025",
+      "majority": "A",
+      "majorityCorrect": true,
+      "questionId": "enamed-2025-q99",
+      "questionNumber": 99,
+      "runs": [
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": true,
+          "parsed": "A"
+        },
+        {
+          "correct": false,
+          "parsed": "B"
+        }
+      ],
+      "specialty": [
+        "ginecologia-obstetricia"
+      ]
+    }
+  ],
+  "perSpecialty": {
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8222222222222222,
+      "n": 45
+    },
+    "clinica-medica": {
+      "accuracy": 0.88,
+      "n": 75
+    },
+    "saude-publica": {
+      "accuracy": 0.7,
+      "n": 30
+    },
+    "medicina-familia-comunidade": {
+      "accuracy": 0.9230769230769231,
+      "n": 39
+    },
+    "pediatria": {
+      "accuracy": 0.875,
+      "n": 48
+    },
+    "cirurgia": {
+      "accuracy": 1,
+      "n": 15
+    }
+  },
+  "runsPerQuestion": 3,
+  "total": 246
+}

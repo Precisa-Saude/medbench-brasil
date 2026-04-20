@@ -22,9 +22,9 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative bg-ps-violet-dark text-primary-foreground">
-      <div className="mx-auto grid gap-4 px-4 py-16 md:px-0 lg:py-24" style={gridStyle}>
-        <div className="col-span-full space-y-8 md:col-span-12 md:col-start-2 3xl:col-start-3">
+    <section className="relative flex min-h-screen items-center bg-ps-violet-dark text-primary-foreground">
+      <div className="mx-auto grid w-full gap-4 px-4 py-16 md:px-0 lg:py-24" style={gridStyle}>
+        <div className="col-span-full flex flex-col items-center space-y-8 text-center md:col-span-12 md:col-start-2 3xl:col-start-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/15 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-ps-mint" />
             <span className="font-sans text-sm font-medium text-primary-foreground/70">
@@ -59,22 +59,24 @@ export function Hero() {
             execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Cada CTA ocupa 3 colunas do grid principal (3*col-w + 2 gaps de
+              1rem) — alinha com o resto da página. Empilhados verticalmente. */}
+          <div className="flex flex-col items-center gap-3">
             <Link
               to="/metodologia"
-              className="inline-flex items-center justify-center rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
+              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
             >
               Metodologia
             </Link>
             <Link
               to="/reproducao"
-              className="inline-flex items-center justify-center rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
+              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
             >
               Reproduza os testes →
             </Link>
           </div>
 
-          <dl className="grid grid-cols-2 gap-3 pt-4 md:grid-cols-4">
+          <dl className="grid w-full grid-cols-2 gap-3 pt-4 md:grid-cols-4">
             {stats.map((s) => (
               <div
                 key={s.label}

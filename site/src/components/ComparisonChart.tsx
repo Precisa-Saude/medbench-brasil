@@ -14,7 +14,21 @@ import {
 import { EDITIONS, getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
+import type { ContaminationScope } from './ContaminationToggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+
+// Contaminação por edição: a ModelResult agregada mistura editions, então
+// olhamos no perQuestion para achar a classificação naquela edição específica.
+function contaminationForEdition(
+  m: ModelResult,
+  editionId: string,
+): 'clean' | 'contaminated' | 'unknown' {
+  const q = (m.perQuestion ?? []).find((pq) => pq.editionId === editionId);
+  if (!q) return 'unknown';
+  if (q.contamination === 'likely-clean') return 'clean';
+  if (q.contamination === 'likely-contaminated') return 'contaminated';
+  return 'unknown';
+}
 
 /**
  * Família do modelo derivada do prefixo alfabético do label:
@@ -47,9 +61,11 @@ const JENKS_K = 4;
  * forma do dado já suporta.
  */
 export default function ComparisonChart({
+  contaminationScope,
   editionId,
   models,
 }: {
+  contaminationScope?: ContaminationScope;
   editionId: string;
   models: ModelResult[];
 }) {
@@ -85,6 +101,13 @@ export default function ComparisonChart({
   const data = models
     .filter((m) => m.accuracyByEdition[editionId] !== undefined)
     .filter((m) => isVisible(modelFamily(m.label)))
+    .filter((m) => {
+      // Respeita o toggle de contaminação: 'clean' esconde contaminados,
+      // 'contaminated' esconde limpos, 'all'/undefined mostra todos.
+      if (!contaminationScope || contaminationScope === 'all') return true;
+      const c = contaminationForEdition(m, editionId);
+      return contaminationScope === 'clean' ? c === 'clean' : c === 'contaminated';
+    })
     .map((m) => ({
       accuracy: m.accuracyByEdition[editionId]!.accuracy * 100,
       ciHigh: m.ci95[1] * 100,
@@ -114,23 +137,74 @@ export default function ComparisonChart({
     return JENKS_COLORS[JENKS_K - 1 - cls];
   };
 
-  if (data.length === 0) {
-    return (
-      <div className="border rounded-lg p-8 text-center text-muted-foreground text-sm">
-        Selecione pelo menos um modelo.
-      </div>
-    );
-  }
-
   // Margens fixas passadas ao BarChart — precisamos delas para alinhar os
   // pills flutuantes à área de plotagem real (entre o Y axis e a margem direita).
   const Y_AXIS_WIDTH = 140;
   const LEFT_MARGIN = 8;
   const RIGHT_MARGIN = 24;
-  const TOP_MARGIN = 32;
 
   const cutoffPct = edition.cutoffScore * 100;
   const humanPct = edition.estimatedHumanMean * 100;
+
+  // Monta a lista de pills de referência. Quando a edição traz
+  // `extraReferences` (ex.: ENAMED com taxas por rede pública/privada),
+  // omitimos "Candidatos" porque as extras carregam a mesma informação de
+  // forma mais fiel e redundariam o pill.
+  //
+  // `priority` controla quem ganha o row 0 em caso de colisão: extras são
+  // priority 0 (preferidas no topo), Corte/Candidatos são priority 1. Isso
+  // mantém as linhas de dados empíricos (Privada/Pública) alinhadas no topo.
+  const rawLabels: Array<{
+    label: string;
+    leftPercent: number;
+    priority: number;
+    tooltip: string;
+  }> = [
+    {
+      label: 'Corte',
+      leftPercent: cutoffPct,
+      priority: 1,
+      tooltip: 'Nota de corte oficial da INEP para aprovação nesta edição.',
+    },
+  ];
+  if (!edition.extraReferences?.length) {
+    rawLabels.push({
+      label: 'Candidatos',
+      leftPercent: humanPct,
+      priority: 1,
+      tooltip: `Precisão média estimada dos candidatos, retrocalculada da nota de corte + taxa oficial de aprovação (${(edition.passRate * 100).toFixed(0)}%).`,
+    });
+  }
+  for (const ref of edition.extraReferences ?? []) {
+    rawLabels.push({
+      label: ref.label,
+      leftPercent: ref.score * 100,
+      priority: 0,
+      tooltip: ref.tooltip,
+    });
+  }
+
+  // Stagger vertical quando pills ficam próximos demais no eixo X — evita
+  // sobreposição visual das legendas. Heurística: 8pp no eixo X corresponde
+  // a ~80px na área plotada típica, o que cobre a largura de um pill.
+  const COLLISION_PP = 8;
+  // Ordena por (prioridade, posição) para que extras sejam alocadas antes
+  // de Corte — greedy em row 0 escolhe primeiro, empurrando Corte para row 1
+  // quando há colisão.
+  const sorted = [...rawLabels].sort(
+    (a, b) => a.priority - b.priority || a.leftPercent - b.leftPercent,
+  );
+  const rowsTaken: number[][] = [];
+  const labelEntries = sorted.map((entry) => {
+    let row = 0;
+    while ((rowsTaken[row] ?? []).some((x) => Math.abs(x - entry.leftPercent) < COLLISION_PP)) {
+      row += 1;
+    }
+    rowsTaken[row] = [...(rowsTaken[row] ?? []), entry.leftPercent];
+    return { ...entry, row };
+  });
+  const labelRows = Math.max(1, rowsTaken.length);
+  const TOP_MARGIN = labelRows * 28 + 10;
 
   return (
     <div className="space-y-3 font-sans">
@@ -158,163 +232,210 @@ export default function ComparisonChart({
         </div>
       )}
       <div className="rounded-lg border bg-card p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
-                <span>menor</span>
-                <span className="inline-flex gap-0.5">
-                  {JENKS_COLORS.map((_c, i) => (
-                    <span
-                      key={i}
-                      aria-hidden
-                      className="inline-block h-2.5 w-4"
-                      style={{ backgroundColor: JENKS_COLORS[JENKS_COLORS.length - 1 - i] }}
+        {data.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            Nenhum modelo corresponde aos filtros atuais. Desmarque chips de família acima ou troque
+            o toggle de contaminação.
+          </div>
+        ) : (
+          <>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
+                    <span>menor</span>
+                    <span className="inline-flex gap-0.5">
+                      {JENKS_COLORS.map((_c, i) => (
+                        <span
+                          key={i}
+                          aria-hidden
+                          className="inline-block h-2.5 w-4"
+                          style={{ backgroundColor: JENKS_COLORS[JENKS_COLORS.length - 1 - i] }}
+                        />
+                      ))}
+                    </span>
+                    <span>maior</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs font-sans text-sm">
+                  Cores agrupam os modelos em 4 classes naturais pelo algoritmo Jenks sobre as
+                  precisões observadas — classes mais escuras concentram as maiores precisões.
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="relative">
+              <div
+                className="absolute top-0 z-10 text-xs"
+                style={{
+                  height: labelRows * 28 + 10,
+                  left: Y_AXIS_WIDTH + LEFT_MARGIN,
+                  right: RIGHT_MARGIN,
+                }}
+              >
+                {labelEntries.map((entry) => (
+                  <FloatingLabel key={entry.label} leftPercent={entry.leftPercent} row={entry.row}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
+                          {entry.label}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs font-sans text-sm">
+                        {entry.tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </FloatingLabel>
+                ))}
+              </div>
+              <ResponsiveContainer width="100%" height={Math.max(260, data.length * 42 + 100)}>
+                <BarChart
+                  data={data}
+                  layout="vertical"
+                  margin={{ bottom: 8, left: LEFT_MARGIN, right: RIGHT_MARGIN, top: TOP_MARGIN }}
+                >
+                  <XAxis
+                    type="number"
+                    domain={[0, 100]}
+                    ticks={Array.from(
+                      new Set([
+                        0,
+                        25,
+                        50,
+                        75,
+                        100,
+                        Math.round(cutoffPct),
+                        // Humano/Candidatos só aparece quando não há
+                        // extraReferences — não adicionar tick órfão no
+                        // eixo quando o pill/linha também estão ocultos.
+                        ...(edition.extraReferences?.length ? [] : [Math.round(humanPct)]),
+                        ...(edition.extraReferences ?? []).map((r) => Math.round(r.score * 100)),
+                      ]),
+                    ).sort((a, b) => a - b)}
+                    tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                    unit="%"
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="label"
+                    padding={{ bottom: 16, top: 0 }}
+                    tick={(props) => {
+                      const { payload, x, y } = props as {
+                        payload: { value: string };
+                        x: number;
+                        y: number;
+                      };
+                      const modelId = labelToId.get(payload.value);
+                      return (
+                        <g transform={`translate(${x},${y})`}>
+                          <text
+                            x={-4}
+                            y={0}
+                            dy={4}
+                            textAnchor="end"
+                            fill="var(--ps-violet)"
+                            fontSize={12}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => modelId && navigate(`/models/${modelId}`)}
+                          >
+                            <title>Ver detalhes de {payload.value}</title>
+                            {payload.value}
+                          </text>
+                        </g>
+                      );
+                    }}
+                    width={140}
+                  />
+                  <Bar
+                    dataKey="accuracy"
+                    name="Precisão"
+                    radius={[0, 4, 4, 0]}
+                    isAnimationActive={false}
+                    barSize={28}
+                  >
+                    {data.map((d) => (
+                      <Cell key={d.modelId} fill={colorFor(d.accuracy)} />
+                    ))}
+                    <LabelList
+                      dataKey="accuracy"
+                      position="insideRight"
+                      offset={10}
+                      fill="#ffffff"
+                      fontSize={12}
+                      fontWeight={700}
+                      formatter={(v: number) => `${v.toFixed(1)}%`}
+                    />
+                  </Bar>
+                  <ReferenceLine
+                    x={edition.cutoffScore * 100}
+                    stroke="#ffffff"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 4"
+                    ifOverflow="extendDomain"
+                  />
+                  {!edition.extraReferences?.length && (
+                    <ReferenceLine
+                      x={edition.estimatedHumanMean * 100}
+                      stroke="#ffffff"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      ifOverflow="extendDomain"
+                    />
+                  )}
+                  {(edition.extraReferences ?? []).map((ref) => (
+                    <ReferenceLine
+                      key={ref.label}
+                      x={ref.score * 100}
+                      stroke="#ffffff"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      ifOverflow="extendDomain"
                     />
                   ))}
-                </span>
-                <span>maior</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs font-sans text-sm">
-              Cores agrupam os modelos em 4 classes naturais pelo algoritmo Jenks sobre as precisões
-              observadas — classes mais escuras concentram as maiores precisões.
-            </TooltipContent>
-          </Tooltip>
-        </div>
-        <div className="relative">
-          <div
-            className="absolute top-0 z-10 text-xs"
-            style={{
-              height: TOP_MARGIN,
-              left: Y_AXIS_WIDTH + LEFT_MARGIN,
-              right: RIGHT_MARGIN,
-            }}
-          >
-            <FloatingLabel leftPercent={humanPct}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                    Humano
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs font-sans text-sm">
-                  Média humana estimada da taxa de aprovação ({(edition.passRate * 100).toFixed(0)}
-                  %).
-                </TooltipContent>
-              </Tooltip>
-            </FloatingLabel>
-            <FloatingLabel leftPercent={cutoffPct}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                    Corte
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs font-sans text-sm">
-                  Nota de corte oficial da INEP para aprovação nesta edição.
-                </TooltipContent>
-              </Tooltip>
-            </FloatingLabel>
-          </div>
-          <ResponsiveContainer width="100%" height={Math.max(260, data.length * 42 + 100)}>
-            <BarChart
-              data={data}
-              layout="vertical"
-              margin={{ bottom: 8, left: LEFT_MARGIN, right: RIGHT_MARGIN, top: TOP_MARGIN }}
-            >
-              <XAxis
-                type="number"
-                domain={[0, 100]}
-                ticks={Array.from(
-                  new Set([0, 25, 50, 75, 100, Math.round(cutoffPct), Math.round(humanPct)]),
-                ).sort((a, b) => a - b)}
-                tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-                unit="%"
-              />
-              <YAxis
-                type="category"
-                dataKey="label"
-                padding={{ bottom: 16, top: 0 }}
-                tick={(props) => {
-                  const { payload, x, y } = props as {
-                    payload: { value: string };
-                    x: number;
-                    y: number;
-                  };
-                  const modelId = labelToId.get(payload.value);
-                  return (
-                    <g transform={`translate(${x},${y})`}>
-                      <text
-                        x={-4}
-                        y={0}
-                        dy={4}
-                        textAnchor="end"
-                        fill="var(--ps-violet)"
-                        fontSize={12}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => modelId && navigate(`/models/${modelId}`)}
-                      >
-                        <title>Ver detalhes de {payload.value}</title>
-                        {payload.value}
-                      </text>
-                    </g>
-                  );
-                }}
-                width={140}
-              />
-              <Bar
-                dataKey="accuracy"
-                name="Precisão"
-                radius={[0, 4, 4, 0]}
-                isAnimationActive={false}
-                barSize={28}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              As quatro tonalidades agrupam os modelos em classes naturais via{' '}
+              <a
+                className="text-ps-violet underline"
+                href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {data.map((d) => (
-                  <Cell key={d.modelId} fill={colorFor(d.accuracy)} />
-                ))}
-                <LabelList
-                  dataKey="accuracy"
-                  position="insideRight"
-                  offset={10}
-                  fill="#ffffff"
-                  fontSize={12}
-                  fontWeight={700}
-                  formatter={(v: number) => `${v.toFixed(1)}%`}
-                />
-              </Bar>
-              <ReferenceLine
-                x={edition.cutoffScore * 100}
-                stroke="#ffffff"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                ifOverflow="extendDomain"
-              />
-              <ReferenceLine
-                x={edition.estimatedHumanMean * 100}
-                stroke="#ffffff"
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                ifOverflow="extendDomain"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          As quatro tonalidades agrupam os modelos em classes naturais via{' '}
-          <a
-            className="text-ps-violet underline"
-            href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Jenks natural breaks
-          </a>
-          : os cortes são escolhidos por programação dinâmica para minimizar a variância
-          intra-classe das precisões observadas, destacando os agrupamentos reais da distribuição em
-          vez de faixas fixas arbitrárias.
-        </p>
+                Jenks natural breaks
+              </a>
+              : os cortes são escolhidos por programação dinâmica para minimizar a variância
+              intra-classe das precisões observadas, destacando os agrupamentos reais da
+              distribuição em vez de faixas fixas arbitrárias.
+            </p>
+            {edition.sources && edition.sources.length > 0 && (
+              <div className="mt-4 border-t pt-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Fontes
+                </div>
+                <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {edition.sources.map((s) => (
+                    <li key={s.url}>
+                      {s.author}. <span className="font-semibold">{s.title}</span>
+                      {s.location ? `. ${s.location}` : ''}
+                      {s.publishedAt ? `, ${s.publishedAt}` : ''}. Disponível em:{' '}
+                      <a
+                        className="text-ps-violet break-all underline"
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {s.url}
+                      </a>
+                      .
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -330,14 +451,18 @@ export default function ComparisonChart({
 function FloatingLabel({
   children,
   leftPercent,
+  row = 0,
 }: {
   children: React.ReactNode;
   leftPercent: number;
+  /** Linha vertical (0 = topo, 1 = segunda linha) para evitar colisão entre
+   * pills próximos no eixo X. Cada linha desce ~28px (altura do pill + gap). */
+  row?: number;
 }) {
   return (
     <div
-      className="absolute top-0 flex -translate-x-1/2 items-start"
-      style={{ left: `${leftPercent}%` }}
+      className="absolute flex -translate-x-1/2 items-start"
+      style={{ left: `${leftPercent}%`, top: `${row * 28}px` }}
     >
       {children}
     </div>

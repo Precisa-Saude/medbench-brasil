@@ -12,7 +12,7 @@ export interface PaginationProps {
   totalRows: number;
 }
 
-const DEFAULT_PAGE_SIZES = [20, 50, 100];
+const DEFAULT_PAGE_SIZES = [10, 20, 50, 100];
 
 export function Pagination({
   itemsLabel = 'linhas',
