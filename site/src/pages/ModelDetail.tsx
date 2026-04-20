@@ -1,9 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
 
 import { PageContainer } from '../components/PageContainer';
+import SpecialtyDifficultyBar from '../components/SpecialtyDifficultyBar';
 import SpecialtyRadar from '../components/SpecialtyRadar';
+import TrendChart from '../components/TrendChart';
 import { CodeBlock } from '../components/ui/code-block';
-import { findModel } from '../data/results';
+import { EDITIONS } from '../data/editions';
+import { findModel, MODELS } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
 
 export default function ModelDetail() {
@@ -37,6 +40,19 @@ export default function ModelDetail() {
     return letters.size === 1;
   }).length;
   const consistency = perQuestion.length > 0 ? consistent / perQuestion.length : null;
+
+  const trendData = Object.entries(model.accuracyByEdition)
+    .map(([eid, b]) => {
+      const ed = EDITIONS[eid];
+      return {
+        edition: ed?.label ?? eid,
+        estimatedHumanMean: ed ? ed.estimatedHumanMean * 100 : undefined,
+        modelScore: b.accuracy * 100,
+        passingScore: ed ? ed.cutoffScore * 100 : undefined,
+        publishedAt: ed?.publishedAt ?? eid,
+      };
+    })
+    .sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
 
   return (
     <PageContainer>
@@ -101,6 +117,16 @@ export default function ModelDetail() {
           <SpecialtyRadar data={radarData} />
         </section>
 
+        <section>
+          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
+            Dificuldade por área
+          </h2>
+          <p className="mb-4 font-sans text-sm text-muted-foreground">
+            Compara a precisão deste modelo com a média dos demais modelos no pool por área médica.
+          </p>
+          <SpecialtyDifficultyBar allModels={MODELS} model={model} />
+        </section>
+
         {consistency !== null && (
           <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Card
@@ -124,6 +150,15 @@ export default function ModelDetail() {
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
             Precisão por edição
           </h2>
+          {trendData.length >= 2 && (
+            <div className="mb-4 rounded-lg border bg-card p-4">
+              <TrendChart data={trendData} />
+              <p className="mt-2 font-sans text-base text-muted-foreground">
+                Linha violeta: precisão deste modelo. Tracejados: nota de corte (âmbar) e média
+                humana estimada (verde) — referências oficiais da INEP.
+              </p>
+            </div>
+          )}
           <ul className="divide-y rounded-lg border font-sans text-sm">
             {Object.entries(model.accuracyByEdition).length === 0 ? (
               <li className="px-4 py-3 text-sm text-muted-foreground">

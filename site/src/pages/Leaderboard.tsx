@@ -6,6 +6,7 @@ import type { ContaminationScope } from '../components/ContaminationToggle';
 import { Hero } from '../components/Hero';
 import LeaderboardTable from '../components/LeaderboardTable';
 import { PageContainer } from '../components/PageContainer';
+import SpecialtyHeatmap from '../components/SpecialtyHeatmap';
 import {
   Select,
   SelectContent,
@@ -99,6 +100,19 @@ export default function Leaderboard() {
                   <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
                 </div>
                 <ComparisonChart contaminationScope={scope} editionId={edition} models={MODELS} />
+              </section>
+
+              <section className="space-y-4">
+                <div className="text-center">
+                  <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
+                    Onde cada modelo acerta
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-2xl font-sans text-sm text-muted-foreground">
+                    Precisão por área médica em todas as edições. Respeita o toggle de contaminação
+                    acima.
+                  </p>
+                </div>
+                <SpecialtyHeatmap contaminationScope={scope} models={MODELS} />
               </section>
             </>
           )}
