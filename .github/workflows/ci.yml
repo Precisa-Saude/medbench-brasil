@@ -159,12 +159,16 @@ jobs:
       # desde a última tag, injetamos um commit `fix:` vazio para que o
       # semantic-release enxergue uma mudança de patch. O commit entra no
       # histórico junto com o `chore(release): X.Y.Z` subsequente.
+      #
+      # `[skip ci]` é essencial: com `cancel-in-progress: true` na concorrência,
+      # um push novo em main cancelaria este mesmo job antes do semantic-release
+      # rodar. O marker é respeitado pelo GitHub Actions.
       - name: Inject empty fix commit for forced release
         if: github.event_name == 'workflow_dispatch' && inputs.force_release
         run: |
           git config user.email "${{ secrets.RELEASE_APP_ID }}+precisa-saude-release[bot]@users.noreply.github.com"
           git config user.name "precisa-saude-release[bot]"
-          git commit --allow-empty -m "fix: manual release trigger via workflow_dispatch"
+          git commit --allow-empty -m "fix: manual release trigger via workflow_dispatch [skip ci]"
           git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
