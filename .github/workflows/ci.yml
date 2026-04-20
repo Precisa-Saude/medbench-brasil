@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Força um patch release agora (bypassa gate de packages_changed e no-op do semantic-release).'
+        type: boolean
+        default: false
 
 # Permissões top-level em read por padrão. Jobs que precisam escrever
 # (release empurra chore(release), deploy usa OIDC) elevam no escopo do
@@ -54,10 +59,16 @@ jobs:
     secrets: inherit
 
   # ── Release (main only, after checks pass, skip when no package changes) ──
+  # Também aceita workflow_dispatch com `force_release=true` para cortar um
+  # patch manual quando mudanças legítimas caíram em main com squash titles
+  # não convencionais (ex.: "Corrige ..." em vez de "fix:") e semantic-release
+  # as ignorou. Comportamento nesse caso: bypass do gate packages_changed e
+  # um commit empty `fix:` injetado antes de rodar semantic-release — o
+  # analyzer detecta `fix:` e bumpa patch naturalmente.
   release:
     name: Release
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.force_release))
     runs-on: ubuntu-latest
     # Escopo mínimo necessário para empurrar o chore(release) e criar a
     # release GitHub. Mesmo com o GitHub App fornecendo o token, o job
@@ -105,11 +116,12 @@ jobs:
               );
               filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
             }
-            const packageChanged = filenames.some(
+            const forced = ${{ (github.event_name == 'workflow_dispatch' && inputs.force_release) && 'true' || 'false' }};
+            const packageChanged = forced || filenames.some(
               f => f.startsWith('packages/') || f === 'package.json'
             );
             core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
-            core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);
+            core.info(`inspected ${filenames.length} files, forced=${forced}, packages_changed=${packageChanged}`);
 
       - name: Generate GitHub App token
         id: app-token
@@ -142,6 +154,20 @@ jobs:
       - name: Build
         if: steps.changes.outputs.packages_changed == 'true'
         run: pnpm turbo run build
+
+      # Quando `force_release` é true e não há commits releasable no histórico
+      # desde a última tag, injetamos um commit `fix:` vazio para que o
+      # semantic-release enxergue uma mudança de patch. O commit entra no
+      # histórico junto com o `chore(release): X.Y.Z` subsequente.
+      - name: Inject empty fix commit for forced release
+        if: github.event_name == 'workflow_dispatch' && inputs.force_release
+        run: |
+          git config user.email "${{ secrets.RELEASE_APP_ID }}+precisa-saude-release[bot]@users.noreply.github.com"
+          git config user.name "precisa-saude-release[bot]"
+          git commit --allow-empty -m "fix: manual release trigger via workflow_dispatch"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Run semantic-release
         id: semantic
