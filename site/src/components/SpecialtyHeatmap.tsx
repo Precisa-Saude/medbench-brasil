@@ -73,9 +73,10 @@ export default function SpecialtyHeatmap({
 
   // Normaliza sobre a faixa observada para que o gradiente inteiro cubra a
   // distribuição real (ex.: 67–100%) em vez de espremer tudo no topo da
-  // escala 0–100.
-  const range = Math.max(dataMax - dataMin, 0.0001);
-  const normalize = (accuracy: number) => (accuracy - dataMin) / range;
+  // escala 0–100. Caso degenerado (todas as células com a mesma precisão):
+  // devolve 0.5 para pintar tudo no tom médio e evita divisão por ~0.
+  const range = dataMax - dataMin;
+  const normalize = (accuracy: number) => (range < 1e-6 ? 0.5 : (accuracy - dataMin) / range);
 
   if (orderedModels.length === 0 || orderedSpecialties.length === 0) {
     return (
@@ -143,8 +144,9 @@ export default function SpecialtyHeatmap({
                       </div>
                     );
                   }
-                  const bg = colorFor(normalize(cell.accuracy));
-                  const textColor = normalize(cell.accuracy) < 0.35 ? '#3d2a63' : '#ffffff';
+                  const norm = normalize(cell.accuracy);
+                  const bg = colorFor(norm);
+                  const textColor = norm < 0.35 ? '#3d2a63' : '#ffffff';
                   // Tooltip nativo (atributo `title`) em vez de Radix por célula:
                   // para N modelos × M specialties o Radix cria um portal por
                   // célula (facilmente 400+ instâncias), inviável em grids grandes.

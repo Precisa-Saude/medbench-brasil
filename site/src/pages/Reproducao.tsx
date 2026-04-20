@@ -55,7 +55,7 @@ export default function Reproducao() {
               <p className="mt-2 text-sm text-muted-foreground">
                 As provas anotadas — Revalida e ENAMED — com especialidade por questão, flags de
                 imagem/tabela/anulação e metadados oficiais da INEP. Documentação completa na{' '}
-                <Link to="/dataset" className="relative underline text-ps-violet">
+                <Link to="/dataset" className="relative z-10 underline text-ps-violet">
                   página Dataset
                 </Link>
                 .
