@@ -28,8 +28,8 @@ export default function EditionDetail() {
   const data = getEdition(id);
   const modelsWithResult = MODELS.filter((m) => m.accuracyByEdition[id]);
   const approved = modelsWithResult.filter((m) => m.accuracyByEdition[id]?.passesCutoff).length;
-  const enadeLevel =
-    modelsWithResult.length > 0 ? rateToEnadeLevel(approved / modelsWithResult.length) : null;
+  const approvedRate = modelsWithResult.length > 0 ? approved / modelsWithResult.length : null;
+  const enadeLevel = approvedRate !== null ? rateToEnadeLevel(approvedRate) : null;
 
   return (
     <PageContainer>
@@ -66,7 +66,7 @@ export default function EditionDetail() {
           </section>
         )}
 
-        {enadeLevel !== null && (
+        {enadeLevel !== null && approvedRate !== null && (
           <section className="rounded-lg border bg-card p-6 font-sans">
             <div className="flex items-baseline justify-between gap-4 flex-wrap">
               <div>
@@ -77,7 +77,7 @@ export default function EditionDetail() {
                   <div className="text-4xl font-bold">Nível {enadeLevel}</div>
                   <div className="text-muted-foreground text-sm">
                     {approved}/{modelsWithResult.length} modelos aprovados (
-                    {((approved / modelsWithResult.length) * 100).toFixed(0)}%)
+                    {(approvedRate * 100).toFixed(0)}%)
                   </div>
                 </div>
               </div>

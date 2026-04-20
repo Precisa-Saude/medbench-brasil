@@ -34,6 +34,21 @@ Toda definição de provider em `packages/eval-harness/src/providers/` deve decl
 - Nunca usar `--no-verify` ou pular hooks
 - Commits em pt-BR, Conventional Commits, escopos válidos listados em `CONVENTIONS.md`
 
+## Revisão de PR — obrigatório responder e resolver
+
+**Sempre** que houver comentários de revisão em uma PR em que você está trabalhando (humanos OU bots como o Claude Review), você DEVE:
+
+1. **Ler todos os comentários** antes de seguir para próxima tarefa — use `gh api repos/OWNER/REPO/pulls/<N>/comments --jq '.[] | {id, path, line, body}'` para listar inline comments.
+2. **Para cada comentário**:
+   - **Se implementar a sugestão**: responda citando o commit que aplica a mudança (ex.: "Endereçado em `abc123`: <breve explicação>") e marque o thread como resolvido.
+   - **Se discordar ou pular**: responda explicando a razão técnica (ex.: "`parseArgs` já normaliza bare flags para `'true'`, então o check é seguro"). Resolva o thread mesmo assim se o conselho não vale a pena agir.
+   - **Se precisar da decisão do usuário**: responda pedindo esclarecimento explicitamente, NÃO resolva o thread, e escale ao usuário.
+3. **Responder via REST**: `gh api -X POST repos/OWNER/REPO/pulls/<N>/comments/<COMMENT_ID>/replies -f body="<texto>"`.
+4. **Resolver via GraphQL**: `gh api graphql -f query='mutation { resolveReviewThread(input: { threadId: "<THREAD_ID>" }) { thread { isResolved } } }'`. Para achar `threadId`, use `gh api graphql -f query='{ repository(owner: "<o>", name: "<r>") { pullRequest(number: <n>) { reviewThreads(first: 50) { nodes { id isResolved comments(first: 1) { nodes { databaseId } } } } } } }'`.
+5. **Commits de fix em resposta a review** devem citar `Refs: #<PR>` no footer e, quando possível, referenciar IDs de comentários específicos.
+
+Silêncio em revisão não é neutro — é dívida. Se o thread fica aberto, o próximo revisor precisa redescobrir o contexto. Sempre feche o loop.
+
 ## Worktrees para sessões paralelas — obrigatório
 
 **CRÍTICO**: quando mais de uma sessão do Claude pode estar ativa neste repositório, você DEVE usar um `git worktree` dedicado para sua feature. Compartilhar a mesma working tree entre sessões paralelas já corrompeu o estado do repo uma vez (commits na branch errada, arquivos de outra sessão entrando em `git add`) e não pode acontecer de novo.

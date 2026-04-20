@@ -36,20 +36,22 @@ function macroF1(
 
 /**
  * Resolve a nota de corte oficial para uma edição, consultando o dataset.
- * Memoiza apenas resultados positivos — se `loadEdition` falhar (ex.: arquivo
- * ainda não gravado, erro transitório), deixa a próxima chamada tentar de
- * novo em vez de cachear um `null` permanente. Quando o corte não pode ser
- * resolvido, `passesCutoff` no output fica `undefined`.
+ * Memoiza positivos e negativos para o tempo de vida do processo — falhas de
+ * `loadEdition` aqui são I/O de arquivo em um dataset versionado; se o arquivo
+ * não existe no disco agora, também não vai aparecer no meio da execução. Sem
+ * o cache negativo, rescores em lote pagariam um `fs.readFileSync` para cada
+ * questão de uma edição ausente. Quando o corte não pode ser resolvido,
+ * `passesCutoff` no output fica `undefined`.
  */
-const cutoffCache = new Map<string, number>();
+const cutoffCache = new Map<string, null | number>();
 function resolveCutoffScore(editionId: string): null | number {
-  const cached = cutoffCache.get(editionId);
-  if (cached !== undefined) return cached;
+  if (cutoffCache.has(editionId)) return cutoffCache.get(editionId) ?? null;
   try {
     const edition = loadEdition(editionId as EditionId);
     cutoffCache.set(editionId, edition.cutoffScore);
     return edition.cutoffScore;
   } catch {
+    cutoffCache.set(editionId, null);
     return null;
   }
 }
