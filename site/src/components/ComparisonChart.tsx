@@ -298,7 +298,19 @@ export default function ComparisonChart({
                     type="number"
                     domain={[0, 100]}
                     ticks={Array.from(
-                      new Set([0, 25, 50, 75, 100, Math.round(cutoffPct), Math.round(humanPct)]),
+                      new Set([
+                        0,
+                        25,
+                        50,
+                        75,
+                        100,
+                        Math.round(cutoffPct),
+                        // Humano/Candidatos só aparece quando não há
+                        // extraReferences — não adicionar tick órfão no
+                        // eixo quando o pill/linha também estão ocultos.
+                        ...(edition.extraReferences?.length ? [] : [Math.round(humanPct)]),
+                        ...(edition.extraReferences ?? []).map((r) => Math.round(r.score * 100)),
+                      ]),
                     ).sort((a, b) => a - b)}
                     tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                     unit="%"
