@@ -71,14 +71,23 @@ export function rescoreFromRaw(options: {
 }): EvaluationResult {
   const raw = readFileSync(options.rawLogPath, 'utf8');
   const records: RawResponseRecord[] = [];
+  let skipped = 0;
+  let totalLines = 0;
   for (const line of raw.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    totalLines += 1;
     try {
       records.push(JSON.parse(trimmed) as RawResponseRecord);
     } catch {
-      // linha corrompida — pula
+      skipped += 1;
     }
+  }
+  if (skipped > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `rescoreFromRaw: ${skipped}/${totalLines} linhas corrompidas em ${options.rawLogPath} — descartadas.`,
+    );
   }
 
   const edition = loadEdition(options.editionId);
@@ -109,6 +118,14 @@ export function rescoreFromRaw(options: {
   return scoreRun(options.modelId, options.runsPerQuestion, runRecords);
 }
 
+/**
+ * Reconstrói uma `Question` apenas com os campos que `scoreRun` lê hoje
+ * (id, number, editionId, correct, specialty). Os demais campos — `stem`,
+ * `options`, `hasImage`, `hasTable`, `annulled` — ficam vazios porque não
+ * são usados no cálculo de métricas. Se o scorer passar a depender desses
+ * campos, o `rescoreFromScored` precisa evoluir para carregar a edição real
+ * em vez de reconstruir a partir de `perQuestion`.
+ */
 function pqToQuestion(pq: PerQuestionResult): Question {
   return {
     annulled: false,

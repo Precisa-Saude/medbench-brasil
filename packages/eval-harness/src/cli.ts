@@ -211,7 +211,9 @@ function runRescore(args: Record<string, string>) {
   for (const edition of editions) {
     const dir = join(baseDir, edition);
     if (!existsSync(dir)) continue;
-    const files = readdirSync(dir).filter((f) => f.endsWith('.json') && !f.endsWith('.raw.jsonl'));
+    // `.raw.jsonl` não passa no `endsWith('.json')`, mas mantemos a distinção
+    // explícita caso apareçam sufixos como `*.raw.json` no futuro.
+    const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
     for (const file of files) {
       if (modelFilter) {
         const slug = modelFilter.replace(/[^a-z0-9.-]/gi, '_');
@@ -251,7 +253,12 @@ function runReport(args: Record<string, string>) {
     results.push(JSON.parse(readFileSync(path, 'utf8')) as EvaluationResult);
   }
 
-  if (args.enade === 'true' || args.enade === undefined) {
+  // Enade é ligado por padrão; desligar com `--enade false`. Consensus é
+  // opt-in com `--consensus-errors`.
+  const enadeOn = args.enade !== 'false';
+  const consensusOn = args['consensus-errors'] === 'true';
+
+  if (enadeOn) {
     const concept = computeEnadeConcept(results, editionId);
     if (concept) {
       console.log(
@@ -262,7 +269,7 @@ function runReport(args: Record<string, string>) {
     }
   }
 
-  if (args['consensus-errors'] === 'true') {
+  if (consensusOn) {
     const errors = findConsensusErrors(results, editionId, {
       minFailingCount: Number(args['min-failing-count'] ?? 3),
       minFailingRate: Number(args['min-failing-rate'] ?? 0.8),

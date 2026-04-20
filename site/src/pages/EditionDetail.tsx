@@ -7,10 +7,11 @@ import { getEditionMetadata } from '../data/editions';
 import { MODELS } from '../data/results';
 
 /**
- * Tabela oficial do MEC (Portaria INEP nº 478/2025 — Enade):
- *   Nível 1: <40%, Nível 2: 40–59%, Nível 3: 60–74%,
- *   Nível 4: 75–89%, Nível 5: ≥90%.
- * Ver Correia et al., PROPOR 2026, secção 5.3 para aplicação a LLMs.
+ * Mapeamento 1–5 do Conceito Enade (Portaria INEP nº 478/2025, replicado por
+ * Correia et al., PROPOR 2026). Duplicado em `packages/eval-harness/src/enade.ts`
+ * porque o entry-point principal do harness puxa `loadEdition` com `fs`,
+ * incompatível com bundler do site. Se atualizar os limiares, atualize
+ * também a versão do harness.
  */
 function rateToEnadeLevel(rate: number): 1 | 2 | 3 | 4 | 5 {
   if (rate < 0.4) return 1;
@@ -25,10 +26,6 @@ export default function EditionDetail() {
   if (!id) return null;
   const meta = getEditionMetadata(id);
   const data = getEdition(id);
-  const modelsForEdition = MODELS.filter(
-    (m) => m.accuracyByEdition[id] !== undefined || MODELS.length > 0,
-  );
-
   const modelsWithResult = MODELS.filter((m) => m.accuracyByEdition[id]);
   const approved = modelsWithResult.filter((m) => m.accuracyByEdition[id]?.passesCutoff).length;
   const enadeLevel =
@@ -100,7 +97,7 @@ export default function EditionDetail() {
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-4">
             Ranking nesta edição
           </h2>
-          <ComparisonChart editionId={id} models={modelsForEdition} />
+          <ComparisonChart editionId={id} models={modelsWithResult} />
         </section>
 
         <section>

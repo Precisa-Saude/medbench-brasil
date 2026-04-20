@@ -65,7 +65,13 @@ export function findConsensusErrors(
       if (pq.editionId !== editionId) continue;
       if (pq.majority === null) continue;
       if (pq.majorityCorrect) continue;
-      const slot = byQuestion.get(pq.questionId) ?? {
+      const existing = byQuestion.get(pq.questionId);
+      if (existing && existing.correctAnswer !== pq.correctAnswer) {
+        throw new Error(
+          `inconsistência de gabarito para ${pq.questionId}: ${existing.correctAnswer} vs ${pq.correctAnswer}. Rode 'medbench rescore' para ressincronizar.`,
+        );
+      }
+      const slot = existing ?? {
         correctAnswer: pq.correctAnswer,
         distractorCounts: new Map<QuestionOption, { count: number; models: string[] }>(),
         failingModels: [],

@@ -36,19 +36,20 @@ function macroF1(
 
 /**
  * Resolve a nota de corte oficial para uma edição, consultando o dataset.
- * Memoiza para evitar carregar o mesmo JSON repetidamente em runs que
- * misturam edições. Retorna null se a edição não puder ser resolvida — o
- * scorer degrada graciosamente (`passesCutoff` fica undefined).
+ * Memoiza apenas resultados positivos — se `loadEdition` falhar (ex.: arquivo
+ * ainda não gravado, erro transitório), deixa a próxima chamada tentar de
+ * novo em vez de cachear um `null` permanente. Quando o corte não pode ser
+ * resolvido, `passesCutoff` no output fica `undefined`.
  */
-const cutoffCache = new Map<string, null | number>();
+const cutoffCache = new Map<string, number>();
 function resolveCutoffScore(editionId: string): null | number {
-  if (cutoffCache.has(editionId)) return cutoffCache.get(editionId) ?? null;
+  const cached = cutoffCache.get(editionId);
+  if (cached !== undefined) return cached;
   try {
     const edition = loadEdition(editionId as EditionId);
     cutoffCache.set(editionId, edition.cutoffScore);
     return edition.cutoffScore;
   } catch {
-    cutoffCache.set(editionId, null);
     return null;
   }
 }
