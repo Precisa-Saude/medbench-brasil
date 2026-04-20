@@ -395,7 +395,7 @@ export default function ComparisonChart({
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-base text-muted-foreground">
               As quatro tonalidades agrupam os modelos em classes naturais via{' '}
               <a
                 className="text-ps-violet underline"

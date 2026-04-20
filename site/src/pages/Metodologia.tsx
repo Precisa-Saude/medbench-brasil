@@ -1,7 +1,10 @@
 import { SYSTEM_PROMPT } from '@precisa-saude/medbench-harness/prompt';
 
+import ContaminationDumbbell from '../components/ContaminationDumbbell';
+import CutoffGapScatter from '../components/CutoffGapScatter';
 import { PageContainer } from '../components/PageContainer';
 import { CodeBlock } from '../components/ui/code-block';
+import { MODELS } from '../data/results';
 
 export default function Metodologia() {
   return (
@@ -71,6 +74,10 @@ export default function Metodologia() {
             leaderboard ganha um ponto de dado limpo para todos os modelos avaliados antes daquela
             data.
           </p>
+          <div className="mt-6 space-y-4">
+            <ContaminationDumbbell models={MODELS} />
+            <CutoffGapScatter models={MODELS} />
+          </div>
         </section>
 
         <section>
@@ -88,103 +95,102 @@ export default function Metodologia() {
 
         <section>
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Fontes</h2>
-          <ul className="mt-3 list-disc list-inside space-y-2 text-foreground">
-            <li>
-              Provas e gabaritos:{' '}
-              <a
-                className="underline text-ps-violet"
-                href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                INEP Revalida
-              </a>
-            </li>
-            <li>
-              Cortes de treino dos modelos — documentação oficial de cada fornecedor:
-              <ul className="mt-2 ml-6 list-[circle] list-outside space-y-1 text-sm">
-                <li>
-                  Anthropic (Claude Opus 4.5/4.6/4.7):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://docs.anthropic.com/en/docs/about-claude/models/overview"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    docs.anthropic.com/models/overview
-                  </a>
-                </li>
-                <li>
-                  OpenAI (GPT-5.1/5.2/5.4):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://platform.openai.com/docs/models"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    platform.openai.com/docs/models
-                  </a>
-                </li>
-                <li>
-                  Google (Gemini 2.5 Pro / 3.1 Pro):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://ai.google.dev/gemini-api/docs/models"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    ai.google.dev/gemini-api/docs/models
-                  </a>
-                </li>
-                <li>
-                  Meta (Llama 4 Scout/Maverick):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://ai.meta.com/blog/llama-4-multimodal-intelligence/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    ai.meta.com/blog/llama-4-multimodal-intelligence
-                  </a>
-                </li>
-                <li>
-                  DeepSeek (V3.1 / R1):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://api-docs.deepseek.com/news/news250120"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    api-docs.deepseek.com
-                  </a>
-                </li>
-                <li>
-                  Alibaba Qwen (3.5 / 3.6):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://qwenlm.github.io/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    qwenlm.github.io
-                  </a>
-                </li>
-                <li>
-                  Maritaca AI (Sabiá 4):{' '}
-                  <a
-                    className="underline text-ps-violet"
-                    href="https://maritaca.ai/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    maritaca.ai
-                  </a>
-                </li>
-              </ul>
-            </li>
+          <p className="mt-3 text-muted-foreground">
+            Referências formatadas conforme ABNT NBR 6023:2018. Data de acesso: 20 abr. 2026.
+          </p>
+
+          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+            Provas e gabaritos
+          </h3>
+          <ul className="mt-3 space-y-3">
+            <AbntRef
+              author="INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA"
+              title="Provas e gabaritos"
+              imprint="Brasília, DF: INEP"
+              url="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos"
+            />
+          </ul>
+
+          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+            Cortes de treino — documentação oficial dos fornecedores
+          </h3>
+          <ul className="mt-3 space-y-3">
+            <AbntRef
+              author="ANTHROPIC"
+              title="Models overview"
+              imprint="[S. l.]: Anthropic, [2026]"
+              url="https://platform.claude.com/docs/en/docs/about-claude/models/overview"
+            />
+            <AbntRef
+              author="OPENAI"
+              title="Models"
+              imprint="[S. l.]: OpenAI, [2026]"
+              url="https://platform.openai.com/docs/models"
+            />
+            <AbntRef
+              author="GOOGLE"
+              title="Gemini API: models"
+              imprint="[S. l.]: Google, [2026]"
+              url="https://ai.google.dev/gemini-api/docs/models"
+            />
+            <AbntRef
+              author="META"
+              title="The Llama 4 herd: The beginning of a new era of natively multimodal AI innovation"
+              imprint="[S. l.]: Meta AI, 5 abr. 2025"
+              url="https://ai.meta.com/blog/llama-4-multimodal-intelligence/"
+            />
+            <AbntRef
+              author="DEEPSEEK"
+              title="DeepSeek-R1 release"
+              imprint="[S. l.]: DeepSeek, 20 jan. 2025"
+              url="https://api-docs.deepseek.com/news/news250120"
+            />
+            <AbntRef
+              author="QWEN TEAM"
+              title="Qwen"
+              imprint="[S. l.]: Alibaba Cloud, [2026]"
+              url="https://qwenlm.github.io/"
+            />
+            <AbntRef
+              author="MARITACA AI"
+              title="Inteligência artificial para o Brasil"
+              imprint="São Paulo: Maritaca AI, [2026]"
+              url="https://maritaca.ai/"
+            />
           </ul>
         </section>
       </div>
     </PageContainer>
+  );
+}
+
+/**
+ * Referência no estilo ABNT NBR 6023:2018 para documento online:
+ *   AUTOR. **Título**. Imprenta (local, editora, data). Disponível em: URL. Acesso em: DD mmm. AAAA.
+ */
+function AbntRef({
+  author,
+  imprint,
+  title,
+  url,
+}: {
+  author: string;
+  imprint: string;
+  title: string;
+  url: string;
+}) {
+  return (
+    <li className="leading-relaxed">
+      {author}. <span className="font-semibold">{title}</span>. {imprint}. Disponível em:{' '}
+      <a
+        className="text-ps-violet break-all underline"
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {url}
+      </a>
+      . Acesso em: 20 abr. 2026.
+    </li>
   );
 }

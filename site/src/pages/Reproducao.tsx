@@ -19,6 +19,46 @@ export default function Reproducao() {
         </header>
 
         <section className="space-y-3">
+          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Pacotes</h2>
+          <p>
+            O projeto publica dois pacotes npm independentes — use o que se encaixa no seu fluxo:
+          </p>
+          <dl className="space-y-3">
+            <div>
+              <dt>
+                <code className="font-mono font-semibold text-ps-violet-dark">
+                  @precisa-saude/medbench-harness
+                </code>
+              </dt>
+              <dd className="mt-1 text-sm text-muted-foreground">
+                CLI <code>medbench</code> que executa o protocolo de avaliação contra qualquer
+                backend (Anthropic, OpenAI, Google, OpenRouter, Ollama) e grava os artefatos em{' '}
+                <code>results/</code>.
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <code className="font-mono font-semibold text-ps-violet-dark">
+                  @precisa-saude/medbench-dataset
+                </code>
+              </dt>
+              <dd className="mt-1 text-sm text-muted-foreground">
+                As provas anotadas — Revalida e ENAMED — com especialidade por questão, flags de
+                imagem/tabela/anulação e metadados oficiais da INEP. Documentação completa na{' '}
+                <Link to="/dataset" className="underline text-ps-violet">
+                  página Dataset
+                </Link>
+                .
+              </dd>
+            </div>
+          </dl>
+          <p className="text-muted-foreground">
+            O caminho recomendado abaixo clona o monorepo (harness + dataset juntos). Para apenas
+            consumir os dados ou instalar o CLI global, veja os pacotes no npm.
+          </p>
+        </section>
+
+        <section className="space-y-3">
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
             1. Clone e instale
           </h2>
@@ -42,7 +82,7 @@ OPENAI_API_KEY=sk-...
 GOOGLE_API_KEY=AIza...          # ou GEMINI_API_KEY
 OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
 # Para modelos locais (Ollama) nada é necessário além do servidor em localhost:11434`}</CodeBlock>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground">
             <code>.env.local</code> já está no <code>.gitignore</code> — a chave nunca vai para o
             repositório.
           </p>
@@ -52,7 +92,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
             3. Rode a avaliação
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground">
             O protocolo é idêntico para todos os backends: zero-shot, sem ferramentas, três
             execuções por questão. Veja a{' '}
             <Link to="/metodologia" className="underline text-ps-violet">
@@ -89,7 +129,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
             <h3 className="font-sans text-lg font-semibold tracking-tight">
               OpenRouter (Llama 4, DeepSeek, Qwen, etc.)
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground">
               Gateway unificado para modelos open-weight sem hospedar localmente. Use o{' '}
               <code>modelId</code> no formato do{' '}
               <a
@@ -138,7 +178,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
           </h2>
           <CodeBlock language="bash">{`pnpm --filter @medbench-brasil/site dev
 # Abra http://localhost:4321`}</CodeBlock>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground">
             O site lê <code>results/*.json</code> no build e monta o leaderboard automaticamente.
           </p>
         </section>
@@ -165,7 +205,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
     "description": "Flagship da família Llama 4 da Meta (MoE 17B × 128 experts, 400B total). Multimodal nativo."
   }
 }`}</CodeBlock>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground">
             <code>trainingCutoff</code> deve vir da documentação oficial do fornecedor (ADR 0002);{' '}
             <code>tier</code> é <code>&quot;proprietaria&quot;</code> ou{' '}
             <code>&quot;open-weight&quot;</code>.
