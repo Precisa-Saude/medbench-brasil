@@ -78,20 +78,30 @@ export default function Leaderboard() {
                   <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
                     Comparar modelos
                   </h2>
-                  {editionIds.length > 1 && (
-                    <Select value={edition} onValueChange={setEdition}>
-                      <SelectTrigger className="h-9 w-48">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {editionIds.map((id) => (
-                          <SelectItem key={id} value={id}>
-                            {EDITIONS[id]?.label ?? id}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {editionIds.length > 1 && (
+                      <Select value={edition} onValueChange={setEdition}>
+                        <SelectTrigger className="h-9 w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {editionIds.map((id) => (
+                            <SelectItem key={id} value={id}>
+                              {EDITIONS[id]?.label ?? id}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {edition && (
+                      <Link
+                        to={`/editions/${edition}`}
+                        className="font-sans text-sm text-ps-violet underline whitespace-nowrap"
+                      >
+                        Ver detalhes →
+                      </Link>
+                    )}
+                  </div>
                 </div>
                 {/* Espelha o toggle do ranking — sem isso, o chart parece
                     "faltar modelos" em 2024/1 porque está em "Apenas limpas"

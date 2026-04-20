@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2024-2": {
       "accuracy": 0.8014981273408239,
-      "n": 267
+      "n": 267,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 214,
+  "macroF1": 0.8433455433455433,
   "modelId": "meta-llama/llama-4-maverick",
   "perQuestion": [
     {

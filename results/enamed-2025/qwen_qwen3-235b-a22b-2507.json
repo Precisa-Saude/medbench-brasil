@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "enamed-2025": {
       "accuracy": 0.8495934959349594,
-      "n": 246
+      "n": 246,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 209,
+  "macroF1": 0.8892167834311907,
   "modelId": "qwen/qwen3-235b-a22b-2507",
   "perQuestion": [
     {
@@ -2156,21 +2158,21 @@
     }
   ],
   "perSpecialty": {
-    "ginecologia-obstetricia": {
-      "accuracy": 0.8666666666666667,
-      "n": 45
-    },
     "clinica-medica": {
       "accuracy": 0.8666666666666667,
       "n": 75
     },
-    "saude-publica": {
-      "accuracy": 0.6333333333333333,
-      "n": 30
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8666666666666667,
+      "n": 45
     },
     "medicina-familia-comunidade": {
       "accuracy": 0.9743589743589743,
       "n": 39
+    },
+    "saude-publica": {
+      "accuracy": 0.6333333333333333,
+      "n": 30
     },
     "pediatria": {
       "accuracy": 0.8125,

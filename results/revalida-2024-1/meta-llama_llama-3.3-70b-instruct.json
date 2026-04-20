@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2024-1": {
       "accuracy": 0.8352941176470589,
-      "n": 255
+      "n": 255,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 213,
+  "macroF1": 0.8511169422839738,
   "modelId": "meta-llama/llama-3.3-70b-instruct",
   "perQuestion": [
     {
@@ -2253,13 +2255,13 @@
       "accuracy": 0.8833333333333333,
       "n": 60
     },
-    "saude-publica": {
-      "accuracy": 0.7777777777777778,
-      "n": 18
-    },
     "medicina-familia-comunidade": {
       "accuracy": 0.8,
       "n": 15
+    },
+    "saude-publica": {
+      "accuracy": 0.7777777777777778,
+      "n": 18
     }
   },
   "runsPerQuestion": 3,

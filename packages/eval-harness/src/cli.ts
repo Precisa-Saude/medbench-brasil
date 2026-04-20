@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 import { config as loadDotenv } from 'dotenv';
@@ -17,9 +24,12 @@ import { parseArgs } from './cli/args.js';
 import type { Backend } from './cli/build-provider.js';
 import { buildProvider } from './cli/build-provider.js';
 import { printUsage } from './cli/usage.js';
+import { findConsensusErrors } from './consensus.js';
+import { computeEnadeConcept } from './enade.js';
 import { SYSTEM_PROMPT } from './prompt.js';
+import { rescoreFromRaw, rescoreFromScored } from './rescore.js';
 import { parseLetter, runEvaluation } from './runner.js';
-import type { RawResponseRecord } from './types.js';
+import type { EvaluationResult, RawResponseRecord } from './types.js';
 
 function renderUserPrompt(q: {
   options: Record<'A' | 'B' | 'C' | 'D', string>;
@@ -157,6 +167,122 @@ async function runEval(args: Record<string, string>) {
   if (logRaw) console.log(`log bruto em ${rawLogPath}`);
 }
 
+function runRescore(args: Record<string, string>) {
+  const baseDir = args.out ?? 'results';
+  const editionFilter = args.edition;
+  const modelFilter = args.model;
+  const fromRaw = args['from-raw'] === 'true';
+
+  if (fromRaw) {
+    if (!editionFilter || !modelFilter) {
+      console.log('--from-raw exige --edition e --model. Ver --help.');
+      process.exit(1);
+    }
+    const slug = modelFilter.replace(/[^a-z0-9.-]/gi, '_');
+    const dir = join(baseDir, editionFilter);
+    const rawLogPath = join(dir, `${slug}.raw.jsonl`);
+    if (!existsSync(rawLogPath)) {
+      console.log(`raw.jsonl não encontrado: ${rawLogPath}`);
+      process.exit(1);
+    }
+    const result = rescoreFromRaw({
+      editionId: editionFilter as EditionId,
+      modelId: modelFilter,
+      rawLogPath,
+      runsPerQuestion: Number(args.runs ?? 3),
+      trainingCutoff: args.cutoff,
+    });
+    const outPath = join(dir, `${slug}.json`);
+    writeFileSync(outPath, JSON.stringify(result, null, 2));
+    console.log(
+      `scored gerado em ${outPath} (precisão ${(result.accuracy * 100).toFixed(1)}%, macro-F1 ${((result.macroF1 ?? 0) * 100).toFixed(1)}%)`,
+    );
+    return;
+  }
+
+  const editions = editionFilter
+    ? [editionFilter]
+    : readdirSync(baseDir, { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name);
+
+  let touched = 0;
+  let skipped = 0;
+  for (const edition of editions) {
+    const dir = join(baseDir, edition);
+    if (!existsSync(dir)) continue;
+    // `.raw.jsonl` não passa no `endsWith('.json')`, mas mantemos a distinção
+    // explícita caso apareçam sufixos como `*.raw.json` no futuro.
+    const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
+    for (const file of files) {
+      if (modelFilter) {
+        const slug = modelFilter.replace(/[^a-z0-9.-]/gi, '_');
+        if (file !== `${slug}.json`) continue;
+      }
+      const path = join(dir, file);
+      try {
+        const result = rescoreFromScored(path);
+        writeFileSync(path, JSON.stringify(result, null, 2));
+        touched += 1;
+      } catch (err) {
+        skipped += 1;
+        console.warn(`  pulado ${path}: ${err instanceof Error ? err.message.slice(0, 120) : err}`);
+      }
+    }
+  }
+  console.log(`re-scored ${touched} artefato(s) em ${baseDir}/. pulados: ${skipped}.`);
+}
+
+function runReport(args: Record<string, string>) {
+  const baseDir = args.out ?? 'results';
+  const editionId = args.edition;
+  if (!editionId) {
+    console.log('--edition é obrigatório para report. Ver --help.');
+    process.exit(1);
+  }
+  const dir = join(baseDir, editionId);
+  if (!existsSync(dir)) {
+    console.log(`edição sem artefatos em ${dir}`);
+    process.exit(1);
+  }
+
+  const results: EvaluationResult[] = [];
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.json') || file.endsWith('.raw.jsonl')) continue;
+    const path = join(dir, file);
+    results.push(JSON.parse(readFileSync(path, 'utf8')) as EvaluationResult);
+  }
+
+  // Enade é ligado por padrão; desligar com `--enade false`. Consensus é
+  // opt-in com `--consensus-errors`.
+  const enadeOn = args.enade !== 'false';
+  const consensusOn = args['consensus-errors'] === 'true';
+
+  if (enadeOn) {
+    const concept = computeEnadeConcept(results, editionId);
+    if (concept) {
+      console.log(
+        `Conceito Enade (${editionId}): nível ${concept.level} — ${concept.approvedCount}/${concept.totalCount} aprovados (${(concept.approvedRate * 100).toFixed(1)}%, corte ${(concept.cutoffScore * 100).toFixed(1)}%)`,
+      );
+    } else {
+      console.log(`Conceito Enade (${editionId}): não disponível (nenhum modelo avaliado).`);
+    }
+  }
+
+  if (consensusOn) {
+    const errors = findConsensusErrors(results, editionId, {
+      minFailingCount: Number(args['min-failing-count'] ?? 3),
+      minFailingRate: Number(args['min-failing-rate'] ?? 0.8),
+    });
+    console.log(`\nErros de consenso em ${editionId}: ${errors.length} questão(ões).`);
+    for (const err of errors.slice(0, Number(args.limit ?? 20))) {
+      console.log(
+        `  Q${String(err.questionNumber).padStart(3, '0')} (${err.questionId}): ${err.failingCount} reprovaram → ${err.consensusDistractor} (${(err.failingRate * 100).toFixed(0)}% dos reprovados); gabarito ${err.correctAnswer}`,
+      );
+    }
+  }
+}
+
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
   const args = parseArgs(rest);
@@ -165,7 +291,9 @@ async function main() {
     printUsage();
     process.exit(args.help ? 0 : 1);
   }
-  if (!args.backend || !args.model) {
+
+  const needsProvider = command === 'smoke' || command === 'eval';
+  if (needsProvider && (!args.backend || !args.model)) {
     console.log('--backend e --model são obrigatórios. Use --help para detalhes.');
     process.exit(1);
   }
@@ -174,8 +302,12 @@ async function main() {
     await runSmoke(args);
   } else if (command === 'eval') {
     await runEval(args);
+  } else if (command === 'rescore') {
+    runRescore(args);
+  } else if (command === 'report') {
+    runReport(args);
   } else {
-    console.log(`comando desconhecido: ${command}. Use 'smoke' ou 'eval'.`);
+    console.log(`comando desconhecido: ${command}. Use 'smoke', 'eval', 'rescore' ou 'report'.`);
     printUsage();
     process.exit(1);
   }

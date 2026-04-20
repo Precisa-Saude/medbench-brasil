@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "enamed-2025": {
       "accuracy": 0.8577235772357723,
-      "n": 246
+      "n": 246,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 211,
+  "macroF1": 0.8899373771750403,
   "modelId": "deepseek/deepseek-r1",
   "perQuestion": [
     {
@@ -2164,6 +2166,10 @@
       "accuracy": 0.8666666666666667,
       "n": 45
     },
+    "medicina-familia-comunidade": {
+      "accuracy": 0.8461538461538461,
+      "n": 39
+    },
     "saude-publica": {
       "accuracy": 0.7,
       "n": 30
@@ -2171,10 +2177,6 @@
     "pediatria": {
       "accuracy": 0.8333333333333334,
       "n": 48
-    },
-    "medicina-familia-comunidade": {
-      "accuracy": 0.8461538461538461,
-      "n": 39
     },
     "cirurgia": {
       "accuracy": 0.8666666666666667,

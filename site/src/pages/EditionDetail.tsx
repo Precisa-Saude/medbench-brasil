@@ -6,14 +6,30 @@ import { getEdition } from '../data/dataset';
 import { getEditionMetadata } from '../data/editions';
 import { MODELS } from '../data/results';
 
+/**
+ * Mapeamento 1–5 do Conceito Enade (Portaria INEP nº 478/2025, replicado por
+ * Correia et al., PROPOR 2026). Duplicado em `packages/eval-harness/src/enade.ts`
+ * porque o entry-point principal do harness puxa `loadEdition` com `fs`,
+ * incompatível com bundler do site. Se atualizar os limiares, atualize
+ * também a versão do harness.
+ */
+function rateToEnadeLevel(rate: number): 1 | 2 | 3 | 4 | 5 {
+  if (rate < 0.4) return 1;
+  if (rate < 0.6) return 2;
+  if (rate < 0.75) return 3;
+  if (rate < 0.9) return 4;
+  return 5;
+}
+
 export default function EditionDetail() {
   const { id } = useParams<{ id: string }>();
   if (!id) return null;
   const meta = getEditionMetadata(id);
   const data = getEdition(id);
-  const modelsForEdition = MODELS.filter(
-    (m) => m.accuracyByEdition[id] !== undefined || MODELS.length > 0,
-  );
+  const modelsWithResult = MODELS.filter((m) => m.accuracyByEdition[id]);
+  const approved = modelsWithResult.filter((m) => m.accuracyByEdition[id]?.passesCutoff).length;
+  const approvedRate = modelsWithResult.length > 0 ? approved / modelsWithResult.length : null;
+  const enadeLevel = approvedRate !== null ? rateToEnadeLevel(approvedRate) : null;
 
   return (
     <PageContainer>
@@ -50,11 +66,38 @@ export default function EditionDetail() {
           </section>
         )}
 
+        {enadeLevel !== null && approvedRate !== null && (
+          <section className="rounded-lg border bg-card p-6 font-sans">
+            <div className="flex items-baseline justify-between gap-4 flex-wrap">
+              <div>
+                <div className="text-sm uppercase tracking-wide text-muted-foreground">
+                  Classe de LLMs — Conceito Enade
+                </div>
+                <div className="mt-1 flex items-baseline gap-3">
+                  <div className="text-4xl font-bold">Nível {enadeLevel}</div>
+                  <div className="text-muted-foreground text-sm">
+                    {approved}/{modelsWithResult.length} modelos aprovados (
+                    {(approvedRate * 100).toFixed(0)}%)
+                  </div>
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground max-w-md">
+                Aplicação do Conceito Enade 1–5 do MEC aos modelos avaliados, tratando-os como uma
+                turma de egressos. Ver{' '}
+                <Link to="/metodologia" className="underline text-ps-violet">
+                  metodologia
+                </Link>{' '}
+                e Correia et al., PROPOR 2026.
+              </div>
+            </div>
+          </section>
+        )}
+
         <section>
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-4">
             Ranking nesta edição
           </h2>
-          <ComparisonChart editionId={id} models={modelsForEdition} />
+          <ComparisonChart editionId={id} models={modelsWithResult} />
         </section>
 
         <section>

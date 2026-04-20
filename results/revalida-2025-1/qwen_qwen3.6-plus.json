@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2025-1": {
       "accuracy": 0.9215686274509803,
-      "n": 255
+      "n": 255,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     }
   },
   "correct": 235,
+  "macroF1": 0.9285600970511385,
   "modelId": "qwen/qwen3.6-plus",
   "perQuestion": [
     {

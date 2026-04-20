@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "enamed-2025": {
       "accuracy": 0.7479674796747967,
-      "n": 246
+      "n": 246,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 184,
+  "macroF1": 0.7526448546726481,
   "modelId": "meta-llama/llama-4-maverick",
   "perQuestion": [
     {
@@ -2164,6 +2166,10 @@
       "accuracy": 0.8,
       "n": 45
     },
+    "medicina-familia-comunidade": {
+      "accuracy": 0.7435897435897436,
+      "n": 39
+    },
     "saude-publica": {
       "accuracy": 0.7333333333333333,
       "n": 30
@@ -2175,10 +2181,6 @@
     "cirurgia": {
       "accuracy": 0.6666666666666666,
       "n": 15
-    },
-    "medicina-familia-comunidade": {
-      "accuracy": 0.7435897435897436,
-      "n": 39
     }
   },
   "runsPerQuestion": 3,
