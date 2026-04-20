@@ -20,7 +20,9 @@ export interface ProviderBaseOptions {
 
 /**
  * `fetch` com AbortController + timeout. `clearTimeout` no finally garante que
- * o timer não vaza caso a request complete antes do prazo.
+ * o timer não vaza caso a request complete antes do prazo. Quando o timeout
+ * dispara, traduz o `AbortError` genérico do runtime em mensagem com URL e
+ * duração, para diagnóstico mais rápido em runs longas.
  */
 export async function fetchWithTimeout(
   url: string,
@@ -31,6 +33,11 @@ export async function fetchWithTimeout(
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(`Requisição para ${url} excedeu timeout de ${timeoutMs}ms`, { cause: err });
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

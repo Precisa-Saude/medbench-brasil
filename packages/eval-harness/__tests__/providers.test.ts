@@ -42,6 +42,7 @@ function mockFetchResponse(init: {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
@@ -53,14 +54,9 @@ describe('anthropicProvider', () => {
   });
 
   it('lança se ANTHROPIC_API_KEY estiver ausente', async () => {
-    const original = process.env.ANTHROPIC_API_KEY;
-    delete process.env.ANTHROPIC_API_KEY;
-    try {
-      const provider = anthropicProvider({ model: 'claude-sonnet-4-6' });
-      await expect(provider.run(INPUT)).rejects.toThrow(/ANTHROPIC_API_KEY ausente/);
-    } finally {
-      if (original !== undefined) process.env.ANTHROPIC_API_KEY = original;
-    }
+    vi.stubEnv('ANTHROPIC_API_KEY', '');
+    const provider = anthropicProvider({ model: 'claude-sonnet-4-6' });
+    await expect(provider.run(INPUT)).rejects.toThrow(/ANTHROPIC_API_KEY ausente/);
   });
 
   it('omite temperature para família Opus 4+', async () => {
@@ -101,14 +97,15 @@ describe('openAiProvider', () => {
     expect(res.requestParams).not.toHaveProperty('max_completion_tokens');
   });
 
-  it('omite temperature para gpt-5-nano e família o1/o3', async () => {
-    mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
-    for (const model of ['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini']) {
+  it.each(['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini'])(
+    'omite temperature para modelo sem suporte: %s',
+    async (model) => {
+      mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
       const provider = openAiProvider({ apiKey: 'k', model });
       const res = await provider.run(INPUT);
       expect(res.requestParams).not.toHaveProperty('temperature');
-    }
-  });
+    },
+  );
 });
 
 describe('googleProvider', () => {
@@ -134,6 +131,25 @@ describe('googleProvider', () => {
     const provider = googleProvider({ apiKey: 'k', model: 'gemini-2.5-pro' });
     const res = await provider.run(INPUT);
     expect(res.rawResponse).toBe('');
+  });
+
+  it('passa API key via header x-goog-api-key, não na query string', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      json: async () => ({ candidates: [{ content: { parts: [{ text: 'A' }] } }] }),
+      ok: true,
+      status: 200,
+      text: async () => '',
+    } as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const provider = googleProvider({ apiKey: 'secret-key', model: 'gemini-2.5-pro' });
+    await provider.run(INPUT);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).not.toContain('secret-key');
+    expect(url).not.toContain('key=');
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers['x-goog-api-key']).toBe('secret-key');
   });
 });
 

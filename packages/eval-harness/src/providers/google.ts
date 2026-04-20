@@ -45,12 +45,18 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
       };
 
       const start = Date.now();
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent?key=${apiKey}`;
+      // API key via header `x-goog-api-key` — evita que a chave apareça em
+      // logs de proxy, histórico de processos ou mensagens de erro que
+      // incluam a URL. A API Gemini aceita ambos os estilos.
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent`;
       const res = await fetchWithTimeout(
         url,
         {
           body: JSON.stringify(requestParams),
-          headers: { 'content-type': 'application/json' },
+          headers: {
+            'content-type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
           method: 'POST',
         },
         timeoutMs,
