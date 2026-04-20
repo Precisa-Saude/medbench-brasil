@@ -47,6 +47,22 @@ jobs:
         run: pnpm turbo run typecheck
       - name: Test
         run: pnpm turbo run test
+      # Coverage roda separado do `test` e é informativo: thresholds (80%
+      # branches/functions/lines/statements) são definidos nas vitest.config
+      # de cada package, mas ainda há lacunas pré-existentes (CLI, runner,
+      # loaders da dataset). `continue-on-error` permite que o artifact seja
+      # publicado sem bloquear o PR — correção das lacunas é trabalho à parte.
+      - name: Test with coverage
+        continue-on-error: true
+        run: pnpm turbo run test:coverage
+      - name: Upload coverage summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage
+          path: |
+            packages/*/coverage
+          retention-days: 14
 
   # ── PR only: Claude code review via Bedrock ─────────────────
   review:

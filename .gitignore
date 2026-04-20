@@ -5,6 +5,7 @@ coverage/
 .env
 .env.local
 *.tsbuildinfo
+.DS_Store
 
 # Dados brutos extraídos da INEP (PDFs + gabaritos)
 scripts/data/raw/

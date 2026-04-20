@@ -188,9 +188,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.0
         version: 4.2.2(vite@6.4.2(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
-      '@types/lodash':
-        specifier: ^4.17.24
-        version: 4.17.24
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -2182,9 +2179,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/lodash@4.17.24':
-    resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
 
   '@types/node@20.19.39':
     resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
@@ -7390,8 +7384,6 @@ snapshots:
   '@types/estree@1.0.8': {}
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/lodash@4.17.24': {}
 
   '@types/node@20.19.39':
     dependencies:

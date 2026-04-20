@@ -12,7 +12,7 @@ Obrigado pelo interesse em contribuir com o medbench-brasil.
 ### Adicionar uma nova edição do Revalida
 
 1. Baixe a prova e o gabarito definitivo no portal da INEP
-2. Use `scripts/ingest-inep.ts` para download e `scripts/extract-questions.ts` para extração
+2. Use `medbench-ingest download` (de `packages/ingestion/`) para baixar prova + gabarito com manifest SHA-256, e `medbench-ingest extract` para extração estruturada via Kreuzberg + Claude `tool_use`
 3. Revise o JSON gerado em `packages/dataset/data/revalida/` — confira estrutura, marque questões com imagem, tabela ou anuladas
 4. Classifique cada questão por especialidade usando a taxonomia em `packages/dataset/src/specialty.ts`
 5. Abra PR com escopo `feat(dataset): adicionar edição <AAAA-N>` e cite o edital oficial da INEP
@@ -22,8 +22,14 @@ Obrigado pelo interesse em contribuir com o medbench-brasil.
 1. Se o backend ainda não existe, crie `packages/eval-harness/src/providers/<modelo>.ts`
    implementando a interface `Provider`. Para endpoints OpenAI-compatíveis,
    reutilize `openAiCompatProvider` apontando para o baseUrl do fornecedor.
-2. Declare `trainingCutoff` em `site/src/data/models.ts` (fonte: documentação
-   oficial do fornecedor — não invente).
+2. Declare `trainingCutoff` em dois lugares, sempre consultando a documentação
+   oficial do fornecedor (não invente):
+   - **No CLI**: passe `--cutoff YYYY-MM-DD` em cada `medbench eval`. O valor
+     é propagado ao provider e gravado no JSON de resultado — vira a fonte
+     canônica para a classificação de contaminação.
+   - **No site**: adicione uma entrada em `site/src/data/models.ts` com
+     `trainingCutoff`, `releaseDate`, `tier`, `homepage` e `description`.
+     Essa é a metadata editorial exibida nas páginas de detalhe.
 3. **Rode `medbench smoke` ANTES do `medbench eval`**. Isso é obrigatório:
 
    ```bash
@@ -54,15 +60,16 @@ Obrigado pelo interesse em contribuir com o medbench-brasil.
    done
    ```
 
-   Cada execução produz dois arquivos em `results/<edition>/<modelo>/`:
+   Cada execução produz dois arquivos em `results/<edition>/`:
    - `<modelo>.json` — resultado agregado (precisão, IC 95%, splits)
    - `<modelo>.raw.jsonl` — uma linha por chamada com o texto bruto do
      modelo, parâmetros da API, letra parseada. Serve para auditoria e
      re-parse sem re-inferência se o parser precisar ser atualizado.
 
-5. Commite ambos os artefatos. O site consome os `.json` em build time; o
-   `.raw.jsonl` é comiitado também para reprodutibilidade (é gitignored-safe
-   para PDFs mas não para JSON de inferência).
+5. Comite ambos os artefatos. O site consome os `.json` em build time; o
+   `.raw.jsonl` também entra no repositório para garantir reprodutibilidade
+   do scoring — os PDFs originais seguem em `.gitignore`, mas o JSON de
+   inferência é parte do dado canônico do leaderboard.
 
 6. Abra PR com escopo `feat(harness): adicionar <modelo>` e cite a
    documentação oficial do corte de treino.

@@ -1,14 +1,8 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
+import type { ProviderBaseOptions } from './_http.js';
+import { fetchWithTimeout } from './_http.js';
 
-interface GoogleProviderOptions {
-  apiKey?: string;
-  label?: string;
-  maxTokens?: number;
-  model: string;
-  temperature?: number;
-  timeoutMs?: number;
-  trainingCutoff?: string;
-}
+type GoogleProviderOptions = ProviderBaseOptions;
 
 /**
  * Provider Google Gemini — single-turn, sem `tools`, sem Google Search, sem
@@ -52,19 +46,15 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
 
       const start = Date.now();
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${opts.model}:generateContent?key=${apiKey}`;
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      let res: Response;
-      try {
-        res = await fetch(url, {
+      const res = await fetchWithTimeout(
+        url,
+        {
           body: JSON.stringify(requestParams),
           headers: { 'content-type': 'application/json' },
           method: 'POST',
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
+        },
+        timeoutMs,
+      );
       const durationMs = Date.now() - start;
 
       if (!res.ok) {

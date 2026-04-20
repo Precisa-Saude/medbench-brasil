@@ -1,14 +1,14 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
+import type { ProviderBaseOptions } from './_http.js';
+import { fetchWithTimeout } from './_http.js';
 
-interface AnthropicProviderOptions {
-  apiKey?: string;
-  label?: string;
-  maxTokens?: number;
-  model: string;
-  temperature?: number;
-  /** Timeout por requisição em ms (padrão 90000). */
-  timeoutMs?: number;
-  trainingCutoff?: string;
+type AnthropicProviderOptions = ProviderBaseOptions;
+
+// Modelos Opus 4.x (e demais famílias com reasoning fixo) deprecam o parâmetro
+// `temperature`. Em vez de mandar 0 e ser rejeitado, omitimos quando o nome do
+// modelo indica família Opus 4+.
+function anthropicModelQuirks(model: string): { omitTemperature: boolean } {
+  return { omitTemperature: /^claude-opus-[4-9]/i.test(model) };
 }
 
 /**
@@ -32,10 +32,7 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       if (!apiKey) {
         throw new Error('ANTHROPIC_API_KEY ausente — defina no ambiente antes de rodar o harness.');
       }
-      // Modelos Opus 4.x (e demais famílias com reasoning fixo) deprecam
-      // o parâmetro `temperature`. Em vez de mandar 0 e ser rejeitado,
-      // omitimos quando o nome do modelo indica família Opus 4+.
-      const omitTemperature = /^claude-opus-[4-9]/i.test(opts.model);
+      const { omitTemperature } = anthropicModelQuirks(opts.model);
       const requestParams = {
         max_tokens: maxTokens,
         messages: [{ content: input.userPrompt, role: 'user' }],
@@ -45,11 +42,9 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       } as const;
 
       const start = Date.now();
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      let res: Response;
-      try {
-        res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetchWithTimeout(
+        'https://api.anthropic.com/v1/messages',
+        {
           body: JSON.stringify(requestParams),
           headers: {
             'anthropic-version': '2023-06-01',
@@ -57,11 +52,9 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
             'x-api-key': apiKey,
           },
           method: 'POST',
-          signal: controller.signal,
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
+        },
+        timeoutMs,
+      );
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
