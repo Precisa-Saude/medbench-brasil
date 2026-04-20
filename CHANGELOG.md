@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.2.0...v1.2.1) (2026-04-20)
+
+### Bug Fixes
+
+* consumo dos pacotes npm (CJS do dataset, polish do CLI) ([#18](https://github.com/Precisa-Saude/medbench-brasil/issues/18)) ([ab28a88](https://github.com/Precisa-Saude/medbench-brasil/commit/ab28a88e7dfae633a8ab555b4505b28d59c62952))
+
 ## [1.2.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.1.1...v1.2.0) (2026-04-20)
 
 ### Features
