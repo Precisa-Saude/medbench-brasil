@@ -1,3 +1,11 @@
+## [1.2.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.1.1...v1.2.0) (2026-04-20)
+
+### Features
+
+* métricas PROPOR 2026 (Macro-F1, passesCutoff, Conceito Enade, consenso) ([#17](https://github.com/Precisa-Saude/medbench-brasil/issues/17)) ([6131216](https://github.com/Precisa-Saude/medbench-brasil/commit/6131216bc55e361fd796d618b845e89df98fd29a))
+* **scripts:** worktree.sh com alocação de porta do site ([#16](https://github.com/Precisa-Saude/medbench-brasil/issues/16)) ([874dd3d](https://github.com/Precisa-Saude/medbench-brasil/commit/874dd3dfd94a2ea90232c4f74c768ae2f3128c65))
+* **site:** visualizações de specialty, contaminação e tendência ([#15](https://github.com/Precisa-Saude/medbench-brasil/issues/15)) ([aff7f44](https://github.com/Precisa-Saude/medbench-brasil/commit/aff7f44984d4525b83f605aa8510c58ae9515e9d))
+
 ## [1.1.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.1.0...v1.1.1) (2026-04-20)
 
 ### Refactoring
