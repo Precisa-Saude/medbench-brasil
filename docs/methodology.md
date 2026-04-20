@@ -37,3 +37,42 @@ Para cada modelo avaliado, publicamos em `results/`:
 - `results/<modelo>/<edição>/run-<n>.jsonl` — log linha-a-linha, uma questão por linha
 
 Nenhum resultado é publicado sem os três logs completos disponíveis para auditoria.
+
+## Métricas reportadas
+
+Para cada par (modelo, edição) calculamos:
+
+- **Precisão** (accuracy) — fração de questões com resposta majoritária correta (voto entre as 3 runs).
+- **IC 95%** — Wilson score interval, mais confiável que o método normal em valores próximos a 0 ou 1.
+- **Macro-F1** — média não ponderada do F1 por classe (A/B/C/D), detecta viés de classe quando N é pequeno. Reportada lado a lado com accuracy, como em Correia et al. (PROPOR 2026).
+- **passesCutoff por edição** — flag booleana (accuracy ≥ nota de corte oficial). Expõe no leaderboard a razão `aprova = X/Y edições`.
+- **Split por contaminação** — precisão em edições posteriores vs. anteriores ao corte de treino declarado pelo fornecedor. Delta positivo sugere memorização.
+- **Conceito Enade 1–5** — métrica agregada por edição, tratando o conjunto de modelos avaliados como uma "turma de egressos". Mapeamento oficial do MEC:
+
+  | Nível | Fração aprovada |
+  | ----- | --------------- |
+  | 1     | < 40%           |
+  | 2     | 40% – 59%       |
+  | 3     | 60% – 74%       |
+  | 4     | 75% – 89%       |
+  | 5     | ≥ 90%           |
+
+  Aplicação direta do procedimento de Correia et al. (PROPOR 2026, secção 5.3), que usa a mesma tabela adotada pelo MEC para avaliar cursos de medicina.
+
+- **Erros de consenso** — questões em que ≥ 80% dos modelos reprovados convergem para o mesmo distractor. Útil para identificar vieses sistemáticos (e.g., protocolos internacionais competindo com diretrizes do SUS). Comando `medbench report --edition <id> --consensus-errors`.
+
+## Comparação com Correia et al. (PROPOR 2026)
+
+O paper "Class of LLMs" (Correia et al., PROPOR 2026) é a referência metodológica mais próxima do medbench-brasil — também avalia LLMs no ENAMED 2025. Registramos aqui as divergências deliberadas:
+
+| Dimensão             | medbench-brasil                                   | Correia et al.                                   |
+| -------------------- | ------------------------------------------------- | ------------------------------------------------ |
+| Prompt               | Instrução mínima, sem persona, sem JSON           | "Você é um médico especialista…" + JSON estrito  |
+| Runs por modelo      | 3 + IC 95% (Wilson)                               | 1 (single-run)                                   |
+| Split contaminação   | Por edição × corte de treino                      | Não reportado                                    |
+| IRT Rasch 1PL        | Planejado (Question type já aceita `difficulty`)  | Implementado (parâmetros `b` oficiais do INEP)   |
+| Cobertura de modelos | Proprietários recentes e open-weight generalistas | Inclui fine-tunes médicos (MedGemma, Bode, etc.) |
+
+Por que o prompt minimalista? O CLAUDE.md deste repositório trata o system prompt como uma garantia **inegociável** do benchmark: mudar para persona ou JSON estrito alteraria o sinal entre modelos (alguns seguem JSON melhor que outros) e introduziria uma dependência na capacidade de instrução, que queremos isolar do conhecimento médico. A decisão do paper é diferente e igualmente válida no contexto deles.
+
+Por que 3 runs? Reduz variância em modelos com temperature efetiva > 0 e permite relatar IC 95%. O voto majoritário por questão é usado como predição única nas métricas por classe (Macro-F1).

@@ -76,14 +76,25 @@ export interface PerQuestionResult {
 
 export interface EvaluationResult {
   accuracy: number;
-  /** Agregado por edição. Opcional para manter back-compat com artefatos v0. */
-  accuracyByEdition?: Record<string, { accuracy: number; n: number }>;
+  /**
+   * Agregado por edição. `passesCutoff` indica se a precisão do modelo nessa
+   * edição atinge a nota de corte oficial (ver `Edition.cutoffScore`).
+   * Opcional para manter back-compat com artefatos v0.
+   */
+  accuracyByEdition?: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
   ci95: [number, number];
   contaminationSplit: {
     clean: { accuracy: number; n: number } | null;
     contaminated: { accuracy: number; n: number } | null;
   };
   correct: number;
+  /**
+   * Macro-F1 não ponderado calculado sobre as quatro classes (A/B/C/D) a
+   * partir da resposta majoritária por questão (maioria das runs). Reportado
+   * lado a lado com Accuracy conforme Correia et al. (PROPOR 2026) para
+   * detectar viés de classe quando o N é pequeno. Opcional por back-compat.
+   */
+  macroF1?: number;
   modelId: string;
   /**
    * Uma entrada por questão distinta, agregando as `runsPerQuestion` execuções.

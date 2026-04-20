@@ -1,6 +1,57 @@
-import type { Question, QuestionOption } from '@precisa-saude/medbench-dataset';
+import type { EditionId, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
+import { loadEdition } from '@precisa-saude/medbench-dataset';
 
 import type { EvaluationResult, PerQuestionResult } from './types.js';
+
+const QUESTION_OPTIONS: readonly QuestionOption[] = ['A', 'B', 'C', 'D'];
+
+/**
+ * Macro-F1 não ponderado sobre as classes A/B/C/D, usando a resposta
+ * majoritária por questão como predição (empata com o paper Correia et al.).
+ * Questões sem maioria (e.g., parse nulo em todas as runs) contam como erro
+ * no recall mas não poluem precision — o predito não é nenhuma classe.
+ */
+function macroF1(
+  perQuestion: Array<{ correctAnswer: QuestionOption; majority: null | QuestionOption }>,
+): number {
+  let sum = 0;
+  for (const klass of QUESTION_OPTIONS) {
+    let tp = 0;
+    let fp = 0;
+    let fn = 0;
+    for (const q of perQuestion) {
+      const predicted = q.majority === klass;
+      const actual = q.correctAnswer === klass;
+      if (predicted && actual) tp += 1;
+      else if (predicted && !actual) fp += 1;
+      else if (!predicted && actual) fn += 1;
+    }
+    const precision = tp + fp === 0 ? 0 : tp / (tp + fp);
+    const recall = tp + fn === 0 ? 0 : tp / (tp + fn);
+    const f1 = precision + recall === 0 ? 0 : (2 * precision * recall) / (precision + recall);
+    sum += f1;
+  }
+  return sum / QUESTION_OPTIONS.length;
+}
+
+/**
+ * Resolve a nota de corte oficial para uma edição, consultando o dataset.
+ * Memoiza para evitar carregar o mesmo JSON repetidamente em runs que
+ * misturam edições. Retorna null se a edição não puder ser resolvida — o
+ * scorer degrada graciosamente (`passesCutoff` fica undefined).
+ */
+const cutoffCache = new Map<string, null | number>();
+function resolveCutoffScore(editionId: string): null | number {
+  if (cutoffCache.has(editionId)) return cutoffCache.get(editionId) ?? null;
+  try {
+    const edition = loadEdition(editionId as EditionId);
+    cutoffCache.set(editionId, edition.cutoffScore);
+    return edition.cutoffScore;
+  } catch {
+    cutoffCache.set(editionId, null);
+    return null;
+  }
+}
 
 export interface RunRecord {
   contamination: 'likely-clean' | 'likely-contaminated' | 'unknown';
@@ -64,12 +115,23 @@ export function scoreRun(
     if (rec.correct) slot.correct += 1;
     byEditionAcc[eid] = slot;
   }
-  const accuracyByEdition: Record<string, { accuracy: number; n: number }> = {};
+  const accuracyByEdition: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }> =
+    {};
   for (const [eid, slot] of Object.entries(byEditionAcc)) {
-    accuracyByEdition[eid] = { accuracy: slot.n === 0 ? 0 : slot.correct / slot.n, n: slot.n };
+    const acc = slot.n === 0 ? 0 : slot.correct / slot.n;
+    const cutoff = resolveCutoffScore(eid);
+    const entry: { accuracy: number; n: number; passesCutoff?: boolean } = {
+      accuracy: acc,
+      n: slot.n,
+    };
+    if (cutoff !== null) entry.passesCutoff = acc >= cutoff;
+    accuracyByEdition[eid] = entry;
   }
 
   const perQuestion = aggregatePerQuestion(records);
+  const macro = macroF1(
+    perQuestion.map((q) => ({ correctAnswer: q.correctAnswer, majority: q.majority })),
+  );
 
   return {
     accuracy,
@@ -80,6 +142,7 @@ export function scoreRun(
       contaminated: bucket(cont),
     },
     correct,
+    macroF1: macro,
     modelId,
     perQuestion,
     perSpecialty: perSpecialtyOut,

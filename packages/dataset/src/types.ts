@@ -13,6 +13,13 @@ export type Specialty =
 export interface Question {
   annulled: boolean;
   correct: QuestionOption;
+  /**
+   * Parâmetro de dificuldade `b` do modelo Rasch 1PL, quando publicado pelo
+   * INEP. Escala logit (≈ [−4, 4]). Opcional — só preenchido para edições
+   * cujos parâmetros psicométricos oficiais estão disponíveis. Usado para
+   * avaliação via IRT (ver Correia et al., PROPOR 2026).
+   */
+  difficulty?: number;
   editionId: EditionId;
   hasImage: boolean;
   hasTable: boolean;
