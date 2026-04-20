@@ -27,6 +27,11 @@ require_jq() {
 # Lock de registry via mkdir — portátil (POSIX-atômico) e não depende de
 # flock, que não vem por padrão no macOS. Serializa sessões concorrentes
 # de setup/teardown para evitar race conditions no port registry.
+#
+# O trap EXIT é definido uma única vez no final deste arquivo (busca por
+# `trap.*EXIT`) e é idempotente: remove o lockdir apenas se existir. Isso
+# evita a janela em que toggling do trap por acquire/release deixaria
+# um lock órfão caso um sinal chegasse entre release e o próximo acquire.
 acquire_registry_lock() {
   local tries=0 max_tries=100
   while ! mkdir "$PORT_LOCKDIR" 2>/dev/null; do
@@ -38,12 +43,10 @@ acquire_registry_lock() {
     fi
     sleep 0.1
   done
-  trap 'rmdir "$PORT_LOCKDIR" 2>/dev/null || true' EXIT
 }
 
 release_registry_lock() {
   rmdir "$PORT_LOCKDIR" 2>/dev/null || true
-  trap - EXIT
 }
 
 branch_to_dir() {
@@ -62,6 +65,10 @@ log_file() {
 allocate_port() {
   local branch="$1"
   ensure_registry
+  # Lock precisa cobrir a leitura de `existing` também — sem isso, dois
+  # processos podem ambos ler "sem entrada para branch X" antes de qualquer
+  # um acquirar, abrindo um TOCTOU. Fecha a janela segurando o lock sobre
+  # todo o read-modify-write.
   acquire_registry_lock
 
   local existing
@@ -77,9 +84,11 @@ allocate_port() {
   local used_slots next_slot=1
   used_slots=$(jq -r 'to_entries[] | .value.slot' "$PORT_REGISTRY" 2>/dev/null \
     | grep -E '^[0-9]+$' | sort -n | uniq)
-  while printf '%s\n' "$used_slots" | grep -qx "$next_slot"; do
-    next_slot=$((next_slot + 1))
-  done
+  if [[ -n "$used_slots" ]]; then
+    while printf '%s\n' "$used_slots" | grep -qx "$next_slot"; do
+      next_slot=$((next_slot + 1))
+    done
+  fi
 
   local site_port=$((SITE_PORT_BASE + SITE_PORT_OFFSET + (next_slot - 1) * PORT_INCREMENT))
 
@@ -110,10 +119,18 @@ detect_branch() {
     echo "$1"
     return
   fi
-  # Pergunta ao git direto: assim branches com "/" (ex.: feat/novo-chart)
-  # são recuperadas corretamente mesmo que branch_to_dir colapse "/" em "-"
-  # no nome do diretório do worktree.
-  git branch --show-current 2>/dev/null || echo ""
+  # Auto-detecção só faz sentido dentro de um worktree linkado (dir com
+  # sufixo `medbench-brasil-*`). No main repo (basename == "medbench-brasil")
+  # retornamos vazio para forçar o chamador a passar a branch — senão
+  # `git branch --show-current` devolveria `main`, que quase nunca é o
+  # que o usuário quis em `stop`/`dev`/`logs`.
+  local dirname
+  dirname=$(basename "$(pwd)")
+  if [[ "$dirname" == medbench-brasil-* ]]; then
+    git branch --show-current 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
 }
 
 # Port utilities — preferem lsof (macOS), caem para ss/fuser quando
@@ -422,6 +439,10 @@ Exemplos:
   ./scripts/worktree.sh teardown --keep-branch feat-novo-chart # preserva branch
 HELP
 }
+
+# Trap global — cobre qualquer caminho de saída, inclusive sinais
+# entre chamadas consecutivas de acquire/release. Idempotente.
+trap '[[ -d "$PORT_LOCKDIR" ]] && rmdir "$PORT_LOCKDIR" 2>/dev/null || true' EXIT
 
 # --- Main ---
 
