@@ -61,7 +61,11 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  const withPerQuestion = models.filter((m) => (m.perQuestion?.length ?? 0) > 0);
+  // Filtros "divergente/todos-acertam/ninguém-acerta" avaliam sobre os
+  // modelos que aparecem no grid — usar visibleModels evita que uma coluna
+  // escondida (ex.: Gemini 3.1 Pro sem dados em 2025/1) afete o resultado
+  // de uma questão cujos modelos visíveis todos concordam.
+  const withPerQuestion = visibleModels.filter((m) => (m.perQuestion?.length ?? 0) > 0);
 
   const rows = useMemo(() => {
     const out: Array<{
