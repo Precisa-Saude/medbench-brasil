@@ -71,18 +71,14 @@ export default function ModelDetail() {
           <p className="mt-2 font-sans text-sm text-muted-foreground">
             {model.provider} · corte de treino:{' '}
             {model.trainingCutoff ? (
-              model.trainingCutoffSource ? (
-                <a
-                  className="text-ps-violet underline"
-                  href={model.trainingCutoffSource}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {model.trainingCutoff} ↗
-                </a>
-              ) : (
-                model.trainingCutoff
-              )
+              <a
+                className="text-ps-violet underline"
+                href={model.trainingCutoffSource}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {model.trainingCutoff} ↗
+              </a>
             ) : (
               'não publicado pelo fornecedor'
             )}{' '}

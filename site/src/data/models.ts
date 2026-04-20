@@ -12,7 +12,7 @@
 
 export type ModelTier = 'proprietaria' | 'open-weight';
 
-export interface ModelMetadata {
+interface ModelMetadataBase {
   /** Resumo curto (1–2 frases) para o header da página de detalhe. */
   description?: string;
   /** URL da página oficial do modelo no site do fornecedor. */
@@ -23,19 +23,20 @@ export interface ModelMetadata {
   /** ISO YYYY-MM-DD do lançamento público do modelo. Usado no eixo X do scatter. */
   releaseDate: string;
   tier: ModelTier;
-  /**
-   * ISO YYYY-MM-DD. `undefined` quando o fornecedor não publica o corte — nesse
-   * caso a edição é classificada como `unknown`, sem inferir clean/contaminated.
-   * Ver docs/contamination.md.
-   */
-  trainingCutoff: string | undefined;
-  /**
-   * URL exata onde o corte acima é publicado pelo fornecedor (docs, model card,
-   * paper, release notes). Exibido na página do modelo e na Metodologia.
-   * `undefined` quando `trainingCutoff` também é `undefined`.
-   */
-  trainingCutoffSource: string | undefined;
 }
+
+/**
+ * `trainingCutoff` e `trainingCutoffSource` sempre andam juntos: ou ambos têm
+ * valor (corte publicado pelo fornecedor + URL da fonte) ou ambos são
+ * `undefined` (corte não publicado → contaminação `unknown`). Modelado como
+ * union discriminada para que o type system impeça estados inválidos (ex.:
+ * corte sem fonte). Ver docs/contamination.md.
+ */
+type TrainingCutoffFields =
+  | { trainingCutoff: string; trainingCutoffSource: string }
+  | { trainingCutoff: undefined; trainingCutoffSource: undefined };
+
+export type ModelMetadata = ModelMetadataBase & TrainingCutoffFields;
 
 // Regra: `trainingCutoff` vem exclusivamente de documentação publicada pelo
 // fornecedor (docs de API, model card no HF, tech report no arXiv, release
@@ -48,8 +49,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   // ampla do corpus) e "reliable knowledge cutoff" (data em que o
   // conhecimento é considerado confiável). Usamos o training data cutoff —
   // é o mais conservador para contaminação (qualquer dado dentro da janela
-  // pode ter sido memorizado). Fonte:
-  // https://platform.claude.com/docs/en/about-claude/models/overview
+  // pode ter sido memorizado). Fonte única para 4.5/4.6/4.7: tabela Models
+  // overview em platform.claude.com (mais estável e canônica que o Help
+  // Center, que também publica os mesmos valores).
   'claude-opus-4-5': {
     description:
       'Modelo flagship da Anthropic da geração Claude 4, lançado em meados de 2025 com foco em raciocínio e uso agêntico.',
@@ -59,7 +61,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2025-07-01',
     tier: 'proprietaria',
-    // "Claude Opus 4.5 ... Training data cutoff Aug 2025" — tabela Models overview.
+    // "Claude Opus 4.5 ... Training data cutoff Aug 2025" — Models overview.
     trainingCutoff: '2025-08-01',
     trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
   },
@@ -72,10 +74,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2025-10-01',
     tier: 'proprietaria',
-    // "Claude Opus 4.6: trained on data up until August 2025" — Anthropic Help Center.
+    // "Claude Opus 4.6 ... Training data cutoff Aug 2025" — Models overview.
     trainingCutoff: '2025-08-01',
-    trainingCutoffSource:
-      'https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
   },
   'claude-opus-4-7': {
     description:
@@ -86,16 +87,21 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'Anthropic',
     releaseDate: '2026-02-01',
     tier: 'proprietaria',
-    // "Claude Opus 4.7: trained on data up until January 2026" — Anthropic Help Center.
+    // "Claude Opus 4.7 ... Training data cutoff Jan 2026" — Models overview.
     trainingCutoff: '2026-01-01',
-    trainingCutoffSource:
-      'https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
   },
-  // DeepSeek só publica cutoff explícito para V3-Base ("July 2024", paper
-  // DeepSeek-R1, arXiv:2501.12948, seção Decontamination). V3-0324 e V3.1
-  // descendem desse base — adotamos o mesmo cutoff como lower bound; não há
-  // declaração oficial de que snapshots posteriores tenham incorporado dados
-  // mais recentes.
+  // DeepSeek só publica cutoff explícito para um modelo: R1. O paper R1
+  // (arXiv:2501.12948, seção Decontamination) afirma "DeepSeek-V3 base has a
+  // knowledge cutoff date of July 2024" no contexto de justificar que R1 é
+  // decontaminado em relação a benchmarks pós-jul/2024 — portanto o paper
+  // atesta o cutoff de R1 via V3-Base.
+  //
+  // Os snapshots V3-0324 e V3.1 **não** têm declaração similar: V3-0324 é
+  // pós-treinado a partir de V3-Base (data dos dados de pós-treinamento não
+  // divulgada) e V3.1 faz extensão de long-context com "additional long
+  // documents" de data não divulgada. Para manter a política de não
+  // estimar, V3-0324 e V3.1 ficam `undefined`.
   'deepseek/deepseek-chat-v3-0324': {
     description:
       'Versão original do DeepSeek V3 (snapshot de 2025-03-24), antecessora imediata do V3.1. Sem reasoning explícito.',
@@ -105,10 +111,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-03-24',
     tier: 'open-weight',
-    // Herdado de V3-Base. DeepSeek não publicou cutoff separado para o
-    // snapshot 0324; tratamos como mesmo corte por inheritance da base.
-    trainingCutoff: '2024-07-01',
-    trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'deepseek/deepseek-chat-v3.1': {
     description:
@@ -119,10 +123,8 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     provider: 'DeepSeek · OpenRouter',
     releaseDate: '2025-08-21',
     tier: 'open-weight',
-    // Herdado de V3-Base. A extensão de long context da V3.1 adiciona corpus
-    // de data não divulgada — adotamos o cutoff do base como limite inferior.
-    trainingCutoff: '2024-07-01',
-    trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
   },
   'deepseek/deepseek-r1': {
     description:
@@ -134,7 +136,9 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     releaseDate: '2025-01-20',
     tier: 'open-weight',
     // "DeepSeek-V3 base has a knowledge cutoff date of July 2024" —
-    // DeepSeek-R1 paper, arXiv:2501.12948, seção Decontamination.
+    // DeepSeek-R1 paper, arXiv:2501.12948, seção Decontamination. O paper
+    // usa essa afirmação para justificar que R1 é decontaminado para
+    // benchmarks pós-jul/2024, portanto atesta o cutoff de R1.
     trainingCutoff: '2024-07-01',
     trainingCutoffSource: 'https://arxiv.org/abs/2501.12948',
   },

@@ -38,11 +38,15 @@ export interface RawEvaluationArtifact {
   total: number;
 }
 
-export interface ModelResult extends RawEvaluationArtifact, ModelMetadata {
-  accuracyByEdition: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
-  cleanAccuracy: number | null;
-  contaminatedAccuracy: number | null;
-}
+// `type` + intersection em vez de `interface extends` porque ModelMetadata é
+// uma union discriminada (trainingCutoff/Source ambos string ou ambos
+// undefined) — interface extending perde o narrowing entre os dois campos.
+export type ModelResult = RawEvaluationArtifact &
+  ModelMetadata & {
+    accuracyByEdition: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
+    cleanAccuracy: number | null;
+    contaminatedAccuracy: number | null;
+  };
 
 // Artefatos agora ficam em `results/<edition>/<model>.json` — um arquivo por
 // par (modelo, edição). Precisamos agregar múltiplas edições para um mesmo

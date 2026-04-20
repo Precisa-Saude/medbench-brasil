@@ -32,7 +32,7 @@ Quando o fornecedor não publica o corte, `trainingCutoff` e `trainingCutoffSour
 No momento desta versão, ficam `undefined`:
 
 - Mistral (Large 2411, Large 3/2512) — o `SYSTEM_PROMPT.txt` dos repos HF cita "2023-10-01" de forma idêntica até no Large 3 (Dez 2025); é boilerplate, não cutoff real. Blog Mistral e docs da API não publicam.
-- Qwen (3, 3.5, 3.6) — blog Qwen, model cards HF e tech reports não declaram cutoff para nenhum modelo da família Qwen3+. Confirmado contra `HaoooWang/llm-knowledge-cutoff-dates`, que também lista Qwen3 como "Unknown / TBD".
+- Qwen (3, 3.5, 3.6) — blog Qwen, model cards HF e tech reports não declaram cutoff para nenhum modelo da família Qwen3+. Confirmação secundária (não autoritativa): o repositório [HaoooWang/llm-knowledge-cutoff-dates](https://github.com/HaoooWang/llm-knowledge-cutoff-dates) também lista Qwen3 como "Unknown / TBD" e "Mistral series" como "unknown"; uma snapshot via Wayback Machine deve ser anexada a uma issue antes de qualquer ajuste baseado nessa referência, já que o repo pode mudar ou sumir.
 
 ### Por que não usamos auto-declaração do modelo
 
