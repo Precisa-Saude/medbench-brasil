@@ -69,8 +69,20 @@ export default function ModelDetail() {
             {model.label}
           </h1>
           <p className="mt-2 font-sans text-sm text-muted-foreground">
-            {model.provider} · corte de treino: {model.trainingCutoff ?? 'desconhecido'} ·
-            lançamento: {model.releaseDate || 'n/d'}
+            {model.provider} · corte de treino:{' '}
+            {model.trainingCutoff ? (
+              <a
+                className="text-ps-violet underline"
+                href={model.trainingCutoffSource}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {model.trainingCutoff} ↗
+              </a>
+            ) : (
+              'não publicado pelo fornecedor'
+            )}{' '}
+            · lançamento: {model.releaseDate || 'n/d'}
             {model.homepage && (
               <>
                 {' · '}

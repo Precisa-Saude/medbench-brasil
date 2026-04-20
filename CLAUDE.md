@@ -26,7 +26,11 @@ Qualquer mudança que afrouxe esses pontos exige ADR em `docs/development/adr/` 
 
 ## Cortes de treino (contamination)
 
-Toda definição de provider em `packages/eval-harness/src/providers/` deve declarar `trainingCutoff` — fonte obrigatoriamente a documentação oficial do fornecedor. Se o fornecedor não publicar o corte, usar a melhor estimativa pública e documentar a fonte no código.
+Toda entrada em `site/src/data/models.ts` deve declarar `trainingCutoff` e `trainingCutoffSource`. A fonte é **obrigatoriamente** um artefato publicado pelo fornecedor: docs de API, model card no Hugging Face, technical report no arXiv ou release notes. Citação verbatim no comentário acima da entrada.
+
+Quando o fornecedor não publica o corte, os dois campos ficam `undefined` — o modelo é classificado como `unknown` em `contaminationSplit`. **Não estimamos**: um cutoff inventado vira base para gráficos e decisões, e é mais honesto não classificar do que produzir uma tela contaminated/clean sobre um dado que não existe. Ver `docs/contamination.md`.
+
+Ao mudar um `trainingCutoff`, é obrigatório rodar `medbench rescore --from-raw --edition <id> --model <id> [--cutoff <nova-data>]` para cada edição do modelo, regenerando o `contaminationSplit` persistido em `results/`.
 
 ## Git
 

@@ -211,13 +211,17 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
     "tier": "open-weight",
     "releaseDate": "2025-04-05",
     "trainingCutoff": "2024-08-01",
+    "trainingCutoffSource": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct",
     "homepage": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/",
     "description": "Flagship da família Llama 4 da Meta (MoE 17B × 128 experts, 400B total). Multimodal nativo."
   }
 }`}</CodeBlock>
           <p className="text-muted-foreground">
-            <code>trainingCutoff</code> deve vir da documentação oficial do fornecedor (ADR 0002);{' '}
-            <code>tier</code> é <code>&quot;proprietaria&quot;</code> ou{' '}
+            <code>trainingCutoff</code> vem exclusivamente de artefatos publicados pelo fornecedor
+            (docs de API, model card no HF, tech report no arXiv, release notes — ADR 0002);{' '}
+            <code>trainingCutoffSource</code> é a URL exata. Quando o fornecedor não publica, os
+            dois campos ficam <code>undefined</code> e a contaminação é classificada como{' '}
+            <em>unknown</em>. <code>tier</code> é <code>&quot;proprietaria&quot;</code> ou{' '}
             <code>&quot;open-weight&quot;</code>.
           </p>
         </section>

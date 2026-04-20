@@ -2342,13 +2342,13 @@
       "accuracy": 0.9285714285714286,
       "n": 84
     },
-    "ginecologia-obstetricia": {
-      "accuracy": 1,
-      "n": 57
-    },
     "saude-publica": {
       "accuracy": 1,
       "n": 21
+    },
+    "ginecologia-obstetricia": {
+      "accuracy": 1,
+      "n": 57
     },
     "pediatria": {
       "accuracy": 0.803921568627451,

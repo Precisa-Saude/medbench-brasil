@@ -2234,9 +2234,9 @@
     }
   ],
   "perSpecialty": {
-    "pediatria": {
-      "accuracy": 0.9545454545454546,
-      "n": 66
+    "clinica-medica": {
+      "accuracy": 0.9473684210526315,
+      "n": 57
     },
     "ginecologia-obstetricia": {
       "accuracy": 0.9583333333333334,
@@ -2246,9 +2246,9 @@
       "accuracy": 0.9,
       "n": 30
     },
-    "clinica-medica": {
-      "accuracy": 0.9473684210526315,
-      "n": 57
+    "pediatria": {
+      "accuracy": 0.9545454545454546,
+      "n": 66
     },
     "cirurgia": {
       "accuracy": 1,

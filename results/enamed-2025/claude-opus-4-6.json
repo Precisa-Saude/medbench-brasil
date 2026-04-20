@@ -2158,13 +2158,13 @@
     }
   ],
   "perSpecialty": {
-    "clinica-medica": {
-      "accuracy": 0.96,
-      "n": 75
-    },
     "ginecologia-obstetricia": {
       "accuracy": 1,
       "n": 45
+    },
+    "clinica-medica": {
+      "accuracy": 0.96,
+      "n": 75
     },
     "medicina-familia-comunidade": {
       "accuracy": 0.9487179487179487,

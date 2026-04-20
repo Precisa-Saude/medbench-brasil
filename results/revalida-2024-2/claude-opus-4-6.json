@@ -2338,17 +2338,17 @@
     }
   ],
   "perSpecialty": {
-    "clinica-medica": {
-      "accuracy": 0.9166666666666666,
-      "n": 84
+    "saude-publica": {
+      "accuracy": 1,
+      "n": 21
     },
     "ginecologia-obstetricia": {
       "accuracy": 0.8947368421052632,
       "n": 57
     },
-    "saude-publica": {
-      "accuracy": 1,
-      "n": 21
+    "clinica-medica": {
+      "accuracy": 0.9166666666666666,
+      "n": 84
     },
     "pediatria": {
       "accuracy": 0.8235294117647058,
