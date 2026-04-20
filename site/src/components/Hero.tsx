@@ -59,19 +59,18 @@ export function Hero() {
             execuções por modelo, IC 95% Wilson, análise explícita de contaminação de treino.
           </p>
 
-          {/* Cada CTA ocupa 2 colunas do grid principal (2*col-w + 1 gap de
-              1rem) — alinha com o resto da página. Em telas muito pequenas
-              (< 2 cols de largura) cai no fluxo natural via flex-wrap. */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          {/* Cada CTA ocupa 3 colunas do grid principal (3*col-w + 2 gaps de
+              1rem) — alinha com o resto da página. Empilhados verticalmente. */}
+          <div className="flex flex-col items-center gap-3">
             <Link
               to="/metodologia"
-              className="flex w-[calc(2*var(--col-w)+1rem)] items-center justify-center rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
+              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
             >
               Metodologia
             </Link>
             <Link
               to="/reproducao"
-              className="flex w-[calc(2*var(--col-w)+1rem)] items-center justify-center rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
+              className="flex w-[calc(3*var(--col-w)+2rem)] items-center justify-center rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
             >
               Reproduza os testes →
             </Link>

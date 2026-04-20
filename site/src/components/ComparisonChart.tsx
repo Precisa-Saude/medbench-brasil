@@ -142,10 +142,69 @@ export default function ComparisonChart({
   const Y_AXIS_WIDTH = 140;
   const LEFT_MARGIN = 8;
   const RIGHT_MARGIN = 24;
-  const TOP_MARGIN = 32;
 
   const cutoffPct = edition.cutoffScore * 100;
   const humanPct = edition.estimatedHumanMean * 100;
+
+  // Monta a lista de pills de referência. Quando a edição traz
+  // `extraReferences` (ex.: ENAMED com taxas por rede pública/privada),
+  // omitimos "Candidatos" porque as extras carregam a mesma informação de
+  // forma mais fiel e redundariam o pill.
+  //
+  // `priority` controla quem ganha o row 0 em caso de colisão: extras são
+  // priority 0 (preferidas no topo), Corte/Candidatos são priority 1. Isso
+  // mantém as linhas de dados empíricos (Privada/Pública) alinhadas no topo.
+  const rawLabels: Array<{
+    label: string;
+    leftPercent: number;
+    priority: number;
+    tooltip: string;
+  }> = [
+    {
+      label: 'Corte',
+      leftPercent: cutoffPct,
+      priority: 1,
+      tooltip: 'Nota de corte oficial da INEP para aprovação nesta edição.',
+    },
+  ];
+  if (!edition.extraReferences?.length) {
+    rawLabels.push({
+      label: 'Candidatos',
+      leftPercent: humanPct,
+      priority: 1,
+      tooltip: `Precisão média estimada dos candidatos, retrocalculada da nota de corte + taxa oficial de aprovação (${(edition.passRate * 100).toFixed(0)}%).`,
+    });
+  }
+  for (const ref of edition.extraReferences ?? []) {
+    rawLabels.push({
+      label: ref.label,
+      leftPercent: ref.score * 100,
+      priority: 0,
+      tooltip: ref.tooltip,
+    });
+  }
+
+  // Stagger vertical quando pills ficam próximos demais no eixo X — evita
+  // sobreposição visual das legendas. Heurística: 8pp no eixo X corresponde
+  // a ~80px na área plotada típica, o que cobre a largura de um pill.
+  const COLLISION_PP = 8;
+  // Ordena por (prioridade, posição) para que extras sejam alocadas antes
+  // de Corte — greedy em row 0 escolhe primeiro, empurrando Corte para row 1
+  // quando há colisão.
+  const sorted = [...rawLabels].sort(
+    (a, b) => a.priority - b.priority || a.leftPercent - b.leftPercent,
+  );
+  const rowsTaken: number[][] = [];
+  const labelEntries = sorted.map((entry) => {
+    let row = 0;
+    while ((rowsTaken[row] ?? []).some((x) => Math.abs(x - entry.leftPercent) < COLLISION_PP)) {
+      row += 1;
+    }
+    rowsTaken[row] = [...(rowsTaken[row] ?? []), entry.leftPercent];
+    return { ...entry, row };
+  });
+  const labelRows = Math.max(1, rowsTaken.length);
+  const TOP_MARGIN = labelRows * 28 + 10;
 
   return (
     <div className="space-y-3 font-sans">
@@ -209,37 +268,25 @@ export default function ComparisonChart({
               <div
                 className="absolute top-0 z-10 text-xs"
                 style={{
-                  height: TOP_MARGIN,
+                  height: labelRows * 28 + 10,
                   left: Y_AXIS_WIDTH + LEFT_MARGIN,
                   right: RIGHT_MARGIN,
                 }}
               >
-                <FloatingLabel leftPercent={humanPct}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                        Humano
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs font-sans text-sm">
-                      Média humana estimada da taxa de aprovação (
-                      {(edition.passRate * 100).toFixed(0)}
-                      %).
-                    </TooltipContent>
-                  </Tooltip>
-                </FloatingLabel>
-                <FloatingLabel leftPercent={cutoffPct}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
-                        Corte
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs font-sans text-sm">
-                      Nota de corte oficial da INEP para aprovação nesta edição.
-                    </TooltipContent>
-                  </Tooltip>
-                </FloatingLabel>
+                {labelEntries.map((entry) => (
+                  <FloatingLabel key={entry.label} leftPercent={entry.leftPercent} row={entry.row}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex cursor-pointer items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 font-medium text-primary">
+                          {entry.label}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs font-sans text-sm">
+                        {entry.tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </FloatingLabel>
+                ))}
               </div>
               <ResponsiveContainer width="100%" height={Math.max(260, data.length * 42 + 100)}>
                 <BarChart
@@ -314,13 +361,25 @@ export default function ComparisonChart({
                     strokeDasharray="4 4"
                     ifOverflow="extendDomain"
                   />
-                  <ReferenceLine
-                    x={edition.estimatedHumanMean * 100}
-                    stroke="#ffffff"
-                    strokeWidth={1.5}
-                    strokeDasharray="4 4"
-                    ifOverflow="extendDomain"
-                  />
+                  {!edition.extraReferences?.length && (
+                    <ReferenceLine
+                      x={edition.estimatedHumanMean * 100}
+                      stroke="#ffffff"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      ifOverflow="extendDomain"
+                    />
+                  )}
+                  {(edition.extraReferences ?? []).map((ref) => (
+                    <ReferenceLine
+                      key={ref.label}
+                      x={ref.score * 100}
+                      stroke="#ffffff"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      ifOverflow="extendDomain"
+                    />
+                  ))}
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -338,6 +397,31 @@ export default function ComparisonChart({
               intra-classe das precisões observadas, destacando os agrupamentos reais da
               distribuição em vez de faixas fixas arbitrárias.
             </p>
+            {edition.sources && edition.sources.length > 0 && (
+              <div className="mt-4 border-t pt-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Fontes
+                </div>
+                <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {edition.sources.map((s) => (
+                    <li key={s.url}>
+                      {s.author}. <span className="font-semibold">{s.title}</span>
+                      {s.location ? `. ${s.location}` : ''}
+                      {s.publishedAt ? `, ${s.publishedAt}` : ''}. Disponível em:{' '}
+                      <a
+                        className="text-ps-violet break-all underline"
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {s.url}
+                      </a>
+                      .
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -355,14 +439,18 @@ export default function ComparisonChart({
 function FloatingLabel({
   children,
   leftPercent,
+  row = 0,
 }: {
   children: React.ReactNode;
   leftPercent: number;
+  /** Linha vertical (0 = topo, 1 = segunda linha) para evitar colisão entre
+   * pills próximos no eixo X. Cada linha desce ~28px (altura do pill + gap). */
+  row?: number;
 }) {
   return (
     <div
-      className="absolute top-0 flex -translate-x-1/2 items-start"
-      style={{ left: `${leftPercent}%` }}
+      className="absolute flex -translate-x-1/2 items-start"
+      style={{ left: `${leftPercent}%`, top: `${row * 28}px` }}
     >
       {children}
     </div>
