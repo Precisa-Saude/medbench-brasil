@@ -4,6 +4,7 @@ import ContaminationDumbbell from '../components/ContaminationDumbbell';
 import CutoffGapScatter from '../components/CutoffGapScatter';
 import { PageContainer } from '../components/PageContainer';
 import { CodeBlock } from '../components/ui/code-block';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 import { MODELS } from '../data/results';
 
 export default function Metodologia() {
@@ -40,8 +41,25 @@ export default function Metodologia() {
             Protocolo de avaliação
           </h2>
           <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
-            <li>Zero-shot, uma questão por requisição, sem histórico nem few-shot</li>
-            <li>Nenhuma ferramenta, conector, capacidade de busca ou RAG</li>
+            <li>
+              <TermTag term="Zero-shot">
+                O modelo recebe apenas o enunciado e as alternativas, sem exemplos resolvidos. Mede
+                o conhecimento já internalizado no treino.
+              </TermTag>
+              , uma questão por requisição, sem histórico nem{' '}
+              <TermTag term="few-shot">
+                Técnica em que o prompt inclui exemplos resolvidos antes da questão real, ajudando o
+                modelo a inferir o formato esperado. Não usamos aqui para evitar pistas de resposta.
+              </TermTag>
+            </li>
+            <li>
+              Nenhuma ferramenta, conector, capacidade de busca ou{' '}
+              <TermTag term="RAG">
+                Retrieval-Augmented Generation: o modelo consulta uma base externa (diretrizes,
+                UpToDate, literatura) durante a resposta. Proibido no medbench para isolar o
+                conhecimento do próprio modelo.
+              </TermTag>
+            </li>
             <li>Três execuções por modelo; média e IC 95% (Wilson score) reportados</li>
             <li>Questões com imagem, tabela ou anuladas excluídas por padrão</li>
             <li>
@@ -161,6 +179,21 @@ export default function Metodologia() {
         </section>
       </div>
     </PageContainer>
+  );
+}
+
+function TermTag({ children, term }: { children: React.ReactNode; term: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-block cursor-pointer rounded-full bg-ps-violet/15 px-2 py-0.5 font-sans text-sm font-medium text-ps-violet-dark">
+          {term}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-sm font-sans text-sm leading-relaxed">
+        {children}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 

@@ -11,9 +11,9 @@ export default function Questoes() {
             Questões
           </h1>
           <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Cada linha é uma questão do Revalida com o gabarito oficial e a resposta majoritária de
-            cada modelo nas três execuções. Clique em uma linha para ver o enunciado, as
-            alternativas e as respostas individuais de cada run.
+            Cada linha é uma questão do Revalida ou do ENAMED com o gabarito oficial e a resposta
+            majoritária de cada modelo nas três execuções. Clique em uma linha para ver o enunciado,
+            as alternativas e as respostas individuais de cada run.
           </p>
         </header>
         <QuestionsTable models={MODELS} />

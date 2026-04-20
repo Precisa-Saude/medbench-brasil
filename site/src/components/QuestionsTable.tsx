@@ -27,10 +27,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
     return [...withData].sort();
   }, [models, questions]);
 
-  // Default: mais recente edição com dados.
-  const defaultEdition = editions[editions.length - 1] ?? 'all';
-
-  const [editionFilter, setEditionFilter] = useState<string>(defaultEdition);
+  const [editionFilter, setEditionFilter] = useState<string>('all');
 
   // Quando o filtro é uma edição específica, esconde colunas de modelos sem
   // perQuestion para aquela edição — evita colunas inteiras de "—" (ex.:
@@ -122,10 +119,10 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-4 font-sans">
+      <div className="flex flex-wrap items-end gap-2 font-sans sm:gap-4">
         <FilterField label="Edição">
           <Select value={editionFilter} onValueChange={onEditionChange}>
-            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
+            <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -141,7 +138,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
         <FilterField label="Especialidade">
           <Select value={specialtyFilter} onValueChange={onSpecialtyChange}>
-            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
+            <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +154,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
         <FilterField label="Filtro">
           <Select value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
-            <SelectTrigger className="h-9 w-[calc(2*var(--col-w)+1rem)]">
+            <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -171,44 +168,59 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
       </div>
 
       <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead className="sticky left-0 z-20 w-[110px] min-w-[110px] bg-muted">
-                Edição
-              </TableHead>
-              <TableHead className="sticky left-[110px] z-20 w-[56px] min-w-[56px] bg-muted">
-                #
-              </TableHead>
-              <TableHead className="sticky left-[166px] z-20 w-[200px] min-w-[200px] bg-muted after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
-                Especialidade
-              </TableHead>
-              <TableHead className="text-center">Gabarito</TableHead>
-              {visibleModels.map((m) => (
-                <TableHead
-                  key={m.modelId}
-                  className="text-center whitespace-nowrap"
-                  title={m.label}
-                >
-                  {m.label}
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="sticky left-0 z-20 w-[110px] min-w-[110px] bg-muted">
+                  Edição
                 </TableHead>
+                <TableHead className="sticky left-[110px] z-20 w-[56px] min-w-[56px] bg-muted">
+                  #
+                </TableHead>
+                <TableHead className="sticky left-[166px] z-20 w-[200px] min-w-[200px] bg-muted after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-border">
+                  Especialidade
+                </TableHead>
+                <TableHead className="text-center">Gabarito</TableHead>
+                {visibleModels.map((m) => (
+                  <TableHead
+                    key={m.modelId}
+                    className="text-center whitespace-nowrap"
+                    title={m.label}
+                  >
+                    {m.label}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pageRows.map((row) => (
+                <QuestionRow
+                  key={row.questionId}
+                  row={row}
+                  models={visibleModels}
+                  expanded={expanded === row.questionId}
+                  onToggle={() =>
+                    setExpanded((cur) => (cur === row.questionId ? null : row.questionId))
+                  }
+                />
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pageRows.map((row) => (
-              <QuestionRow
-                key={row.questionId}
-                row={row}
-                models={visibleModels}
-                expanded={expanded === row.questionId}
-                onToggle={() =>
-                  setExpanded((cur) => (cur === row.questionId ? null : row.questionId))
-                }
-              />
-            ))}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        </div>
+        <div className="divide-y divide-border md:hidden">
+          {pageRows.map((row) => (
+            <MobileQuestionCard
+              key={row.questionId}
+              row={row}
+              models={visibleModels}
+              expanded={expanded === row.questionId}
+              onToggle={() =>
+                setExpanded((cur) => (cur === row.questionId ? null : row.questionId))
+              }
+            />
+          ))}
+        </div>
         <Pagination
           page={page}
           pageSize={pageSize}
@@ -227,7 +239,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
 
 function FilterField({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
+    <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm sm:flex-initial">
       <span className="text-muted-foreground">{label}</span>
       {children}
     </label>
@@ -412,5 +424,170 @@ function ReasonBadge({ children }: { children: React.ReactNode }) {
     <span className="inline-block rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
       {children}
     </span>
+  );
+}
+
+function MobileQuestionCard({
+  expanded,
+  models,
+  onToggle,
+  row,
+}: {
+  expanded: boolean;
+  models: ModelResult[];
+  onToggle: () => void;
+  row: {
+    annulled: boolean;
+    byModel: Record<string, PerQuestionResult | undefined>;
+    correct: 'A' | 'B' | 'C' | 'D';
+    editionId: string;
+    hasImage: boolean;
+    hasTable: boolean;
+    number: number;
+    questionId: string;
+    specialty: string[];
+  };
+}) {
+  const question = useMemo(
+    () => getEdition(row.editionId)?.questions.find((q) => q.id === row.questionId),
+    [row.editionId, row.questionId],
+  );
+  const excludedReason = row.annulled
+    ? 'anulada'
+    : row.hasImage && row.hasTable
+      ? 'imagem + tabela'
+      : row.hasImage
+        ? 'imagem'
+        : row.hasTable
+          ? 'tabela'
+          : null;
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full space-y-2 bg-background px-4 py-3 text-left transition-colors active:bg-muted/40"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-baseline gap-2 font-mono text-xs text-muted-foreground">
+            <span>{row.editionId}</span>
+            <span>·</span>
+            <span className="font-semibold text-foreground">#{row.number}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Gabarito</span>
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary font-mono text-sm font-bold text-primary-foreground">
+              {row.correct}
+            </span>
+          </div>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {row.specialty.map((s) => specialtyLabel(s)).join(', ')}
+        </div>
+        <div className="-mx-1 flex flex-wrap gap-1.5 pt-1">
+          {excludedReason ? (
+            <ReasonBadge>{excludedReason}</ReasonBadge>
+          ) : (
+            models.map((m) => {
+              const p = row.byModel[m.modelId];
+              if (!p) {
+                return (
+                  <span
+                    key={m.modelId}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                  >
+                    <span className="max-w-[8rem] truncate">{m.label}</span>
+                    <span>—</span>
+                  </span>
+                );
+              }
+              const runsCorrect = p.runs.filter((r) => r.correct).length;
+              const ratio = runsCorrect / p.runs.length;
+              const tone =
+                ratio === 1
+                  ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                  : ratio === 0
+                    ? 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400'
+                    : 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400';
+              const dot =
+                ratio === 1
+                  ? 'bg-emerald-600 text-white'
+                  : ratio === 0
+                    ? 'bg-red-600 text-white'
+                    : 'bg-amber-500 text-white';
+              return (
+                <span
+                  key={m.modelId}
+                  className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] font-medium ${tone}`}
+                >
+                  <span className="max-w-[8rem] truncate">{m.label}</span>
+                  <span
+                    className={`inline-flex h-4 w-4 items-center justify-center rounded-full font-mono text-[10px] font-bold ${dot}`}
+                  >
+                    {p.majority ?? '?'}
+                  </span>
+                  <span className="font-mono text-[10px]">
+                    {runsCorrect}/{p.runs.length}
+                  </span>
+                </span>
+              );
+            })
+          )}
+        </div>
+      </button>
+      {expanded && question && (
+        <div className="space-y-3 bg-muted/20 px-4 py-4">
+          <div className="font-serif text-sm leading-relaxed whitespace-pre-wrap">
+            {question.stem}
+          </div>
+          <ul className="space-y-1.5 font-serif text-sm leading-relaxed">
+            {(['A', 'B', 'C', 'D'] as const).map((letter) => (
+              <li
+                key={letter}
+                className={`flex gap-2 ${letter === question.correct ? 'font-semibold' : ''}`}
+              >
+                <span className="font-mono">{letter})</span>
+                <span>{question.options[letter]}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-1 gap-2 pt-1 font-sans">
+            {models.map((m) => {
+              const p = row.byModel[m.modelId];
+              return (
+                <Link
+                  key={m.modelId}
+                  to={`/models/${m.modelId}`}
+                  className="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-xs transition-colors hover:border-ps-violet/40"
+                >
+                  <span className="truncate font-semibold text-ps-violet">{m.label}</span>
+                  {p ? (
+                    <span className="flex shrink-0 gap-1">
+                      {p.runs.map((r, i) => (
+                        <span
+                          key={i}
+                          className={`inline-flex h-5 w-5 items-center justify-center rounded-full font-mono text-[10px] font-bold ${
+                            r.correct
+                              ? 'bg-emerald-600 text-white'
+                              : r.parsed
+                                ? 'bg-red-600 text-white'
+                                : 'bg-muted text-muted-foreground'
+                          }`}
+                        >
+                          {r.parsed ?? '?'}
+                        </span>
+                      ))}
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-muted-foreground">sem dados</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

@@ -18,40 +18,50 @@ export default function Reproducao() {
           </p>
         </header>
 
-        <section className="space-y-3">
+        <section className="space-y-4">
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Pacotes</h2>
           <p>
             O projeto publica dois pacotes npm independentes — use o que se encaixa no seu fluxo:
           </p>
-          <dl className="space-y-3">
-            <div>
-              <dt>
-                <code className="font-mono font-semibold text-ps-violet-dark">
-                  @precisa-saude/medbench-harness
-                </code>
-              </dt>
-              <dd className="mt-1 text-sm text-muted-foreground">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="group relative rounded-lg border bg-card p-5 transition-colors hover:border-ps-violet/40 hover:bg-muted/50">
+              <a
+                href="https://www.npmjs.com/package/@precisa-saude/medbench-harness"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
+                aria-label="Abrir @precisa-saude/medbench-harness no npm"
+              />
+              <code className="font-mono text-sm font-semibold text-ps-violet-dark underline decoration-transparent group-hover:decoration-current">
+                @precisa-saude/medbench-harness
+              </code>
+              <p className="mt-2 text-sm text-muted-foreground">
                 CLI <code>medbench</code> que executa o protocolo de avaliação contra qualquer
                 backend (Anthropic, OpenAI, Google, OpenRouter, Ollama) e grava os artefatos em{' '}
                 <code>results/</code>.
-              </dd>
+              </p>
             </div>
-            <div>
-              <dt>
-                <code className="font-mono font-semibold text-ps-violet-dark">
-                  @precisa-saude/medbench-dataset
-                </code>
-              </dt>
-              <dd className="mt-1 text-sm text-muted-foreground">
+            <div className="group relative rounded-lg border bg-card p-5 transition-colors hover:border-ps-violet/40 hover:bg-muted/50">
+              <a
+                href="https://www.npmjs.com/package/@precisa-saude/medbench-dataset"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
+                aria-label="Abrir @precisa-saude/medbench-dataset no npm"
+              />
+              <code className="font-mono text-sm font-semibold text-ps-violet-dark underline decoration-transparent group-hover:decoration-current">
+                @precisa-saude/medbench-dataset
+              </code>
+              <p className="mt-2 text-sm text-muted-foreground">
                 As provas anotadas — Revalida e ENAMED — com especialidade por questão, flags de
                 imagem/tabela/anulação e metadados oficiais da INEP. Documentação completa na{' '}
-                <Link to="/dataset" className="underline text-ps-violet">
+                <Link to="/dataset" className="relative underline text-ps-violet">
                   página Dataset
                 </Link>
                 .
-              </dd>
+              </p>
             </div>
-          </dl>
+          </div>
           <p className="text-muted-foreground">
             O caminho recomendado abaixo clona o monorepo (harness + dataset juntos). Para apenas
             consumir os dados ou instalar o CLI global, veja os pacotes no npm.

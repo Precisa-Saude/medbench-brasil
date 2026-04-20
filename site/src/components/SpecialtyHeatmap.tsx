@@ -18,16 +18,17 @@ function scopeAccuracy(m: ModelResult, scope: ContaminationScope): number {
 }
 
 /**
- * Interpolação linear em OKLch entre um violeta médio (baixa precisão) e o
- * tom --primary do tema (alta precisão). Mantém a hue constante para que a
- * leitura seja "mais escuro = melhor", sem saltos de matiz. O piso de
- * luminância é escolhido para manter contraste legível com texto branco em
- * toda a escala.
+ * Interpolação em OKLch entre um violeta claro (baixa precisão) e o tom
+ * --primary do tema (alta precisão). Mantém hue constante — "mais escuro =
+ * melhor" sem saltos de matiz. O piso de luminância preserva contraste com
+ * texto branco. `p` é a posição normalizada [0, 1] na escala visual; o
+ * caller normaliza sobre o min/max observado para usar o gradiente inteiro
+ * mesmo quando os dados ocupam só uma faixa (ex.: 67–100%).
  */
-function colorFor(accuracy: number): string {
-  const p = Math.max(0, Math.min(1, accuracy));
-  const L = 0.75 - 0.35 * p;
-  const C = 0.04 + 0.05 * p;
+function colorFor(p: number): string {
+  const t = Math.max(0, Math.min(1, p));
+  const L = 0.88 - 0.58 * t;
+  const C = 0.03 + 0.1 * t;
   return `oklch(${L.toFixed(3)} ${C.toFixed(3)} 292)`;
 }
 
@@ -40,15 +41,19 @@ export default function SpecialtyHeatmap({
 }) {
   const navigate = useNavigate();
 
-  const { cells, orderedModels, orderedSpecialties } = useMemo(() => {
+  const { cells, dataMax, dataMin, orderedModels, orderedSpecialties } = useMemo(() => {
     const perModel = new Map<string, Record<string, { accuracy: number; n: number }>>();
     const specialtyN: Record<string, number> = {};
+    let dataMin = 1;
+    let dataMax = 0;
 
     for (const m of models) {
       const bucket = perSpecialtyForScope(m, contaminationScope);
       perModel.set(m.modelId, bucket);
       for (const [sp, b] of Object.entries(bucket)) {
         specialtyN[sp] = (specialtyN[sp] ?? 0) + b.n;
+        if (b.accuracy < dataMin) dataMin = b.accuracy;
+        if (b.accuracy > dataMax) dataMax = b.accuracy;
       }
     }
 
@@ -63,8 +68,14 @@ export default function SpecialtyHeatmap({
       })
       .sort((a, b) => scopeAccuracy(b, contaminationScope) - scopeAccuracy(a, contaminationScope));
 
-    return { cells: perModel, orderedModels, orderedSpecialties };
+    return { cells: perModel, dataMax, dataMin, orderedModels, orderedSpecialties };
   }, [models, contaminationScope]);
+
+  // Normaliza sobre a faixa observada para que o gradiente inteiro cubra a
+  // distribuição real (ex.: 67–100%) em vez de espremer tudo no topo da
+  // escala 0–100.
+  const range = Math.max(dataMax - dataMin, 0.0001);
+  const normalize = (accuracy: number) => (accuracy - dataMin) / range;
 
   if (orderedModels.length === 0 || orderedSpecialties.length === 0) {
     return (
@@ -81,15 +92,15 @@ export default function SpecialtyHeatmap({
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-semibold">Precisão por área médica</h3>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>0%</span>
+          <span>{Math.round(dataMin * 100)}%</span>
           <span
             aria-hidden
             className="inline-block h-2.5 w-24 rounded"
             style={{
-              background: 'linear-gradient(to right, oklch(0.75 0.04 292), oklch(0.4 0.09 292))',
+              background: 'linear-gradient(to right, oklch(0.88 0.03 292), oklch(0.3 0.13 292))',
             }}
           />
-          <span>100%</span>
+          <span>{Math.round(dataMax * 100)}%</span>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -132,7 +143,8 @@ export default function SpecialtyHeatmap({
                       </div>
                     );
                   }
-                  const bg = colorFor(cell.accuracy);
+                  const bg = colorFor(normalize(cell.accuracy));
+                  const textColor = normalize(cell.accuracy) < 0.35 ? '#3d2a63' : '#ffffff';
                   // Tooltip nativo (atributo `title`) em vez de Radix por célula:
                   // para N modelos × M specialties o Radix cria um portal por
                   // célula (facilmente 400+ instâncias), inviável em grids grandes.
@@ -142,7 +154,7 @@ export default function SpecialtyHeatmap({
                       key={sp}
                       title={tip}
                       className="flex cursor-default items-center justify-center py-2 font-sans font-semibold"
-                      style={{ backgroundColor: bg, color: '#ffffff' }}
+                      style={{ backgroundColor: bg, color: textColor }}
                     >
                       {(cell.accuracy * 100).toFixed(0)}%
                     </div>
