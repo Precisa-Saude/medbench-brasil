@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "enamed-2025": {
       "accuracy": 0.975609756097561,
-      "n": 246
+      "n": 246,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     }
   },
   "correct": 240,
+  "macroF1": 0.9754925657364681,
   "modelId": "google/gemini-3.1-pro-preview",
   "perQuestion": [
     {
@@ -2156,13 +2158,13 @@
     }
   ],
   "perSpecialty": {
-    "ginecologia-obstetricia": {
-      "accuracy": 1,
-      "n": 45
-    },
     "clinica-medica": {
       "accuracy": 1,
       "n": 75
+    },
+    "ginecologia-obstetricia": {
+      "accuracy": 1,
+      "n": 45
     },
     "medicina-familia-comunidade": {
       "accuracy": 1,

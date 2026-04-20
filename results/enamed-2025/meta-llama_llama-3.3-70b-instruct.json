@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "enamed-2025": {
       "accuracy": 0.8577235772357723,
-      "n": 246
+      "n": 246,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 211,
+  "macroF1": 0.8529424276800908,
   "modelId": "meta-llama/llama-3.3-70b-instruct",
   "perQuestion": [
     {
@@ -2160,6 +2162,10 @@
       "accuracy": 0.92,
       "n": 75
     },
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8888888888888888,
+      "n": 45
+    },
     "medicina-familia-comunidade": {
       "accuracy": 0.8205128205128205,
       "n": 39
@@ -2171,10 +2177,6 @@
     "pediatria": {
       "accuracy": 0.7083333333333334,
       "n": 48
-    },
-    "ginecologia-obstetricia": {
-      "accuracy": 0.8888888888888888,
-      "n": 45
     },
     "cirurgia": {
       "accuracy": 1,

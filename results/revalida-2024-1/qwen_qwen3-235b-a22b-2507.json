@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2024-1": {
       "accuracy": 0.8156862745098039,
-      "n": 255
+      "n": 255,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     }
   },
   "correct": 208,
+  "macroF1": 0.849812030075188,
   "modelId": "qwen/qwen3-235b-a22b-2507",
   "perQuestion": [
     {
@@ -2237,13 +2239,13 @@
     }
   ],
   "perSpecialty": {
-    "cirurgia": {
-      "accuracy": 0.8148148148148148,
-      "n": 27
-    },
     "clinica-medica": {
       "accuracy": 0.8395061728395061,
       "n": 81
+    },
+    "cirurgia": {
+      "accuracy": 0.8148148148148148,
+      "n": 27
     },
     "pediatria": {
       "accuracy": 0.7536231884057971,

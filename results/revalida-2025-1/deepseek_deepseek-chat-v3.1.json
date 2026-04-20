@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2025-1": {
       "accuracy": 0.7058823529411765,
-      "n": 255
+      "n": 255,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     "contaminated": null
   },
   "correct": 180,
+  "macroF1": 0.7381938237201394,
   "modelId": "deepseek/deepseek-chat-v3.1",
   "perQuestion": [
     {

@@ -3,7 +3,8 @@
   "accuracyByEdition": {
     "revalida-2024-2": {
       "accuracy": 0.9101123595505618,
-      "n": 267
+      "n": 267,
+      "passesCutoff": true
     }
   },
   "ci95": [
@@ -18,6 +19,7 @@
     }
   },
   "correct": 243,
+  "macroF1": 0.9218714857631236,
   "modelId": "gpt-5.4",
   "perQuestion": [
     {
