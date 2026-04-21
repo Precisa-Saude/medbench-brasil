@@ -1,22 +1,22 @@
 {
-  "accuracy": 0.803921568627451,
+  "accuracy": 0.8509803921568627,
   "accuracyByEdition": {
     "revalida-2025-1": {
-      "accuracy": 0.803921568627451,
+      "accuracy": 0.8509803921568627,
       "n": 255,
       "passesCutoff": true
     }
   },
   "ci95": [
-    0.7508327495775062,
-    0.8479890781348862
+    0.8020766076131716,
+    0.8894660192288815
   ],
   "contaminationSplit": {
     "clean": null,
     "contaminated": null
   },
-  "correct": 205,
-  "macroF1": 0.8310638431965716,
+  "correct": 217,
+  "macroF1": 0.8552835048238939,
   "modelId": "deepseek/deepseek-chat-v3-0324",
   "perQuestion": [
     {
@@ -30,7 +30,7 @@
       "runs": [
         {
           "correct": false,
-          "parsed": "B"
+          "parsed": "D"
         },
         {
           "correct": false,
@@ -49,8 +49,8 @@
       "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
-      "majority": "A",
-      "majorityCorrect": false,
+      "majority": "B",
+      "majorityCorrect": true,
       "questionId": "revalida-2025-1-q04",
       "questionNumber": 4,
       "runs": [
@@ -59,12 +59,12 @@
           "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -189,8 +189,8 @@
           "parsed": "C"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -263,8 +263,8 @@
       "questionNumber": 13,
       "runs": [
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "A"
         },
         {
           "correct": true,
@@ -453,8 +453,8 @@
           "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -471,8 +471,8 @@
       "questionNumber": 22,
       "runs": [
         {
-          "correct": true,
-          "parsed": "B"
+          "correct": false,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -501,8 +501,8 @@
           "parsed": "B"
         },
         {
-          "correct": true,
-          "parsed": "B"
+          "correct": false,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -549,8 +549,8 @@
       "questionNumber": 27,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -609,8 +609,8 @@
           "parsed": "C"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "A"
         }
       ],
       "specialty": [
@@ -683,8 +683,8 @@
           "parsed": "C"
         },
         {
-          "correct": true,
-          "parsed": "C"
+          "correct": false,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -887,12 +887,12 @@
       "questionNumber": 42,
       "runs": [
         {
-          "correct": true,
-          "parsed": "B"
-        },
-        {
           "correct": false,
           "parsed": "D"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -943,8 +943,8 @@
           "parsed": "D"
         },
         {
-          "correct": true,
-          "parsed": "D"
+          "correct": false,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -1069,8 +1069,8 @@
       "questionNumber": 50,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -1121,8 +1121,8 @@
       "questionNumber": 55,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -1151,8 +1151,8 @@
           "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": false,
@@ -1181,8 +1181,8 @@
           "parsed": "C"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "C"
         }
       ],
       "specialty": [
@@ -1311,8 +1311,8 @@
           "parsed": "C"
         },
         {
-          "correct": true,
-          "parsed": "B"
+          "correct": false,
+          "parsed": "C"
         }
       ],
       "specialty": [
@@ -1411,8 +1411,8 @@
           "parsed": "C"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -1511,16 +1511,16 @@
       "questionNumber": 71,
       "runs": [
         {
-          "correct": false,
-          "parsed": "C"
-        },
-        {
           "correct": true,
           "parsed": "B"
         },
         {
           "correct": false,
-          "parsed": "D"
+          "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "C"
         }
       ],
       "specialty": [
@@ -1563,8 +1563,8 @@
       "questionNumber": 73,
       "runs": [
         {
-          "correct": true,
-          "parsed": "C"
+          "correct": false,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -1597,8 +1597,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "B"
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -1649,8 +1649,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "C"
         }
       ],
       "specialty": [
@@ -1713,22 +1713,22 @@
       "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
-      "majority": "B",
-      "majorityCorrect": false,
+      "majority": "D",
+      "majorityCorrect": true,
       "questionId": "revalida-2025-1-q80",
       "questionNumber": 80,
       "runs": [
         {
-          "correct": false,
-          "parsed": "B"
-        },
-        {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         },
         {
           "correct": false,
           "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -1749,8 +1749,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "A"
         },
         {
           "correct": false,
@@ -1797,8 +1797,8 @@
       "questionNumber": 84,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "B"
         },
         {
           "correct": false,
@@ -1879,8 +1879,8 @@
           "parsed": "B"
         },
         {
-          "correct": true,
-          "parsed": "B"
+          "correct": false,
+          "parsed": "C"
         },
         {
           "correct": false,
@@ -1921,14 +1921,14 @@
       "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
-      "majority": "C",
-      "majorityCorrect": true,
+      "majority": "D",
+      "majorityCorrect": false,
       "questionId": "revalida-2025-1-q89",
       "questionNumber": 89,
       "runs": [
         {
-          "correct": true,
-          "parsed": "C"
+          "correct": false,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -2181,18 +2181,18 @@
       "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
-      "majority": "A",
-      "majorityCorrect": false,
+      "majority": "C",
+      "majorityCorrect": true,
       "questionId": "revalida-2025-1-q99",
       "questionNumber": 99,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -2232,27 +2232,27 @@
   ],
   "perSpecialty": {
     "pediatria": {
-      "accuracy": 0.8787878787878788,
+      "accuracy": 0.8484848484848485,
       "n": 66
     },
-    "ginecologia-obstetricia": {
-      "accuracy": 0.8125,
-      "n": 48
-    },
     "saude-publica": {
-      "accuracy": 0.5666666666666667,
+      "accuracy": 0.7,
       "n": 30
     },
+    "ginecologia-obstetricia": {
+      "accuracy": 0.8958333333333334,
+      "n": 48
+    },
     "clinica-medica": {
-      "accuracy": 0.8245614035087719,
+      "accuracy": 0.8771929824561403,
       "n": 57
     },
     "cirurgia": {
-      "accuracy": 0.7948717948717948,
+      "accuracy": 0.8205128205128205,
       "n": 39
     },
     "medicina-familia-comunidade": {
-      "accuracy": 0.8666666666666667,
+      "accuracy": 1,
       "n": 15
     }
   },
