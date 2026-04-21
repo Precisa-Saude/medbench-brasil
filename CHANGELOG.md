@@ -1,3 +1,32 @@
+## [1.3.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.2.1...v1.3.0) (2026-04-21)
+
+### Features
+
+* **scripts:** sanity-check-raws e diff de IC95 (PRE-194) ([#21](https://github.com/Precisa-Saude/medbench-brasil/issues/21)) ([63bdfd8](https://github.com/Precisa-Saude/medbench-brasil/commit/63bdfd88eb46fe0d50b51b681a5f2f1bcfba21f1))
+* **site:** contrapesos de escopo no hero e redesenho do leaderboard ([#27](https://github.com/Precisa-Saude/medbench-brasil/issues/27)) ([34013f4](https://github.com/Precisa-Saude/medbench-brasil/commit/34013f476bade7d08deaa21283cd399d97faaf0c))
+* **site:** metodologia explica variância entre execuções e deriva de fornecedor ([#24](https://github.com/Precisa-Saude/medbench-brasil/issues/24)) ([8efa9b4](https://github.com/Precisa-Saude/medbench-brasil/commit/8efa9b4ca3cd2f40bf103a8dd17bd24b2d8e3a9e))
+* **site:** polish do heatmap, questões no mobile, cards de pacotes e tooltips ([#19](https://github.com/Precisa-Saude/medbench-brasil/issues/19)) ([97e53eb](https://github.com/Precisa-Saude/medbench-brasil/commit/97e53eb26b08f4e41c67c85eb7d9762f38276abc))
+* **site:** revisar metodologia com TOC, debate institucional e legenda de elegibilidade ([#26](https://github.com/Precisa-Saude/medbench-brasil/issues/26)) ([cbbd314](https://github.com/Precisa-Saude/medbench-brasil/commit/cbbd3149d56c1aac1075911889c874a65f5c752b)), closes [#exames](https://github.com/Precisa-Saude/medbench-brasil/issues/exames) [#protocolo](https://github.com/Precisa-Saude/medbench-brasil/issues/protocolo) [#prompt](https://github.com/Precisa-Saude/medbench-brasil/issues/prompt) [#variancia](https://github.com/Precisa-Saude/medbench-brasil/issues/variancia) [#contaminacao](https://github.com/Precisa-Saude/medbench-brasil/issues/contaminacao) [#linha-de-base](https://github.com/Precisa-Saude/medbench-brasil/issues/linha-de-base) [#fontes](https://github.com/Precisa-Saude/medbench-brasil/issues/fontes)
+
+### Bug Fixes
+
+* cortes de treino a partir de fontes oficiais dos fornecedores ([#20](https://github.com/Precisa-Saude/medbench-brasil/issues/20)) ([329e27f](https://github.com/Precisa-Saude/medbench-brasil/commit/329e27faccd7ef2ff8ed351e9f92fafa80210962))
+* **results:** backfill raws ausentes em revalida-2024-1 (16 modelos) ([#22](https://github.com/Precisa-Saude/medbench-brasil/issues/22)) ([2edf2e9](https://github.com/Precisa-Saude/medbench-brasil/commit/2edf2e91367479973eec3a26b5cba9dd28971caa))
+* **results:** backfill raws ausentes em revalida-2025-1 (12 modelos) ([#23](https://github.com/Precisa-Saude/medbench-brasil/issues/23)) ([a936c31](https://github.com/Precisa-Saude/medbench-brasil/commit/a936c318d06ab40677b569496c22be3c326911b5))
+* **site:** CTAs do hero alinhados e sem clipping em viewports estreitos ([dbd636d](https://github.com/Precisa-Saude/medbench-brasil/commit/dbd636d9fbe4cb4f9e44cf85a37ba540b7eaf2d6))
+
+### Documentation
+
+* **claude:** polling automático de PRs após push ([#28](https://github.com/Precisa-Saude/medbench-brasil/issues/28)) ([abdbed8](https://github.com/Precisa-Saude/medbench-brasil/commit/abdbed868ee99d81c6777e98c0e0a53c7411006f))
+
+### CI/CD
+
+* plugar sanity-check-raws no job Build & Test ([#25](https://github.com/Precisa-Saude/medbench-brasil/issues/25)) ([4b7f99c](https://github.com/Precisa-Saude/medbench-brasil/commit/4b7f99cd2ef3f30646648096970be091e663dc35)), closes [#21](https://github.com/Precisa-Saude/medbench-brasil/issues/21) [#22](https://github.com/Precisa-Saude/medbench-brasil/issues/22) [#23](https://github.com/Precisa-Saude/medbench-brasil/issues/23)
+
+### Chores
+
+* **deps:** adotar configs e UI compartilhados [@precisa-saude](https://github.com/precisa-saude) ([#29](https://github.com/Precisa-Saude/medbench-brasil/issues/29)) ([a4b1f2d](https://github.com/Precisa-Saude/medbench-brasil/commit/a4b1f2de406fb4e5f9933a0caafc1ce7204c2348))
+
 ## [1.2.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.2.0...v1.2.1) (2026-04-20)
 
 ### Bug Fixes
