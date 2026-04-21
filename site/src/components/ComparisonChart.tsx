@@ -219,13 +219,13 @@ export default function ComparisonChart({
     <div className="space-y-3 font-sans">
       {(showEditionSelect || showFamilies) && (
         <div className="flex flex-wrap items-center gap-2">
-          {showEditionSelect && (
+          {editionOptions && editionOptions.length > 1 && onEditionChange && (
             <Select value={editionId} onValueChange={onEditionChange}>
               <SelectTrigger className="h-8 w-44 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {editionOptions!.map((opt) => (
+                {editionOptions.map((opt) => (
                   <SelectItem key={opt.id} value={opt.id}>
                     {opt.label}
                   </SelectItem>
@@ -235,7 +235,9 @@ export default function ComparisonChart({
           )}
           {showFamilies && (
             <>
-              <span className="ml-2 text-xs text-muted-foreground">Famílias:</span>
+              <span className={`text-xs text-muted-foreground ${showEditionSelect ? 'ml-2' : ''}`}>
+                Famílias:
+              </span>
               {allFamilies.map((family) => {
                 const active = isActive(family);
                 return (
