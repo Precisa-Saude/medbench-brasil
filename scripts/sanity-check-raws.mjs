@@ -46,6 +46,7 @@ function countJsonlLines(path) {
 
 let problems = 0;
 let ok = 0;
+let skippedMissing = 0;
 
 try {
   statSync(baseDir);
@@ -70,7 +71,14 @@ for (const edition of listEditions(baseDir)) {
     }
 
     const perQuestion = Array.isArray(parsed.perQuestion) ? parsed.perQuestion.length : 0;
-    const runsPerQuestion = Number(parsed.runsPerQuestion ?? 0);
+    if (parsed.runsPerQuestion === undefined) {
+      console.error(
+        `[FAIL] ${edition}/${jsonFile}: campo runsPerQuestion ausente — não é possível calcular contagem esperada de linhas do raw`,
+      );
+      problems += 1;
+      continue;
+    }
+    const runsPerQuestion = Number(parsed.runsPerQuestion);
     const expected = perQuestion * runsPerQuestion;
     if (expected === 0) {
       console.error(
@@ -91,6 +99,7 @@ for (const edition of listEditions(baseDir)) {
     if (!rawExists) {
       if (allowMissing) {
         console.warn(`[warn] ${edition}/${slug}.raw.jsonl ausente (--allow-missing-raw)`);
+        skippedMissing += 1;
         continue;
       }
       console.error(`[FAIL] ${edition}/${slug}.raw.jsonl ausente (esperado ${expected} linhas)`);
@@ -110,8 +119,15 @@ for (const edition of listEditions(baseDir)) {
   }
 }
 
+const skipNote = skippedMissing > 0 ? `, ${skippedMissing} pulados (raw ausente com --allow-missing-raw)` : '';
 if (problems > 0) {
-  console.error(`\n[sanity-check-raws] ${problems} problema(s), ${ok} ok. Falhou.`);
+  console.error(`\n[sanity-check-raws] ${problems} problema(s), ${ok} ok${skipNote}. Falhou.`);
   process.exit(1);
 }
-console.log(`[sanity-check-raws] ${ok} pares ok em ${baseDir}/.`);
+if (ok === 0 && skippedMissing > 0) {
+  console.error(
+    `[sanity-check-raws] nenhum par validado — todos os ${skippedMissing} pares tinham raw ausente (silenciados por --allow-missing-raw). Provavelmente não é o que você quer.`,
+  );
+  process.exit(1);
+}
+console.log(`[sanity-check-raws] ${ok} pares ok em ${baseDir}/${skipNote}.`);

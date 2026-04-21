@@ -27,17 +27,37 @@ if (!oldPath || !newPath) {
 
 function load(path) {
   const parsed = JSON.parse(readFileSync(path, 'utf8'));
-  const [lo, hi] = parsed.ci95 ?? [NaN, NaN];
+  if (!Array.isArray(parsed.ci95) || parsed.ci95.length !== 2) {
+    throw new Error(`${path}: campo ci95 ausente ou malformado (esperado [lo, hi])`);
+  }
+  const [lo, hi] = parsed.ci95;
+  if (!Number.isFinite(Number(lo)) || !Number.isFinite(Number(hi))) {
+    throw new Error(`${path}: ci95 contém valor não-numérico: [${lo}, ${hi}]`);
+  }
+  if (!Number.isFinite(Number(parsed.accuracy))) {
+    throw new Error(`${path}: accuracy ausente ou não-numérico`);
+  }
+  // Fallback do total: mesmo default de sanity-check-raws.mjs (perQuestion × runsPerQuestion,
+  // assume 0 se faltar) para manter os dois scripts consistentes.
+  const runsPerQuestion = Number(parsed.runsPerQuestion ?? 0);
+  const fallbackTotal = (parsed.perQuestion?.length ?? 0) * runsPerQuestion;
   return {
     accuracy: Number(parsed.accuracy),
     ci95: [Number(lo), Number(hi)],
     modelId: parsed.modelId,
-    total: Number(parsed.total ?? (parsed.perQuestion?.length ?? 0) * (parsed.runsPerQuestion ?? 1)),
+    total: Number(parsed.total ?? fallbackTotal),
   };
 }
 
-const oldR = load(oldPath);
-const newR = load(newPath);
+let oldR;
+let newR;
+try {
+  oldR = load(oldPath);
+  newR = load(newPath);
+} catch (err) {
+  console.error(`[diff-accuracy-ic95] ${err.message}`);
+  process.exit(1);
+}
 
 const pct = (x) => `${(x * 100).toFixed(1)}%`;
 const inside = newR.accuracy >= oldR.ci95[0] && newR.accuracy <= oldR.ci95[1];
