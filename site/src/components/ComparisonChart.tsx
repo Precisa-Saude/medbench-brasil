@@ -211,15 +211,20 @@ export default function ComparisonChart({
   const labelRows = Math.max(1, rowsTaken.length);
   const TOP_MARGIN = labelRows * 28 + 10;
 
-  const showEditionSelect =
-    editionOptions && editionOptions.length > 1 && onEditionChange !== undefined;
+  // Fonte única: se o dropdown de edições deve aparecer. Usada tanto pelo
+  // wrapper externo quanto pelo `ml-2` condicional da label "Famílias".
+  // TS 4.4+ faz o narrowing através de const aliased boolean, então dentro de
+  // `{showEditionDropdown && <Select>{editionOptions.map(...)}</Select>}` o
+  // compilador já sabe que `editionOptions` e `onEditionChange` estão definidos.
+  const showEditionDropdown =
+    editionOptions !== undefined && editionOptions.length > 1 && onEditionChange !== undefined;
   const showFamilies = allFamilies.length > 1;
 
   return (
     <div className="space-y-3 font-sans">
-      {(showEditionSelect || showFamilies) && (
+      {(showEditionDropdown || showFamilies) && (
         <div className="flex flex-wrap items-center gap-2">
-          {editionOptions && editionOptions.length > 1 && onEditionChange && (
+          {showEditionDropdown && (
             <Select value={editionId} onValueChange={onEditionChange}>
               <SelectTrigger className="h-8 w-44 text-xs">
                 <SelectValue />
@@ -235,7 +240,9 @@ export default function ComparisonChart({
           )}
           {showFamilies && (
             <>
-              <span className={`text-xs text-muted-foreground ${showEditionSelect ? 'ml-2' : ''}`}>
+              <span
+                className={`text-xs text-muted-foreground ${showEditionDropdown ? 'ml-2' : ''}`}
+              >
                 Famílias:
               </span>
               {allFamilies.map((family) => {
