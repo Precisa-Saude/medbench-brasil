@@ -1,7 +1,8 @@
-import { type ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { ModelResult } from '../data/results';
+import { ExclusionClause } from './ExclusionClause';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 type Row = {
@@ -168,42 +169,6 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
         <ExclusionClause excluded={excluded} />
       </p>
     </div>
-  );
-}
-
-function ExclusionClause({
-  excluded,
-}: {
-  excluded: { insufficientSplit: number; noCutoff: number };
-}) {
-  const reasons: ReactNode[] = [];
-  if (excluded.noCutoff > 0) {
-    reasons.push(
-      <span key="no-cutoff">
-        {excluded.noCutoff} sem corte de treino declarado pelo fornecedor (classificados como{' '}
-        <em>unknown</em>)
-      </span>,
-    );
-  }
-  if (excluded.insufficientSplit > 0) {
-    reasons.push(
-      <span key="insufficient-split">
-        {excluded.insufficientSplit} com edições só de um lado (todas limpas ou todas contaminadas)
-        e portanto sem comparação interna
-      </span>,
-    );
-  }
-  if (reasons.length === 0) return null;
-  return (
-    <>
-      {' '}
-      Ficam de fora{' '}
-      {reasons.reduce<ReactNode[]>(
-        (acc, node, idx) => (idx === 0 ? [node] : [...acc, ' e ', node]),
-        [],
-      )}
-      .
-    </>
   );
 }
 
