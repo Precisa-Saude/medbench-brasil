@@ -1,7 +1,6 @@
+import { cn } from '@precisa-saude/ui/utils';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import * as React from 'react';
-
-import { cn } from '@/lib/utils';
 
 const TooltipProvider = ({
   delayDuration = 0,

@@ -1,9 +1,8 @@
+import { useDesktop, useWideGrid } from '@precisa-saude/ui/hooks';
+import { cn } from '@precisa-saude/ui/utils';
 import { Activity, ExternalLink, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-
-import { useDesktop, useWideGrid } from '@/hooks/useWideGrid';
-import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { col: 5, href: '/questoes', label: 'Questões', span: 2 },

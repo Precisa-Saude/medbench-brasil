@@ -1,7 +1,7 @@
+import { GridOverlay } from '@precisa-saude/ui/decorative';
 import { Route, Routes } from 'react-router-dom';
 
 import { Footer } from './components/Footer';
-import { GridOverlay } from './components/GridOverlay';
 import { Nav } from './components/Nav';
 import { TooltipProvider } from './components/ui/tooltip';
 import Dataset from './pages/Dataset';
@@ -17,7 +17,7 @@ export default function App() {
     <TooltipProvider delayDuration={150}>
       <div className="flex min-h-screen flex-col">
         <Nav />
-        <GridOverlay />
+        <GridOverlay enabled={import.meta.env.DEV} />
 
         <main className="flex-1 pt-16">
           <Routes>

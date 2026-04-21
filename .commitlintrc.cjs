@@ -1,12 +1,10 @@
+const base = require('@precisa-saude/commitlint-config');
+
 /** @type {import('@commitlint/types').UserConfig} */
 module.exports = {
-  extends: ['@commitlint/config-conventional'],
+  ...base,
   rules: {
-    'type-enum': [
-      2,
-      'always',
-      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'revert', 'build', 'ci'],
-    ],
+    ...base.rules,
     'scope-enum': [
       2,
       'always',
@@ -25,14 +23,5 @@ module.exports = {
         'config',
       ],
     ],
-    'subject-case': [0],
-    'subject-empty': [2, 'never'],
-    'subject-full-stop': [2, 'never', '.'],
-    'subject-max-length': [2, 'always', 100],
-    'type-case': [2, 'always', 'lower-case'],
-    'type-empty': [2, 'never'],
-    'body-leading-blank': [1, 'always'],
-    'body-max-line-length': [2, 'always', 100],
-    'footer-leading-blank': [1, 'always'],
   },
 };

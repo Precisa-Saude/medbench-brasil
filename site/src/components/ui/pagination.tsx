@@ -4,12 +4,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 export interface PaginationProps {
   itemsLabel?: string;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
   page: number;
   pageSize: number;
   pageSizeOptions?: number[];
   totalRows: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
 }
 
 const DEFAULT_PAGE_SIZES = [10, 20, 50, 100];
