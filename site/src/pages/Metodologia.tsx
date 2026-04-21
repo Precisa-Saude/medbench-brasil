@@ -95,22 +95,23 @@ export default function Metodologia() {
             <strong>Aritmética de GPU não é associativa.</strong> Operações de ponto flutuante em
             precisão reduzida (bf16, fp8) acumulam erros de arredondamento que mudam com a ordem das
             somas. Entre execuções, os kernels podem reagrupar operações e produzir probabilidades
-            ligeiramente diferentes. Em questões onde o modelo está confiante, nada muda. Em questões
-            onde ele hesita entre duas alternativas, um bit é suficiente para inverter a escolha.
+            ligeiramente diferentes. Em questões onde o modelo está confiante, nada muda. Em
+            questões onde ele hesita entre duas alternativas, um bit é suficiente para inverter a
+            escolha.
           </p>
 
           <p className="mt-3">
             <strong>Arquiteturas com roteamento dinâmico amplificam o efeito.</strong> Modelos de{' '}
             <TermTag term="mistura de especialistas">
-              Arquitetura onde o modelo é dividido em muitas sub-redes (os especialistas); cada token
-              de entrada é roteado para um subconjunto pequeno delas, não para todas. Qwen 3 235B,
-              DeepSeek V3/R1 e Mixtral são exemplos. O roteamento depende do contexto e pode variar
-              entre execuções, produzindo saídas distintas para a mesma entrada.
+              Arquitetura onde o modelo é dividido em muitas sub-redes (os especialistas); cada
+              token de entrada é roteado para um subconjunto pequeno delas, não para todas. Qwen 3
+              235B, DeepSeek V3/R1 e Mixtral são exemplos. O roteamento depende do contexto e pode
+              variar entre execuções, produzindo saídas distintas para a mesma entrada.
             </TermTag>{' '}
             roteiam cada token para um subconjunto de especialistas. Esse roteamento depende também
-            dos outros tokens que estão no mesmo lote de inferência. Duas execuções da mesma pergunta
-            com companheiros de lote diferentes podem ativar especialistas diferentes e produzir
-            saídas diferentes.
+            dos outros tokens que estão no mesmo lote de inferência. Duas execuções da mesma
+            pergunta com companheiros de lote diferentes podem ativar especialistas diferentes e
+            produzir saídas diferentes.
           </p>
 
           <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
@@ -131,11 +132,11 @@ export default function Metodologia() {
 
           <p className="mt-3">
             Isso importa especialmente para modelos open-source acessados via OpenRouter (Llama,
-            DeepSeek, Qwen, Mistral). O OpenRouter não serve os modelos: ele roteia a requisição para
-            um entre vários fornecedores terceirizados (DeepInfra, Together, Fireworks, Hyperbolic).
-            Cada um usa hardware, quantização e stack de inferência diferentes. A mesma chamada para{' '}
-            <code>deepseek/deepseek-r1</code> pode pousar em fornecedores diferentes em momentos
-            diferentes, cada um com características numéricas próprias.
+            DeepSeek, Qwen, Mistral). O OpenRouter não serve os modelos: ele roteia a requisição
+            para um entre vários fornecedores terceirizados (DeepInfra, Together, Fireworks,
+            Hyperbolic). Cada um usa hardware, quantização e stack de inferência diferentes. A mesma
+            chamada para <code>deepseek/deepseek-r1</code> pode pousar em fornecedores diferentes em
+            momentos diferentes, cada um com características numéricas próprias.
           </p>
 
           <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
@@ -149,9 +150,9 @@ export default function Metodologia() {
           </p>
 
           <p className="mt-3">
-            Quando uma re-execução produz delta superior a 10pp, o ruído amostral não explica mais
-            a diferença e a causa precisa ser investigada. Possíveis explicações: troca silenciosa
-            de quantização pelo fornecedor, troca do fornecedor terceirizado no OpenRouter, re-treino
+            Quando uma re-execução produz delta superior a 10pp, o ruído amostral não explica mais a
+            diferença e a causa precisa ser investigada. Possíveis explicações: troca silenciosa de
+            quantização pelo fornecedor, troca do fornecedor terceirizado no OpenRouter, re-treino
             sob o mesmo nome de rota, ou bug na pipeline de parsing ou scoring. Todos os parâmetros
             da chamada e o log bruto de cada resposta ficam em <code>results/</code> justamente para
             permitir esse tipo de auditoria a posteriori.
@@ -159,11 +160,11 @@ export default function Metodologia() {
 
           <p className="mt-3 rounded-md bg-muted/40 p-4 text-sm">
             <strong>Limite deste benchmark.</strong> Não fixamos fornecedor terceirizado específico
-            no OpenRouter e os fornecedores fechados não expõem versão congelada via API que possamos
-            exigir. A nota de um modelo em uma edição é uma foto do que o fornecedor servia quando
-            rodamos. Um modelo que escorregou no ranking entre edições pode simplesmente estar sendo
-            servido por uma variante mais leve. A cada nova edição, reexecutamos todos os modelos
-            para manter a comparação sob condições contemporâneas.
+            no OpenRouter e os fornecedores fechados não expõem versão congelada via API que
+            possamos exigir. A nota de um modelo em uma edição é uma foto do que o fornecedor servia
+            quando rodamos. Um modelo que escorregou no ranking entre edições pode simplesmente
+            estar sendo servido por uma variante mais leve. A cada nova edição, reexecutamos todos
+            os modelos para manter a comparação sob condições contemporâneas.
           </p>
         </section>
 
