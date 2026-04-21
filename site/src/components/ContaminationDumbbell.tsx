@@ -25,18 +25,33 @@ function pctToLeft(pct: number): string {
 export default function ContaminationDumbbell({ models }: { models: ModelResult[] }) {
   const navigate = useNavigate();
 
-  const rows = useMemo<Row[]>(() => {
-    return models
-      .filter((m) => m.cleanAccuracy !== null && m.contaminatedAccuracy !== null)
-      .map((m) => ({
-        cleanPct: m.cleanAccuracy! * 100,
-        contaminatedPct: m.contaminatedAccuracy! * 100,
-        delta: (m.contaminatedAccuracy! - m.cleanAccuracy!) * 100,
+  const { excluded, rows } = useMemo(() => {
+    let noCutoff = 0;
+    let oneSideOnly = 0;
+    const eligible: Row[] = [];
+    for (const m of models) {
+      if (!m.trainingCutoff) {
+        noCutoff += 1;
+        continue;
+      }
+      if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) {
+        oneSideOnly += 1;
+        continue;
+      }
+      eligible.push({
+        cleanPct: m.cleanAccuracy * 100,
+        contaminatedPct: m.contaminatedAccuracy * 100,
+        delta: (m.contaminatedAccuracy - m.cleanAccuracy) * 100,
         label: m.label,
         modelId: m.modelId,
-      }))
-      .sort((a, b) => b.delta - a.delta);
+      });
+    }
+    eligible.sort((a, b) => b.delta - a.delta);
+    return { excluded: { noCutoff, oneSideOnly }, rows: eligible };
   }, [models]);
+
+  const totalModels = models.length;
+  const plottedCount = rows.length;
 
   if (rows.length === 0) {
     return (
@@ -69,6 +84,11 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
           </div>
         </div>
       </div>
+      <p className="mb-4 text-base text-muted-foreground">
+        Modelos ordenados por Δ decrescente. Δ alto indica que o modelo acerta mais em edições
+        anteriores ao seu corte de treino do que nas posteriores, sinal clássico de memorização por
+        exposição aos gabaritos durante o pré-treino.
+      </p>
       <div className="space-y-1 text-xs">
         {rows.map((row) => {
           const left = Math.min(row.cleanPct, row.contaminatedPct);
@@ -141,10 +161,14 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
         </div>
         <div />
       </div>
-      <p className="mt-3 text-base text-muted-foreground">
-        Modelos ordenados por Δ decrescente — Δ alto indica que o modelo acerta mais em edições
-        anteriores ao seu corte de treino do que nas posteriores, sinal clássico de memorização por
-        exposição aos gabaritos durante o pré-treino.
+      <p className="mt-4 text-sm text-muted-foreground">
+        <strong>
+          {plottedCount} de {totalModels} modelos elegíveis para análise de contaminação.
+        </strong>{' '}
+        Ficam de fora {excluded.noCutoff} sem corte de treino declarado pelo fornecedor
+        (classificados como <em>unknown</em>) e {excluded.oneSideOnly} cujo corte está fora da
+        janela das edições avaliadas, ou seja, com edições só de um lado (todas limpas ou todas
+        contaminadas) e portanto sem comparação interna.
       </p>
     </div>
   );

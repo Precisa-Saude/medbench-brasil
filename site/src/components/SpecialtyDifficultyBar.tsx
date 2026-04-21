@@ -78,6 +78,7 @@ export default function SpecialtyDifficultyBar({
           />
           <RechartsTooltip
             cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
+            wrapperStyle={{ transition: 'none' }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const row = payload[0]?.payload as Row | undefined;
