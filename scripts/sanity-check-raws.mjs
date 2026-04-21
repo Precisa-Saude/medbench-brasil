@@ -119,7 +119,8 @@ for (const edition of listEditions(baseDir)) {
   }
 }
 
-const skipNote = skippedMissing > 0 ? `, ${skippedMissing} pulados (raw ausente com --allow-missing-raw)` : '';
+const skipNote =
+  skippedMissing > 0 ? ` (${skippedMissing} pulados por raw ausente com --allow-missing-raw)` : '';
 if (problems > 0) {
   console.error(`\n[sanity-check-raws] ${problems} problema(s), ${ok} ok${skipNote}. Falhou.`);
   process.exit(1);
@@ -130,4 +131,4 @@ if (ok === 0 && skippedMissing > 0) {
   );
   process.exit(1);
 }
-console.log(`[sanity-check-raws] ${ok} pares ok em ${baseDir}/${skipNote}.`);
+console.log(`[sanity-check-raws] ${ok} pares ok em ${baseDir}/.${skipNote}`);

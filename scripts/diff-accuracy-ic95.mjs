@@ -37,15 +37,22 @@ function load(path) {
   if (!Number.isFinite(Number(parsed.accuracy))) {
     throw new Error(`${path}: accuracy ausente ou não-numérico`);
   }
-  // Fallback do total: mesmo default de sanity-check-raws.mjs (perQuestion × runsPerQuestion,
-  // assume 0 se faltar) para manter os dois scripts consistentes.
-  const runsPerQuestion = Number(parsed.runsPerQuestion ?? 0);
-  const fallbackTotal = (parsed.perQuestion?.length ?? 0) * runsPerQuestion;
+  // total é só display (n=... na saída). Preferimos o campo explícito; se
+  // faltar, tentamos perQuestion × runsPerQuestion; se nem isso for calculável,
+  // caímos para null → render como "?". Melhor que zero silencioso.
+  let total = Number.isFinite(Number(parsed.total)) ? Number(parsed.total) : null;
+  if (total === null) {
+    const rpq = Number(parsed.runsPerQuestion);
+    const pq = Array.isArray(parsed.perQuestion) ? parsed.perQuestion.length : 0;
+    if (Number.isFinite(rpq) && rpq > 0 && pq > 0) {
+      total = pq * rpq;
+    }
+  }
   return {
     accuracy: Number(parsed.accuracy),
     ci95: [Number(lo), Number(hi)],
     modelId: parsed.modelId,
-    total: Number(parsed.total ?? fallbackTotal),
+    total,
   };
 }
 
@@ -64,8 +71,9 @@ const inside = newR.accuracy >= oldR.ci95[0] && newR.accuracy <= oldR.ci95[1];
 const delta = (newR.accuracy - oldR.accuracy) * 100;
 
 console.log(`modelo: ${oldR.modelId} (antigo) vs ${newR.modelId} (novo)`);
-console.log(`antigo: accuracy=${pct(oldR.accuracy)} ic95=[${pct(oldR.ci95[0])}, ${pct(oldR.ci95[1])}] n=${oldR.total}`);
-console.log(`novo:   accuracy=${pct(newR.accuracy)} ic95=[${pct(newR.ci95[0])}, ${pct(newR.ci95[1])}] n=${newR.total}`);
+const n = (t) => (t === null ? '?' : String(t));
+console.log(`antigo: accuracy=${pct(oldR.accuracy)} ic95=[${pct(oldR.ci95[0])}, ${pct(oldR.ci95[1])}] n=${n(oldR.total)}`);
+console.log(`novo:   accuracy=${pct(newR.accuracy)} ic95=[${pct(newR.ci95[0])}, ${pct(newR.ci95[1])}] n=${n(newR.total)}`);
 console.log(`delta:  ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}pp ${inside ? '(dentro do IC95 antigo)' : '(FORA do IC95 antigo)'}`);
 
 process.exit(inside ? 0 : 1);
