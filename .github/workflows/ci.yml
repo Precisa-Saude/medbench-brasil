@@ -42,6 +42,11 @@ jobs:
         run: pnpm turbo run typecheck
       - name: Test
         run: pnpm turbo run test
+      # Invariant ADR-0002: toda run publicada em results/ precisa ter
+      # .raw.jsonl com exatamente perQuestion.length × runsPerQuestion linhas.
+      # Sem isso a run não é auditável nem re-scoreável. Ver scripts/sanity-check-raws.mjs.
+      - name: Sanity-check raw logs
+        run: node scripts/sanity-check-raws.mjs
       # Coverage roda separado do `test` e é informativo: thresholds (80%
       # branches/functions/lines/statements) são definidos nas vitest.config
       # de cada package, mas ainda há lacunas pré-existentes (CLI, runner,
