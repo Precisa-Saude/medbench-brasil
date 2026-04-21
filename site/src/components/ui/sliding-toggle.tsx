@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@precisa-saude/ui/utils';
 
 export interface SlidingToggleItem<T extends string> {
   label: string;

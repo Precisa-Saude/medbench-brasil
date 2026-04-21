@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "medbench-brasil",
+  "owner": "Precisa-Saude",
+  "visibility": "oss",
+  "hasSite": true,
+  "hasPackages": true,
+  "publishesToNpm": true,
+  "commitScopes": [
+    "dataset",
+    "harness",
+    "ingestion",
+    "canary",
+    "site",
+    "results",
+    "scripts",
+    "docs",
+    "ci",
+    "deps",
+    "lint",
+    "config"
+  ],
+  "contactEmails": {
+    "security": "security@precisa-saude.com.br",
+    "conduct": "conduct@precisa-saude.com.br"
+  },
+  "nodeVersion": "22",
+  "pnpmVersion": "9.15.9"
+}

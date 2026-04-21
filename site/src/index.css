@@ -1,47 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@precisa-saude/themes';
 @config '../tailwind.config.js';
 
+@custom-variant 3xl (@media (min-width: 1440px));
+
 @layer base {
-  :root {
-    --background: oklch(0.94 0.008 61);
-    --foreground: oklch(0.25 0.06 292);
-    --card: oklch(0.96 0.005 61);
-    --card-foreground: oklch(0.25 0.06 292);
-    --popover: oklch(0.98 0.003 61);
-    --popover-foreground: oklch(0.25 0.06 292);
-    --primary: oklch(0.39 0.082 292);
-    --primary-foreground: oklch(0.97 0.005 292);
-    --secondary: oklch(0.89 0.023 65);
-    --secondary-foreground: oklch(0.3 0.07 292);
-    --muted: oklch(0.92 0.012 61);
-    --muted-foreground: oklch(0.55 0.05 285);
-    --accent: oklch(0.92 0.04 285);
-    --accent-foreground: oklch(0.25 0.06 292);
-    --destructive: oklch(0.71 0.157 35);
-    --border: oklch(0.87 0.018 65);
-    --input: oklch(0.85 0.02 65);
-    --ring: oklch(0.39 0.082 292);
-    --radius: 0.625rem;
-
-    --ps-violet: oklch(0.67 0.113 285);
-    --ps-mint: oklch(0.9 0.085 181);
-    --ps-green: oklch(0.6 0.17 155);
-    --ps-amber: oklch(0.8 0.123 80);
-
-    --grid-cols: 14;
-    --grid-gaps: calc(var(--grid-cols) - 1);
-    --grid-max-w: calc(var(--grid-cols) * 6rem - 1rem);
-    --col-w: calc((min(100vw, var(--grid-max-w)) - var(--grid-gaps) * 1rem) / var(--grid-cols));
-  }
-
-  @media (min-width: 1440px) {
-    :root {
-      --grid-cols: 16;
-      --grid-max-w: 1440px;
-    }
-  }
-
   * {
     @apply border-border;
   }
@@ -65,8 +29,6 @@
     font-family: 'Roboto', system-ui, sans-serif;
   }
 }
-
-@custom-variant 3xl (@media (min-width: 1440px));
 
 @layer utilities {
   .font-margem {
