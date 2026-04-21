@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import {
   CartesianGrid,
   ReferenceLine,
@@ -32,14 +32,14 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
   const { byTier, excluded } = useMemo(() => {
     const points: Point[] = [];
     let noCutoff = 0;
-    let oneSideOnly = 0;
+    let insufficientSplit = 0;
     for (const m of models) {
       if (!m.trainingCutoff) {
         noCutoff += 1;
         continue;
       }
       if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) {
-        oneSideOnly += 1;
+        insufficientSplit += 1;
         continue;
       }
       const ts = Date.parse(m.trainingCutoff);
@@ -59,7 +59,7 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
     for (const p of points) {
       (grouped[p.tier] ??= []).push(p);
     }
-    return { byTier: grouped, excluded: { noCutoff, oneSideOnly } };
+    return { byTier: grouped, excluded: { insufficientSplit, noCutoff } };
   }, [models]);
 
   const allPoints = Object.values(byTier).flatMap((pts) => pts ?? []);
@@ -173,12 +173,45 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
       <p className="mt-4 text-sm text-muted-foreground">
         <strong>
           {plottedCount} de {totalModels} modelos elegíveis para análise de contaminação.
-        </strong>{' '}
-        Ficam de fora {excluded.noCutoff} sem corte de treino declarado pelo fornecedor
-        (classificados como <em>unknown</em>) e {excluded.oneSideOnly} cujo corte está fora da
-        janela das edições avaliadas, ou seja, com edições só de um lado (todas limpas ou todas
-        contaminadas) e portanto sem comparação interna.
+        </strong>
+        <ExclusionClause excluded={excluded} />
       </p>
     </div>
+  );
+}
+
+function ExclusionClause({
+  excluded,
+}: {
+  excluded: { insufficientSplit: number; noCutoff: number };
+}) {
+  const reasons: ReactNode[] = [];
+  if (excluded.noCutoff > 0) {
+    reasons.push(
+      <span key="no-cutoff">
+        {excluded.noCutoff} sem corte de treino declarado pelo fornecedor (classificados como{' '}
+        <em>unknown</em>)
+      </span>,
+    );
+  }
+  if (excluded.insufficientSplit > 0) {
+    reasons.push(
+      <span key="insufficient-split">
+        {excluded.insufficientSplit} com edições só de um lado (todas limpas ou todas contaminadas)
+        e portanto sem comparação interna
+      </span>,
+    );
+  }
+  if (reasons.length === 0) return null;
+  return (
+    <>
+      {' '}
+      Ficam de fora{' '}
+      {reasons.reduce<ReactNode[]>(
+        (acc, node, idx) => (idx === 0 ? [node] : [...acc, ' e ', node]),
+        [],
+      )}
+      .
+    </>
   );
 }

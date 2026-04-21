@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { ModelResult } from '../data/results';
@@ -27,7 +27,7 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
 
   const { excluded, rows } = useMemo(() => {
     let noCutoff = 0;
-    let oneSideOnly = 0;
+    let insufficientSplit = 0;
     const eligible: Row[] = [];
     for (const m of models) {
       if (!m.trainingCutoff) {
@@ -35,7 +35,7 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
         continue;
       }
       if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) {
-        oneSideOnly += 1;
+        insufficientSplit += 1;
         continue;
       }
       eligible.push({
@@ -47,7 +47,7 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
       });
     }
     eligible.sort((a, b) => b.delta - a.delta);
-    return { excluded: { noCutoff, oneSideOnly }, rows: eligible };
+    return { excluded: { insufficientSplit, noCutoff }, rows: eligible };
   }, [models]);
 
   const totalModels = models.length;
@@ -164,13 +164,46 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
       <p className="mt-4 text-sm text-muted-foreground">
         <strong>
           {plottedCount} de {totalModels} modelos elegíveis para análise de contaminação.
-        </strong>{' '}
-        Ficam de fora {excluded.noCutoff} sem corte de treino declarado pelo fornecedor
-        (classificados como <em>unknown</em>) e {excluded.oneSideOnly} cujo corte está fora da
-        janela das edições avaliadas, ou seja, com edições só de um lado (todas limpas ou todas
-        contaminadas) e portanto sem comparação interna.
+        </strong>
+        <ExclusionClause excluded={excluded} />
       </p>
     </div>
+  );
+}
+
+function ExclusionClause({
+  excluded,
+}: {
+  excluded: { insufficientSplit: number; noCutoff: number };
+}) {
+  const reasons: ReactNode[] = [];
+  if (excluded.noCutoff > 0) {
+    reasons.push(
+      <span key="no-cutoff">
+        {excluded.noCutoff} sem corte de treino declarado pelo fornecedor (classificados como{' '}
+        <em>unknown</em>)
+      </span>,
+    );
+  }
+  if (excluded.insufficientSplit > 0) {
+    reasons.push(
+      <span key="insufficient-split">
+        {excluded.insufficientSplit} com edições só de um lado (todas limpas ou todas contaminadas)
+        e portanto sem comparação interna
+      </span>,
+    );
+  }
+  if (reasons.length === 0) return null;
+  return (
+    <>
+      {' '}
+      Ficam de fora{' '}
+      {reasons.reduce<ReactNode[]>(
+        (acc, node, idx) => (idx === 0 ? [node] : [...acc, ' e ', node]),
+        [],
+      )}
+      .
+    </>
   );
 }
 

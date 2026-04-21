@@ -422,7 +422,7 @@ const TOC_ITEMS: ReadonlyArray<{ href: string; label: string }> = [
   { href: '#prompt', label: 'System prompt literal' },
   { href: '#variancia', label: 'Por que rodamos três vezes' },
   { href: '#contaminacao', label: 'Contaminação de treino' },
-  { href: '#linha-de-base', label: 'Linha de base humana e nota de corte' },
+  { href: '#linha-de-base', label: 'Linha de base humana e o sentido da nota de corte' },
   { href: '#fontes', label: 'Fontes' },
 ];
 
