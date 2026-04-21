@@ -1,25 +1,25 @@
 {
-  "accuracy": 0.9215686274509803,
+  "accuracy": 0.9372549019607843,
   "accuracyByEdition": {
     "revalida-2024-1": {
-      "accuracy": 0.9215686274509803,
+      "accuracy": 0.9372549019607843,
       "n": 255,
       "passesCutoff": true
     }
   },
   "ci95": [
-    0.8819669106042639,
-    0.9486569149322802
+    0.9005178072038916,
+    0.9610129513758728
   ],
   "contaminationSplit": {
     "clean": null,
     "contaminated": {
-      "accuracy": 0.9215686274509803,
+      "accuracy": 0.9372549019607843,
       "n": 255
     }
   },
-  "correct": 235,
-  "macroF1": 0.930375599852344,
+  "correct": 239,
+  "macroF1": 0.9415169133192389,
   "modelId": "gpt-5.2",
   "perQuestion": [
     {
@@ -677,22 +677,22 @@
       "contamination": "likely-contaminated",
       "correctAnswer": "D",
       "editionId": "revalida-2024-1",
-      "majority": "A",
-      "majorityCorrect": false,
+      "majority": "D",
+      "majorityCorrect": true,
       "questionId": "revalida-2024-1-q32",
       "questionNumber": 32,
       "runs": [
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -847,8 +847,8 @@
           "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "A"
         }
       ],
       "specialty": [
@@ -2090,12 +2090,12 @@
       "questionNumber": 95,
       "runs": [
         {
-          "correct": false,
-          "parsed": "D"
-        },
-        {
           "correct": true,
           "parsed": "C"
+        },
+        {
+          "correct": false,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -2239,21 +2239,21 @@
     }
   ],
   "perSpecialty": {
-    "clinica-medica": {
-      "accuracy": 0.9259259259259259,
-      "n": 81
-    },
-    "cirurgia": {
-      "accuracy": 1,
-      "n": 27
-    },
     "pediatria": {
       "accuracy": 0.9420289855072463,
       "n": 69
     },
+    "clinica-medica": {
+      "accuracy": 0.9629629629629629,
+      "n": 81
+    },
     "ginecologia-obstetricia": {
-      "accuracy": 0.9833333333333333,
+      "accuracy": 1,
       "n": 60
+    },
+    "cirurgia": {
+      "accuracy": 1,
+      "n": 27
     },
     "medicina-familia-comunidade": {
       "accuracy": 0.6,
