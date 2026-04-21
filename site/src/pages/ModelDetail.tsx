@@ -104,6 +104,12 @@ export default function ModelDetail() {
           )}
         </header>
 
+        <aside className="rounded-md border border-dashed bg-muted/30 px-4 py-3 font-sans text-xs leading-relaxed text-muted-foreground">
+          Todas as métricas abaixo medem precisão em questões de múltipla escolha. O benchmark não
+          avalia anamnese, exame físico, julgamento clínico sob incerteza nem responsabilidade
+          profissional, e não indica aptidão para exercer medicina.
+        </aside>
+
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card label="Precisão geral" value={`${(model.accuracy * 100).toFixed(1)}%`} />
           <Card

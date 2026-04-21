@@ -76,14 +76,16 @@ export default function EditionDetail() {
                 <div className="mt-1 flex items-baseline gap-3">
                   <div className="text-4xl font-bold">Nível {enadeLevel}</div>
                   <div className="text-muted-foreground text-sm">
-                    {approved}/{modelsWithResult.length} modelos aprovados (
+                    {approved}/{modelsWithResult.length} modelos acima do corte (
                     {(approvedRate * 100).toFixed(0)}%)
                   </div>
                 </div>
               </div>
               <div className="text-sm text-muted-foreground max-w-md">
-                Aplicação do Conceito Enade 1–5 do MEC aos modelos avaliados, tratando-os como uma
-                turma de egressos. Ver{' '}
+                Analogia estatística: aplica o Conceito Enade 1–5 do MEC aos modelos como se fossem
+                uma turma hipotética, apenas para contextualizar a distribuição de precisão. Não
+                implica que os modelos possam exercer medicina nem substituir candidatos humanos.
+                Ver{' '}
                 <Link to="/metodologia" className="underline text-ps-violet">
                   metodologia
                 </Link>{' '}

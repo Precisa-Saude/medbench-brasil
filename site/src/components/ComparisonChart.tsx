@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Bar,
   BarChart,
@@ -15,6 +15,7 @@ import { EDITIONS, getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
 import type { ContaminationScope } from './ContaminationToggle';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 // Contaminação por edição: a ModelResult agregada mistura editions, então
@@ -63,11 +64,15 @@ const JENKS_K = 4;
 export default function ComparisonChart({
   contaminationScope,
   editionId,
+  editionOptions,
   models,
+  onEditionChange,
 }: {
   contaminationScope?: ContaminationScope;
   editionId: string;
+  editionOptions?: { id: string; label: string }[];
   models: ModelResult[];
+  onEditionChange?: (id: string) => void;
 }) {
   const navigate = useNavigate();
   const edition = getEditionMetadata(editionId);
@@ -206,29 +211,60 @@ export default function ComparisonChart({
   const labelRows = Math.max(1, rowsTaken.length);
   const TOP_MARGIN = labelRows * 28 + 10;
 
+  // Fonte única: se o dropdown de edições deve aparecer. Usada tanto pelo
+  // wrapper externo quanto pelo `ml-2` condicional da label "Famílias".
+  // TS 4.4+ faz o narrowing através de const aliased boolean, então dentro de
+  // `{showEditionDropdown && <Select>{editionOptions.map(...)}</Select>}` o
+  // compilador já sabe que `editionOptions` e `onEditionChange` estão definidos.
+  const showEditionDropdown =
+    editionOptions !== undefined && editionOptions.length > 1 && onEditionChange !== undefined;
+  const showFamilies = allFamilies.length > 1;
+
   return (
     <div className="space-y-3 font-sans">
-      {allFamilies.length > 1 && (
+      {(showEditionDropdown || showFamilies) && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground">Famílias:</span>
-          {allFamilies.map((family) => {
-            const active = isActive(family);
-            return (
-              <button
-                key={family}
-                type="button"
-                onClick={() => toggle(family)}
-                aria-pressed={active}
-                className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  active
-                    ? 'border-primary/30 bg-primary/10 text-primary'
-                    : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
+          {showEditionDropdown && (
+            <Select value={editionId} onValueChange={onEditionChange}>
+              <SelectTrigger className="h-8 w-44 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {editionOptions.map((opt) => (
+                  <SelectItem key={opt.id} value={opt.id}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {showFamilies && (
+            <>
+              <span
+                className={`text-xs text-muted-foreground ${showEditionDropdown ? 'ml-2' : ''}`}
               >
-                {family}
-              </button>
-            );
-          })}
+                Famílias:
+              </span>
+              {allFamilies.map((family) => {
+                const active = isActive(family);
+                return (
+                  <button
+                    key={family}
+                    type="button"
+                    onClick={() => toggle(family)}
+                    aria-pressed={active}
+                    className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                      active
+                        ? 'border-primary/30 bg-primary/10 text-primary'
+                        : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    {family}
+                  </button>
+                );
+              })}
+            </>
+          )}
         </div>
       )}
       <div className="rounded-lg border bg-card p-4">
@@ -240,7 +276,15 @@ export default function ComparisonChart({
         ) : (
           <>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="font-sans font-semibold">{edition.label} — precisão por modelo</h3>
+              <h3 className="font-sans font-semibold">
+                <Link
+                  to={`/editions/${editionId}`}
+                  className="text-ps-violet underline decoration-ps-violet/30 underline-offset-4 transition-colors hover:decoration-ps-violet"
+                >
+                  {edition.label}
+                </Link>{' '}
+                — precisão por modelo
+              </h3>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground underline decoration-dotted decoration-muted-foreground/40 underline-offset-4">
@@ -264,6 +308,20 @@ export default function ComparisonChart({
                 </TooltipContent>
               </Tooltip>
             </div>
+            <p className="mb-4 text-base text-muted-foreground">
+              As quatro tonalidades agrupam os modelos em classes naturais via{' '}
+              <a
+                className="text-ps-violet underline"
+                href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Jenks natural breaks
+              </a>
+              : os cortes são escolhidos por programação dinâmica para minimizar a variância
+              intra-classe das precisões observadas, destacando os agrupamentos reais da
+              distribuição em vez de faixas fixas arbitrárias.
+            </p>
             <div className="relative">
               <div
                 className="absolute top-0 z-10 text-xs"
@@ -395,22 +453,8 @@ export default function ComparisonChart({
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-3 text-base text-muted-foreground">
-              As quatro tonalidades agrupam os modelos em classes naturais via{' '}
-              <a
-                className="text-ps-violet underline"
-                href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Jenks natural breaks
-              </a>
-              : os cortes são escolhidos por programação dinâmica para minimizar a variância
-              intra-classe das precisões observadas, destacando os agrupamentos reais da
-              distribuição em vez de faixas fixas arbitrárias.
-            </p>
             {edition.sources && edition.sources.length > 0 && (
-              <div className="mt-4 border-t pt-3">
+              <div className="mt-4">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Fontes
                 </div>

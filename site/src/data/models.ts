@@ -144,7 +144,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   },
   'gemini-2.5-pro': {
     description:
-      'Flagship multimodal do Google DeepMind, base do Med-Gemini. Forte em raciocínio clínico e código.',
+      'Flagship multimodal do Google DeepMind, base do Med-Gemini. Forte em tarefas de domínio médico e código.',
     homepage: 'https://deepmind.google/technologies/gemini/',
     label: 'Gemini 2.5 Pro',
     modelId: 'gemini-2.5-pro',
@@ -198,7 +198,7 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
   },
   'gpt-5.4': {
     description:
-      'Iteração mais recente da linha GPT-5 da OpenAI, com melhorias em raciocínio médico.',
+      'Iteração mais recente da linha GPT-5 da OpenAI, com melhorias em benchmarks de domínio médico.',
     homepage: 'https://openai.com/gpt-5/',
     label: 'GPT-5.4',
     modelId: 'gpt-5.4',

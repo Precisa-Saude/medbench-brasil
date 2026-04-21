@@ -144,12 +144,12 @@ export default function LeaderboardTable({
               tooltip="Contaminada − limpa (pp). Positivo sugere memorização."
             />
             <SortableHead
-              label="Aprova"
+              label="Acima do corte"
               k="pass"
               sort={sort}
               onClick={toggleSort}
               align="right"
-              tooltip="Edições em que o modelo atinge a nota de corte oficial sobre total de edições avaliadas."
+              tooltip="Edições em que a precisão do modelo em múltipla escolha supera a nota de corte oficial. Métrica de benchmark; não equivale a aprovação em prova real, que exige outras etapas."
             />
             <SortableHead
               label="Corte treino"
