@@ -61,6 +61,14 @@ Por quê: referências erradas derrubam a credibilidade do resto da página. Já
 
 Silêncio em revisão não é neutro — é dívida. Se o thread fica aberto, o próximo revisor precisa redescobrir o contexto. Sempre feche o loop.
 
+## Polling automático de PRs — fechar o loop sem pedir
+
+Após `gh pr create` ou `git push` de fixes em resposta a revisão, **não espere o usuário perguntar por comentários**. Agende você mesmo uma checagem com `ScheduleWakeup(delaySeconds: 270, prompt: "cheque comentários na PR #<N>")`. 270s em vez de 300s mantém o cache de prompt quente (TTL do cache é 5min).
+
+Ao acordar, siga a seção "Revisão de PR" acima: liste comentários novos, responda e resolva os threads. Se houver fixes a aplicar, pushe e **agende a próxima rodada** com o mesmo delay. Pare após duas rodadas consecutivas sem comentários novos, ou quando o usuário pedir.
+
+Objetivo: reduzir a latência da revisão. O usuário não deveria precisar perguntar "já chegaram comentários?".
+
 ## Worktrees para sessões paralelas — obrigatório
 
 **CRÍTICO**: quando mais de uma sessão do Claude pode estar ativa neste repositório, você DEVE usar um `git worktree` dedicado para sua feature. Compartilhar a mesma working tree entre sessões paralelas já corrompeu o estado do repo uma vez (commits na branch errada, arquivos de outra sessão entrando em `git add`) e não pode acontecer de novo.
