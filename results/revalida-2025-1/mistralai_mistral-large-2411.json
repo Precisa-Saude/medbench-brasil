@@ -1,29 +1,26 @@
 {
-  "accuracy": 0.803921568627451,
+  "accuracy": 0.8196078431372549,
   "accuracyByEdition": {
     "revalida-2025-1": {
-      "accuracy": 0.803921568627451,
+      "accuracy": 0.8196078431372549,
       "n": 255,
       "passesCutoff": true
     }
   },
   "ci95": [
-    0.7508327495775062,
-    0.8479890781348862
+    0.7677811577901411,
+    0.8619476029654715
   ],
   "contaminationSplit": {
-    "clean": {
-      "accuracy": 0.803921568627451,
-      "n": 255
-    },
+    "clean": null,
     "contaminated": null
   },
-  "correct": 205,
-  "macroF1": 0.832046332046332,
+  "correct": 209,
+  "macroF1": 0.8434319909610607,
   "modelId": "mistralai/mistral-large-2411",
   "perQuestion": [
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -49,7 +46,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -58,16 +55,16 @@
       "questionNumber": 4,
       "runs": [
         {
+          "correct": false,
+          "parsed": "D"
+        },
+        {
           "correct": true,
           "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "C"
-        },
-        {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -75,7 +72,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -101,7 +98,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -127,7 +124,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -153,7 +150,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -179,7 +176,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -205,7 +202,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -231,7 +228,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -257,7 +254,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -283,7 +280,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -300,8 +297,8 @@
           "parsed": "D"
         },
         {
-          "correct": true,
-          "parsed": "D"
+          "correct": false,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -309,7 +306,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -335,7 +332,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -361,7 +358,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -387,7 +384,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -413,7 +410,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -439,7 +436,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -465,7 +462,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -474,16 +471,16 @@
       "questionNumber": 22,
       "runs": [
         {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
+          "correct": true,
+          "parsed": "B"
+        },
+        {
           "correct": false,
-          "parsed": "D"
-        },
-        {
-          "correct": true,
-          "parsed": "B"
-        },
-        {
-          "correct": true,
-          "parsed": "B"
+          "parsed": "A"
         }
       ],
       "specialty": [
@@ -491,21 +488,21 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
-      "majority": "D",
-      "majorityCorrect": false,
+      "majority": "B",
+      "majorityCorrect": true,
       "questionId": "revalida-2025-1-q25",
       "questionNumber": 25,
       "runs": [
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -517,7 +514,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -543,7 +540,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -569,7 +566,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -595,7 +592,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -608,12 +605,12 @@
           "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "A"
         }
       ],
       "specialty": [
@@ -621,7 +618,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -647,7 +644,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -673,7 +670,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -699,7 +696,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -725,7 +722,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -751,7 +748,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -777,7 +774,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -786,8 +783,8 @@
       "questionNumber": 38,
       "runs": [
         {
-          "correct": true,
-          "parsed": "D"
+          "correct": false,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -803,7 +800,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -829,7 +826,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -855,7 +852,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -881,7 +878,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -894,8 +891,8 @@
           "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "D"
+          "correct": true,
+          "parsed": "B"
         },
         {
           "correct": true,
@@ -907,7 +904,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -933,7 +930,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -959,7 +956,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -985,7 +982,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1011,7 +1008,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1037,7 +1034,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1054,8 +1051,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -1063,7 +1060,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1089,7 +1086,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1115,7 +1112,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1141,7 +1138,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1167,7 +1164,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1184,8 +1181,8 @@
           "parsed": "C"
         },
         {
-          "correct": true,
-          "parsed": "C"
+          "correct": false,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -1193,7 +1190,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1219,7 +1216,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1245,7 +1242,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1271,7 +1268,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1297,7 +1294,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1323,7 +1320,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1349,7 +1346,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1375,7 +1372,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1401,7 +1398,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1427,7 +1424,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1453,7 +1450,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1479,7 +1476,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1492,8 +1489,8 @@
           "parsed": "D"
         },
         {
-          "correct": true,
-          "parsed": "D"
+          "correct": false,
+          "parsed": "C"
         },
         {
           "correct": true,
@@ -1505,7 +1502,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1531,7 +1528,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1557,7 +1554,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1583,7 +1580,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1609,7 +1606,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1635,7 +1632,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1661,7 +1658,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1687,7 +1684,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1713,7 +1710,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1739,7 +1736,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1765,11 +1762,11 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
-      "majority": "B",
-      "majorityCorrect": true,
+      "majority": "A",
+      "majorityCorrect": false,
       "questionId": "revalida-2025-1-q82",
       "questionNumber": 82,
       "runs": [
@@ -1778,8 +1775,8 @@
           "parsed": "A"
         },
         {
-          "correct": true,
-          "parsed": "B"
+          "correct": false,
+          "parsed": "A"
         },
         {
           "correct": true,
@@ -1791,11 +1788,11 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
-      "majority": "A",
-      "majorityCorrect": false,
+      "majority": "B",
+      "majorityCorrect": true,
       "questionId": "revalida-2025-1-q84",
       "questionNumber": 84,
       "runs": [
@@ -1808,8 +1805,8 @@
           "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -1817,7 +1814,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1843,7 +1840,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -1869,7 +1866,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1895,7 +1892,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1908,12 +1905,12 @@
           "parsed": "A"
         },
         {
-          "correct": false,
-          "parsed": "A"
-        },
-        {
           "correct": true,
           "parsed": "B"
+        },
+        {
+          "correct": false,
+          "parsed": "A"
         }
       ],
       "specialty": [
@@ -1921,7 +1918,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -1947,7 +1944,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -1973,7 +1970,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -1999,7 +1996,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -2012,8 +2009,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "C"
+          "correct": true,
+          "parsed": "D"
         },
         {
           "correct": true,
@@ -2025,7 +2022,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -2051,7 +2048,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -2077,7 +2074,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "A",
@@ -2103,7 +2100,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "B",
       "editionId": "revalida-2025-1",
       "majority": "B",
@@ -2129,7 +2126,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -2155,7 +2152,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "A",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -2181,7 +2178,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "C",
       "editionId": "revalida-2025-1",
       "majority": "C",
@@ -2207,7 +2204,7 @@
       ]
     },
     {
-      "contamination": "likely-clean",
+      "contamination": "unknown",
       "correctAnswer": "D",
       "editionId": "revalida-2025-1",
       "majority": "D",
@@ -2234,20 +2231,20 @@
     }
   ],
   "perSpecialty": {
+    "saude-publica": {
+      "accuracy": 0.7666666666666667,
+      "n": 30
+    },
     "pediatria": {
-      "accuracy": 0.8181818181818182,
+      "accuracy": 0.803030303030303,
       "n": 66
     },
     "ginecologia-obstetricia": {
       "accuracy": 0.8541666666666666,
       "n": 48
     },
-    "saude-publica": {
-      "accuracy": 0.6333333333333333,
-      "n": 30
-    },
     "clinica-medica": {
-      "accuracy": 0.7719298245614035,
+      "accuracy": 0.7894736842105263,
       "n": 57
     },
     "cirurgia": {

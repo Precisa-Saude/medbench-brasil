@@ -1,24 +1,24 @@
 {
-  "accuracy": 0.8313725490196079,
+  "accuracy": 0.8352941176470589,
   "accuracyByEdition": {
     "revalida-2025-1": {
-      "accuracy": 0.8313725490196079,
+      "accuracy": 0.8352941176470589,
       "n": 255,
       "passesCutoff": true
     }
   },
   "ci95": [
-    0.7805758171026119,
-    0.8723331434354161
+    0.7848576855172917,
+    0.8757780082815412
   ],
   "contaminationSplit": {
     "clean": {
-      "accuracy": 0.8313725490196079,
+      "accuracy": 0.8352941176470589,
       "n": 255
     },
     "contaminated": null
   },
-  "correct": 212,
+  "correct": 213,
   "macroF1": 0.8373188405797102,
   "modelId": "sabia-3",
   "perQuestion": [
@@ -846,8 +846,8 @@
           "parsed": "D"
         },
         {
-          "correct": false,
-          "parsed": "A"
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -1102,8 +1102,8 @@
           "parsed": "D"
         },
         {
-          "correct": true,
-          "parsed": "D"
+          "correct": false,
+          "parsed": "A"
         },
         {
           "correct": true,
@@ -1600,8 +1600,8 @@
           "parsed": "B"
         },
         {
-          "correct": false,
-          "parsed": "B"
+          "correct": true,
+          "parsed": "D"
         }
       ],
       "specialty": [
@@ -1731,7 +1731,7 @@
         },
         {
           "correct": false,
-          "parsed": "A"
+          "parsed": "B"
         }
       ],
       "specialty": [
@@ -2169,7 +2169,7 @@
         },
         {
           "correct": false,
-          "parsed": "D"
+          "parsed": "C"
         },
         {
           "correct": false,
@@ -2234,25 +2234,25 @@
     }
   ],
   "perSpecialty": {
+    "clinica-medica": {
+      "accuracy": 0.8421052631578947,
+      "n": 57
+    },
+    "cirurgia": {
+      "accuracy": 0.9743589743589743,
+      "n": 39
+    },
+    "ginecologia-obstetricia": {
+      "accuracy": 0.7083333333333334,
+      "n": 48
+    },
     "pediatria": {
       "accuracy": 0.8636363636363636,
       "n": 66
     },
-    "ginecologia-obstetricia": {
-      "accuracy": 0.6875,
-      "n": 48
-    },
     "saude-publica": {
       "accuracy": 0.7,
       "n": 30
-    },
-    "clinica-medica": {
-      "accuracy": 0.8245614035087719,
-      "n": 57
-    },
-    "cirurgia": {
-      "accuracy": 1,
-      "n": 39
     },
     "medicina-familia-comunidade": {
       "accuracy": 1,
