@@ -35,6 +35,7 @@ export default function TrendChart({ data }: { data: EditionPoint[] }) {
               borderRadius: 8,
               fontSize: 12,
             }}
+            wrapperStyle={{ transition: 'none' }}
             formatter={(value: number) => `${value.toFixed(1)}%`}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />

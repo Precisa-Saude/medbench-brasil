@@ -32,6 +32,14 @@ Quando o fornecedor não publica o corte, os dois campos ficam `undefined` — o
 
 Ao mudar um `trainingCutoff`, é obrigatório rodar `medbench rescore --from-raw --edition <id> --model <id> [--cutoff <nova-data>]` para cada edição do modelo, regenerando o `contaminationSplit` persistido em `results/`.
 
+## Referências e fontes externas — verificar antes de escrever
+
+Sempre que adicionar uma referência (ABNT em `Metodologia.tsx`, URL em `models.ts`, citação em docs, etc.), **abra a página e confirme cada campo** antes de escrever: autor do byline, data de publicação, instituição que de fato publica (não a que hospeda), cidade. Nunca infira campos a partir do slug da URL, do domínio ou da sigla. Nunca complete uma data parcial (ex.: `2024-11` → "14 nov. 2024" só depois de abrir e ler; caso contrário, registrar "nov. 2024" sem dia).
+
+Se algum campo não puder ser confirmado na página, use a convenção ABNT `[S. l.]`, `[S. n.]` ou `[ano]` em vez de inventar. É preferível uma referência com lacunas explícitas a uma com campos plausíveis mas errados.
+
+Por quê: referências erradas derrubam a credibilidade do resto da página. Já perdemos tempo com imprints fabricados a partir de pattern-matching (FMB virou "Fundação Médica do RS" quando é Federação Médica Brasileira; data CFM ficou "2024" quando é 2021). A regra é: se a fonte vale ser citada, vale ser aberta.
+
 ## Git
 
 - Sempre criar PR, nunca push direto em `main`

@@ -13,6 +13,7 @@ import {
 
 import { type ModelTier, TIER_COLOR, TIER_LABEL } from '../data/models';
 import type { ModelResult } from '../data/results';
+import { ExclusionClause } from './ExclusionClause';
 
 // Fallbacks para tiers novos que ainda não tenham cor/label editorial:
 // mantém o ponto visível em vez de sumir com `undefined` em fill/name.
@@ -29,11 +30,19 @@ type Point = {
 };
 
 export default function CutoffGapScatter({ models }: { models: ModelResult[] }) {
-  const byTier = useMemo(() => {
+  const { byTier, excluded } = useMemo(() => {
     const points: Point[] = [];
+    let noCutoff = 0;
+    let insufficientSplit = 0;
     for (const m of models) {
-      if (!m.trainingCutoff) continue;
-      if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) continue;
+      if (!m.trainingCutoff) {
+        noCutoff += 1;
+        continue;
+      }
+      if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) {
+        insufficientSplit += 1;
+        continue;
+      }
       const ts = Date.parse(m.trainingCutoff);
       if (Number.isNaN(ts)) continue;
       points.push({
@@ -51,10 +60,13 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
     for (const p of points) {
       (grouped[p.tier] ??= []).push(p);
     }
-    return grouped;
+    return { byTier: grouped, excluded: { insufficientSplit, noCutoff } };
   }, [models]);
 
   const allPoints = Object.values(byTier).flatMap((pts) => pts ?? []);
+  const totalModels = models.length;
+  const plottedCount = allPoints.length;
+
   if (allPoints.length === 0) {
     return (
       <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
@@ -84,6 +96,12 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
           ))}
         </div>
       </div>
+      <p className="mb-4 text-base text-muted-foreground">
+        Cada ponto é um modelo. Acima da linha zero, o modelo acerta mais em edições publicadas
+        antes do seu corte de treino (sinal de memorização); abaixo, é o contrário, mais robusto
+        contra contaminação. Modelos com cortes mais recentes tendem a ter menos benchmark público
+        anterior no treino.
+      </p>
       <ResponsiveContainer width="100%" height={340}>
         <ScatterChart margin={{ bottom: 40, left: 8, right: 24, top: 16 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
@@ -121,6 +139,7 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
           <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeWidth={1} />
           <RechartsTooltip
             cursor={{ stroke: 'var(--border)', strokeDasharray: '3 3' }}
+            wrapperStyle={{ transition: 'none' }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const p = payload[0]?.payload as Point | undefined;
@@ -152,11 +171,11 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
           })}
         </ScatterChart>
       </ResponsiveContainer>
-      <p className="mt-3 text-base text-muted-foreground">
-        Cada ponto é um modelo. Acima da linha zero, o modelo acerta mais em edições publicadas
-        antes do seu corte de treino (sinal de memorização); abaixo, é o contrário — mais robusto
-        contra contaminação. Modelos com cortes mais recentes tendem a ter menos benchmark público
-        anterior no treino.
+      <p className="mt-4 text-sm text-muted-foreground">
+        <strong>
+          {plottedCount} de {totalModels} modelos elegíveis para análise de contaminação.
+        </strong>
+        <ExclusionClause excluded={excluded} />
       </p>
     </div>
   );
