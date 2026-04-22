@@ -1,3 +1,10 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@precisa-saude/ui/primitives';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -15,7 +22,6 @@ import { EDITIONS, getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
 import type { ContaminationScope } from './ContaminationToggle';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 // Contaminação por edição: a ModelResult agregada mistura editions, então
@@ -225,7 +231,12 @@ export default function ComparisonChart({
       {(showEditionDropdown || showFamilies) && (
         <div className="flex flex-wrap items-center gap-2">
           {showEditionDropdown && (
-            <Select value={editionId} onValueChange={onEditionChange}>
+            <Select
+              value={editionId}
+              onValueChange={(v) => {
+                if (v !== null) onEditionChange?.(v);
+              }}
+            >
               <SelectTrigger className="h-8 w-44 text-xs">
                 <SelectValue />
               </SelectTrigger>

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# Pre-push: rodar checks completos antes de pushar para evitar quebrar CI.
+# Para pular em emergência (use com critério): `git push --no-verify`.
+
+set -e
+
+echo "→ Verificando lockfile..."
+pnpm install --frozen-lockfile
+
+echo "→ Format check..."
+pnpm format:check
+
+echo "→ Lint, typecheck e testes..."
+pnpm turbo run lint typecheck test
+
+echo "✓ Pre-push OK"

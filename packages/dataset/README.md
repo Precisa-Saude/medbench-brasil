@@ -53,13 +53,13 @@ const risk = getModelContaminationRisk(edition, '2024-10-01');
 
 **Funções**
 
-| Export                        | Assinatura                                                                   |
-| ----------------------------- | ---------------------------------------------------------------------------- |
-| `listEditions()`              | `() => EditionId[]`                                                          |
-| `loadEdition(id)`             | `(id: EditionId) => Edition`                                                 |
-| `loadAll()`                   | `() => Edition[]`                                                            |
-| `getModelContaminationRisk()` | `(edition: Edition, modelTrainingCutoff?: string) => ContaminationRisk`      |
-| `examFamilyOf(id)`            | `(id: EditionId) => 'revalida' \| 'enamed'`                                  |
+| Export                        | Assinatura                                                              |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| `listEditions()`              | `() => EditionId[]`                                                     |
+| `loadEdition(id)`             | `(id: EditionId) => Edition`                                            |
+| `loadAll()`                   | `() => Edition[]`                                                       |
+| `getModelContaminationRisk()` | `(edition: Edition, modelTrainingCutoff?: string) => ContaminationRisk` |
+| `examFamilyOf(id)`            | `(id: EditionId) => 'revalida' \| 'enamed'`                             |
 
 **Constantes**
 
@@ -107,12 +107,12 @@ Os arquivos ficam em `data/revalida/<ano>-<N>.json` e `data/enamed/<ano>.json` e
 
 ## Edições disponíveis
 
-| Edição             | Questões | Publicação INEP |
-| ------------------ | -------- | --------------- |
-| `revalida-2024-1`  | 100      | 2024-03-17      |
-| `revalida-2024-2`  | 100      | 2024-08-25      |
-| `revalida-2025-1`  | 100      | 2025-04-14      |
-| `enamed-2025`      | 100      | 2025-10-26      |
+| Edição            | Questões | Publicação INEP |
+| ----------------- | -------- | --------------- |
+| `revalida-2024-1` | 100      | 2024-03-17      |
+| `revalida-2024-2` | 100      | 2024-08-25      |
+| `revalida-2025-1` | 100      | 2025-04-14      |
+| `enamed-2025`     | 100      | 2025-10-26      |
 
 Novas edições são incorporadas conforme o INEP publica os gabaritos definitivos pós-recurso. Edições anteriores (Revalida 2011–2023) estão no roadmap.
 

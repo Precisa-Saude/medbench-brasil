@@ -61,7 +61,9 @@ function rescoreOne(edition, slug) {
   }
 
   // Carrega raw, re-parseia, recomputa correct.
-  const lines = readFileSync(rawPath, 'utf8').split('\n').filter((l) => l.trim());
+  const lines = readFileSync(rawPath, 'utf8')
+    .split('\n')
+    .filter((l) => l.trim());
   const records = [];
   let reparsedDiffs = 0;
   for (const line of lines) {

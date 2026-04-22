@@ -72,8 +72,14 @@ const delta = (newR.accuracy - oldR.accuracy) * 100;
 
 console.log(`modelo: ${oldR.modelId} (antigo) vs ${newR.modelId} (novo)`);
 const n = (t) => (t === null ? '?' : String(t));
-console.log(`antigo: accuracy=${pct(oldR.accuracy)} ic95=[${pct(oldR.ci95[0])}, ${pct(oldR.ci95[1])}] n=${n(oldR.total)}`);
-console.log(`novo:   accuracy=${pct(newR.accuracy)} ic95=[${pct(newR.ci95[0])}, ${pct(newR.ci95[1])}] n=${n(newR.total)}`);
-console.log(`delta:  ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}pp ${inside ? '(dentro do IC95 antigo)' : '(FORA do IC95 antigo)'}`);
+console.log(
+  `antigo: accuracy=${pct(oldR.accuracy)} ic95=[${pct(oldR.ci95[0])}, ${pct(oldR.ci95[1])}] n=${n(oldR.total)}`,
+);
+console.log(
+  `novo:   accuracy=${pct(newR.accuracy)} ic95=[${pct(newR.ci95[0])}, ${pct(newR.ci95[1])}] n=${n(newR.total)}`,
+);
+console.log(
+  `delta:  ${delta >= 0 ? '+' : ''}${delta.toFixed(1)}pp ${inside ? '(dentro do IC95 antigo)' : '(FORA do IC95 antigo)'}`,
+);
 
 process.exit(inside ? 0 : 1);
