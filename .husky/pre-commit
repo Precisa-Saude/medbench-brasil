@@ -1,1 +1,11 @@
+#!/usr/bin/env sh
+# Staged-file formatting + full test suite.
+#
+# Running the full test suite on every commit is strict but cheap once
+# turbo's cache is warm (only affected packages rebuild). Catches
+# regressions before they hit PR review; the tradeoff is worth it.
+
+set -e
+
 pnpm exec lint-staged
+pnpm test

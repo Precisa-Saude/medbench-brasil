@@ -1,17 +1,35 @@
 #!/usr/bin/env sh
-
-# Pre-push: rodar checks completos antes de pushar para evitar quebrar CI.
-# Para pular em emergência (use com critério): `git push --no-verify`.
+# Full-checks hook. Runs the same gates as CI so a failing push is
+# caught locally. Per-package coverage thresholds live in vitest config,
+# not here — this hook fails the push if any threshold fails.
+#
+# Uses `pnpm turbo run` when turbo is available (parallelism + caching);
+# falls back to `pnpm -r --parallel` for repos without turbo.
 
 set -e
 
-echo "→ Verificando lockfile..."
-pnpm install --frozen-lockfile
+echo "→ verifying lockfile is in sync"
+pnpm install --frozen-lockfile --prefer-offline
 
-echo "→ Format check..."
+echo "→ prettier"
 pnpm format:check
 
-echo "→ Lint, typecheck e testes..."
-pnpm turbo run lint typecheck test
+if pnpm exec turbo --version >/dev/null 2>&1; then
+  echo "→ lint + typecheck + test + coverage (turbo)"
+  pnpm turbo run lint typecheck test test:coverage
+else
+  # Fallback without turbo. Lint runs in parallel (no cross-package
+  # output dependencies). Typecheck/test run topologically (pnpm -r
+  # default) because they may depend on .d.ts or dist/ from upstream
+  # packages.
+  echo "→ lint"
+  pnpm -r --parallel lint
+  echo "→ typecheck"
+  pnpm -r typecheck
+  echo "→ test"
+  pnpm -r test
+  echo "→ coverage"
+  pnpm -r test:coverage
+fi
 
-echo "✓ Pre-push OK"
+echo "✓ pre-push checks passed"
