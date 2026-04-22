@@ -6,6 +6,7 @@ import { PageContainer } from '../components/PageContainer';
 import { CodeBlock } from '../components/ui/code-block';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 import { MODELS } from '../data/results';
+import MetodologiaSources from './Metodologia.Sources';
 
 export default function Metodologia() {
   return (
@@ -244,173 +245,7 @@ export default function Metodologia() {
           </p>
         </section>
 
-        <section id="fontes">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Fontes</h2>
-          <p className="mt-3 text-muted-foreground">
-            Referências formatadas conforme ABNT NBR 6023:2018. Data de acesso: 20 abr. 2026.
-          </p>
-
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-            Provas e gabaritos
-          </h3>
-          <ul className="mt-3 space-y-3">
-            <AbntRef
-              author="INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA"
-              title="Provas e gabaritos"
-              imprint="Brasília, DF: INEP"
-              url="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos"
-            />
-          </ul>
-
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-            Debate institucional sobre a nota de corte do Revalida
-          </h3>
-          <ul className="mt-3 space-y-3">
-            <AbntRef
-              author="PAGNO, M."
-              title="Revalida tem a menor taxa de aprovação em 11 edições; médicos formados no exterior apontam falhas e pedem mudanças"
-              imprint="[S. l.]: G1, 2023. Republicado em: São Paulo: Associação Paulista de Medicina, 1 abr. 2023"
-              url="https://www.apm.org.br/revalida-tem-a-menor-taxa-de-aprovacao-em-11-edicoes-medicos-formados-no-exterior-apontam-falhas-e-pedem-mudancas/"
-            />
-            <AbntRef
-              author="ASSOCIAÇÃO PAULISTA DE MEDICINA"
-              title="Balanço desastroso"
-              imprint="São Paulo: APM, 20 fev. 2025. Publicado originalmente em: Revista da APM, n. 748, jan./fev. 2025"
-              url="https://www.apm.org.br/balanco-desastroso/"
-            />
-            <AbntRef
-              author="AGÊNCIA CÂMARA DE NOTÍCIAS"
-              title="Comissão debate baixa taxa de aprovação no Revalida"
-              imprint="Brasília, DF: Câmara dos Deputados, [2023]. Republicado em: São Paulo: Associação Médica Brasileira"
-              url="https://amb.org.br/brasilia-urgente/comissao-debate-baixa-taxa-de-aprovacao-no-revalida/"
-            />
-            <AbntRef
-              author="CONSELHO FEDERAL DE MEDICINA"
-              title="CFM defende exigência de aprovação no Revalida como forma de proteção à saúde e vida dos brasileiros"
-              imprint="Brasília, DF: CFM, 31 mar. 2021"
-              url="https://portal.cfm.org.br/noticias/cfm-defende-exigencia-de-aprovacao-no-revalida-como-forma-de-protecao-a-saude-e-vida-dos-brasileiros/"
-            />
-            <AbntRef
-              author="SONCINI, C. V."
-              title="Revalida: baixa aprovação configura garantia da qualidade profissional dos formados fora do Brasil"
-              imprint="[S. l.]: Federação Médica Brasileira, 6 jun. 2025"
-              url="https://portalfmb.org.br/2025/06/revalida-baixa-aprovacao-configura-garantia-da-qualidade-profissional-dos-formados-fora-do-brasil/"
-            />
-            <AbntRef
-              author="LACERDA, J."
-              title="Especialistas discordam sobre nível de dificuldade do exame Revalida"
-              imprint="Brasília, DF: Agência Câmara de Notícias, 12 set. 2023. Edição de Ana Chalub"
-              url="https://www.camara.leg.br/noticias/996416-especialistas-discordam-sobre-nivel-de-dificuldade-do-exame-revalida/"
-            />
-            <AbntRef
-              author="ALMEIDA, D."
-              title="Inep define em 66,148 pontos o mínimo para aprovação no Revalida"
-              imprint="Brasília, DF: Agência Brasil, 14 nov. 2024"
-              url="https://agenciabrasil.ebc.com.br/educacao/noticia/2024-11/inep-define-em-66148-pontos-o-m%C3%ADnimo-para-aprova%C3%A7%C3%A3o-no-revalida"
-            />
-          </ul>
-
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-            Cortes de treino — documentação oficial dos fornecedores
-          </h3>
-          <p className="mt-3 text-sm text-muted-foreground">
-            As URLs abaixo são as fontes primárias de cada corte; a data exata usada no leaderboard
-            está em <code>site/src/data/models.ts</code> no campo <code>trainingCutoffSource</code>{' '}
-            de cada entrada.
-          </p>
-          <ul className="mt-3 space-y-3">
-            <AbntRef
-              author="ANTHROPIC"
-              title="How up-to-date is Claude's training data?"
-              imprint="[S. l.]: Anthropic Help Center, [2026]"
-              url="https://support.claude.com/en/articles/8114494-how-up-to-date-is-claude-s-training-data"
-            />
-            <AbntRef
-              author="ANTHROPIC"
-              title="Models overview"
-              imprint="[S. l.]: Anthropic, [2026]"
-              url="https://platform.claude.com/docs/en/about-claude/models/overview"
-            />
-            <AbntRef
-              author="OPENAI"
-              title="GPT-5.1 model"
-              imprint="[S. l.]: OpenAI Developer Docs, [2026]"
-              url="https://developers.openai.com/api/docs/models/gpt-5.1"
-            />
-            <AbntRef
-              author="OPENAI"
-              title="GPT-5.2 model"
-              imprint="[S. l.]: OpenAI Developer Docs, [2026]"
-              url="https://developers.openai.com/api/docs/models/gpt-5.2"
-            />
-            <AbntRef
-              author="OPENAI"
-              title="GPT-5.4 model"
-              imprint="[S. l.]: OpenAI Developer Docs, [2026]"
-              url="https://developers.openai.com/api/docs/models/gpt-5.4"
-            />
-            <AbntRef
-              author="GOOGLE"
-              title="Gemini 2.5 Pro — Gemini API docs"
-              imprint="[S. l.]: Google, [2026]"
-              url="https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro"
-            />
-            <AbntRef
-              author="GOOGLE"
-              title="Gemini 3.1 Pro Preview — Gemini API docs"
-              imprint="[S. l.]: Google, [2026]"
-              url="https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview"
-            />
-            <AbntRef
-              author="META"
-              title="Llama-3.3-70B-Instruct — model card"
-              imprint="[S. l.]: Hugging Face, 6 dez. 2024"
-              url="https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"
-            />
-            <AbntRef
-              author="META"
-              title="Llama-4-Maverick-17B-128E-Instruct — model card"
-              imprint="[S. l.]: Hugging Face, 5 abr. 2025"
-              url="https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct"
-            />
-            <AbntRef
-              author="META"
-              title="Llama-4-Scout-17B-16E-Instruct — model card"
-              imprint="[S. l.]: Hugging Face, 5 abr. 2025"
-              url="https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct"
-            />
-            <AbntRef
-              author="GUO, D. et al."
-              title="DeepSeek-R1: incentivizing reasoning capability in LLMs via reinforcement learning"
-              imprint="arXiv:2501.12948, 22 jan. 2025"
-              url="https://arxiv.org/abs/2501.12948"
-            />
-            <AbntRef
-              author="ALMEIDA, T. S. et al."
-              title="Sabiá-3 technical report"
-              imprint="arXiv:2410.12049, 15 out. 2024"
-              url="https://arxiv.org/abs/2410.12049"
-            />
-            <AbntRef
-              author="MARITACA AI"
-              title="Modelos — documentação da API"
-              imprint="São Paulo: Maritaca AI, [2026]"
-              url="https://docs.maritaca.ai/pt/modelos"
-            />
-            <AbntRef
-              author="QWEN TEAM"
-              title="Qwen"
-              imprint="[S. l.]: Alibaba Cloud, [2026]. Sem corte de treino publicado para a família Qwen3+; classificados como unknown."
-              url="https://qwenlm.github.io/"
-            />
-            <AbntRef
-              author="MISTRAL AI"
-              title="Models overview"
-              imprint="[S. l.]: Mistral AI, [2026]. Sem corte de treino publicado por modelo; classificados como unknown."
-              url="https://docs.mistral.ai/getting-started/models/models_overview/"
-            />
-          </ul>
-        </section>
+        <MetodologiaSources />
       </div>
     </PageContainer>
   );
@@ -460,36 +295,5 @@ function TermTag({ children, term }: { children: React.ReactNode; term: string }
         {children}
       </TooltipContent>
     </Tooltip>
-  );
-}
-
-/**
- * Referência no estilo ABNT NBR 6023:2018 para documento online:
- *   AUTOR. **Título**. Imprenta (local, editora, data). Disponível em: URL. Acesso em: DD mmm. AAAA.
- */
-function AbntRef({
-  author,
-  imprint,
-  title,
-  url,
-}: {
-  author: string;
-  imprint: string;
-  title: string;
-  url: string;
-}) {
-  return (
-    <li className="leading-relaxed">
-      {author}. <span className="font-semibold">{title}</span>. {imprint}. Disponível em:{' '}
-      <a
-        className="text-ps-violet break-all underline"
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {url}
-      </a>
-      . Acesso em: 20 abr. 2026.
-    </li>
   );
 }
