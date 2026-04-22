@@ -1,3 +1,32 @@
+## [1.4.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.3.0...v1.4.0) (2026-04-22)
+
+### Features
+
+* **ci:** adotar workflows canônicos split + doctor + publish-tag ([80a56ec](https://github.com/Precisa-Saude/medbench-brasil/commit/80a56ec4167db119d4764283795705994e9a6935))
+* consumir @precisa-saude/agent-instructions + worktree-cli ([acc582c](https://github.com/Precisa-Saude/medbench-brasil/commit/acc582c66a2ef1aac3de946802618fa8b6502915))
+
+### Bug Fixes
+
+* **lint:** settings.react.version para compat com ESLint 10 ([fa3e618](https://github.com/Precisa-Saude/medbench-brasil/commit/fa3e618a33c778d34403730d6b6b1b64f0845142))
+* **site:** favicon mostra marca Precisa, não letra "F" ([f185246](https://github.com/Precisa-Saude/medbench-brasil/commit/f185246d0e9ce5ed26cb2e92e4640c25aa163ed3))
+
+### Refactoring
+
+* **site:** quebrar componentes longos sob limite de 400 linhas ([84d5a4f](https://github.com/Precisa-Saude/medbench-brasil/commit/84d5a4f1754c1b084e5c5592b01639de192e1e88))
+
+### Styles
+
+* **site:** ordenar props JSX (perfectionist/sort-jsx-props auto-fix) ([560c653](https://github.com/Precisa-Saude/medbench-brasil/commit/560c653661abe6c73bc777d471aa9f938a306933))
+
+### Tests
+
+* fechar gaps de cobertura em dataset + harness + ingestion ([e076091](https://github.com/Precisa-Saude/medbench-brasil/commit/e0760912adb96d0fdc046d832a28dcddc7f4205f))
+
+### Chores
+
+* alinhar hooks husky e turbo.json ao template compartilhado ([a68db11](https://github.com/Precisa-Saude/medbench-brasil/commit/a68db11f651e274576aa1cd2198bf04835341a95))
+* **deps:** sync dotfiles + pre-push hook + Radix→Base UI Select ([#30](https://github.com/Precisa-Saude/medbench-brasil/issues/30)) ([9beb857](https://github.com/Precisa-Saude/medbench-brasil/commit/9beb85751f892d0d1ac55f34bd50e20f10528dac))
+
 ## [1.3.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.2.1...v1.3.0) (2026-04-21)
 
 ### Features
