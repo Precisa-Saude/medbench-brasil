@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: 'mailto:security@precisa-saude.com.br'
+    about: Report security issues privately — see SECURITY.md
+  - name: General questions and discussions
+    url: 'https://github.com/Precisa-Saude/medbench-brasil/discussions'
+    about: Ask questions, share ideas, or discuss

@@ -18,6 +18,8 @@ on:
 
 permissions:
   contents: read
+  # `id-token: write` is for Sigstore attestations (`--provenance`),
+  # not for npm auth — see _publish.yml for the full rationale.
   id-token: write
 
 jobs:
@@ -44,24 +46,26 @@ jobs:
         run: pnpm turbo run build
 
       - name: Publish packages (idempotent)
+        # Auto-discovers publishable packages via pnpm's workspace filter
+        # (`./packages/**`, skipping those with `private: true`). No
+        # per-repo list to keep in sync; adding a new package means
+        # adding it to `packages/` and the next tag picks it up.
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        # Mesma função `publish_if_needed` usada em ci.yml — checa se a versão
-        # declarada em package.json já existe no npm e pula se sim. Permite
-        # re-executar com segurança.
         run: |
           set -e
-          publish_if_needed() {
-            local dir="$1"
-            local pkg_name pkg_version
-            pkg_name=$(node -p "require('./$dir/package.json').name")
-            pkg_version=$(node -p "require('./$dir/package.json').version")
+          pnpm -r --filter "./packages/**" --if-present exec sh -c '
+            pkg_name=$(node -p "require(\"./package.json\").name")
+            pkg_version=$(node -p "require(\"./package.json\").version")
+            pkg_private=$(node -p "Boolean(require(\"./package.json\").private)")
+            if [ "$pkg_private" = "true" ]; then
+              echo "Skipping $pkg_name (private)"
+              exit 0
+            fi
             if npm view "$pkg_name@$pkg_version" version 2>/dev/null; then
               echo "Skipping $pkg_name@$pkg_version (already published)"
             else
               echo "Publishing $pkg_name@$pkg_version..."
-              ( cd "$dir" && pnpm publish --provenance --access public --no-git-checks )
+              pnpm publish --provenance --access public --no-git-checks
             fi
-          }
-          publish_if_needed packages/dataset
-          publish_if_needed packages/eval-harness
+          '

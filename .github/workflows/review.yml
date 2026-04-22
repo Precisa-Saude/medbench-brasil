@@ -1,5 +1,15 @@
 name: Code Review
 
+# Reusable workflow chamado pelo ci.yml para rodar o review automatizado.
+# Tenta providers em ordem (Anthropic → OpenAI → GitHub Models) e usa o
+# primeiro que retorna 200. Qualquer não-200 dispara fallback para o
+# próximo. GitHub Models é o último degrau: usa o GITHUB_TOKEN built-in
+# + permissão `models: read`, então funciona sem nenhum segredo externo
+# — repos que não configuram ANTHROPIC_API_KEY nem OPENAI_API_KEY ainda
+# têm review automatizado. Se todos falham (ou nenhum está configurado),
+# sai sem postar review e sem emitir marker de round, de modo que a
+# próxima atividade no PR retenta fresco.
+
 on:
   workflow_call:
     inputs:
@@ -10,20 +20,19 @@ on:
 
 jobs:
   check-review-status:
-    name: Review Status
+    name: Check review status
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 2
     permissions:
-      contents: read
-      issues: read
       pull-requests: read
+      issues: read
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
       review_round: ${{ steps.check.outputs.review_round }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Check if review should run
+      - name: Decide whether to run
         id: check
         uses: actions/github-script@v8
         with:
@@ -31,10 +40,8 @@ jobs:
           script: |
             const prNumber = ${{ inputs.pr_number }};
 
-            // Skip review for docs/config-only changes. Pagina pra pegar TODOS
-            // os arquivos — `listFiles` retorna 30 por página; em PRs grandes
-            // (ex.: batches de resultados .json) os .tsx/.ts reais caiam na
-            // página 2+ e a detecção de "código mudou" resultava em falso
+            // Paginamos listFiles porque em PRs grandes o .tsx/.ts real pode
+            // cair em página 2+ e a detecção de "código mudou" dava falso
             // negativo, pulando o review.
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner,
@@ -42,54 +49,33 @@ jobs:
               pull_number: prNumber,
               per_page: 100,
             });
-            const ignoredPatterns = [
-              /\.md$/,
-              /^docs\//,
-              /^\.github\//,
-              /\.json$/,
-              /\.ya?ml$/,
-              // Artefatos de avaliação — gerados pelo harness, não faz sentido
-              // revisar linha a linha (e estouram o budget de contexto).
-              /^results\//,
-              /^probes\//,
-            ];
-            const hasCodeChanges = files.some(f => !ignoredPatterns.some(p => p.test(f.filename)));
-            if (!hasCodeChanges) {
-              console.log('Only docs/config files changed. Skipping review.');
+            const ignore = [/\.md$/, /^docs\//, /^\.github\//, /\.json$/, /\.ya?ml$/, /\.cff$/];
+            const hasCode = files.some(f => !ignore.some(p => p.test(f.filename)));
+            if (!hasCode) {
               core.setOutput('should_run', 'false');
               core.setOutput('review_round', 'skip');
               return;
             }
 
-            const comments = await github.rest.issues.listComments({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
+              per_page: 100,
             });
+            const round1 = comments.some(c => c.body?.includes('<!-- AUTOMATED_REVIEW_ROUND_1 -->'));
+            const round2 = comments.some(c => c.body?.includes('<!-- AUTOMATED_REVIEW_ROUND_2_COMPLETE -->'));
 
-            const round1Marker = comments.data.some(c => c.body?.includes('<!-- CLAUDE_REVIEW_ROUND_1 -->'));
-            const round2Marker = comments.data.some(c => c.body?.includes('<!-- CLAUDE_REVIEW_ROUND_2_COMPLETE -->'));
-
-            if (round2Marker) {
-              console.log('Round 2 review already completed. Skipping further reviews.');
+            if (round2) {
               core.setOutput('should_run', 'false');
               core.setOutput('review_round', 'complete');
               return;
             }
-
-            if (round1Marker) {
-              console.log('Round 1 review completed. Running Round 2 on new changes only.');
-              core.setOutput('should_run', 'true');
-              core.setOutput('review_round', '2');
-              return;
-            }
-
-            console.log('No previous review found. Running Round 1.');
             core.setOutput('should_run', 'true');
-            core.setOutput('review_round', '1');
+            core.setOutput('review_round', round1 ? '2' : '1');
 
-  claude-review:
-    name: Claude Review
+  review:
+    name: Automated review
     needs: check-review-status
     if: needs.check-review-status.outputs.should_run == 'true'
     runs-on: ubuntu-latest
@@ -98,182 +84,310 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-
+      # `models: read` lets this job call GitHub Models via the built-in
+      # GITHUB_TOKEN — no external API key needed for the fallback
+      # provider. Repos that don't configure ANTHROPIC_API_KEY or
+      # OPENAI_API_KEY still get a review via GitHub Models.
+      models: read
+    env:
+      ANTHROPIC_MODEL: claude-haiku-4-5-20251001
+      OPENAI_MODEL: gpt-4o-mini
+      GITHUB_MODELS_MODEL: openai/gpt-4o-mini
+      MAX_DIFF_SIZE: '150000'
     steps:
-      - name: Setup PATH for nvm
-        run: |
-          for dir in "$HOME/.nvm/versions/node"/*/bin /usr/local/bin /usr/bin; do
-            if [ -x "$dir/node" ]; then
-              echo "$dir" >> $GITHUB_PATH
-              echo "Found Node at: $dir"
-              break
-            fi
-          done
-
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Get PR info and build diff
+      - name: Build review input
         id: pr
-        run: |
-          PR_NUMBER=${{ inputs.pr_number }}
-          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
-
-          HEAD_SHA=$(gh pr view "$PR_NUMBER" --json headRefOid -q .headRefOid)
-          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
-
-          BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefOid -q .baseRefOid)
-          echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
-
-          # Garantir que ambos SHAs estão no clone local. Em workflow_call com
-          # pull_request, o checkout traz o merge commit; ambos SHAs são
-          # alcançáveis via parents, mas fetch explícito elimina o risco de
-          # "fatal: bad revision" se algo mudar no mecanismo de checkout.
-          git fetch --no-tags --depth=100 origin "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
-
-          # Exclusões de pathspec: artefatos de avaliação (results/ e probes/)
-          # são gerados pelo harness e não fazem sentido em diff review; também
-          # estouram o budget de contexto do revisor em PRs com reruns extensos.
-          DIFF_EXCLUDES=(
-            ':(exclude,glob)results/**'
-            ':(exclude,glob)probes/**'
-          )
-
-          if [ "${{ needs.check-review-status.outputs.review_round }}" = "2" ]; then
-            gh pr view "$PR_NUMBER" --json commits -q '.commits[0].oid' > first_commit.txt
-            FIRST_COMMIT=$(cat first_commit.txt)
-            git diff "$FIRST_COMMIT"..HEAD -- "${DIFF_EXCLUDES[@]}" > pr.diff
-            echo "Review scope: Changes since first review commit"
-          else
-            git diff "$BASE_SHA..$HEAD_SHA" -- "${DIFF_EXCLUDES[@]}" > pr.diff
-            echo "Review scope: Full PR diff"
-          fi
-
-          gh pr view "$PR_NUMBER" --json files -q '.files[].path' \
-            | grep -vE '^results/|^probes/' > changed_files.txt || true
-          echo "Changed files (após exclusão de results/ e probes/):"
-          cat changed_files.txt
-
-          DIFF_SIZE=$(wc -c < pr.diff)
-          MAX_DIFF_SIZE=150000
-          echo "Diff size: $DIFF_SIZE bytes"
-          if [ "$DIFF_SIZE" -gt "$MAX_DIFF_SIZE" ]; then
-            echo "::warning::Diff exceeds ${MAX_DIFF_SIZE} bytes, truncating to fit context window"
-            head -c "$MAX_DIFF_SIZE" pr.diff > pr.diff.tmp
-            mv pr.diff.tmp pr.diff
-            echo "DIFF_TRUNCATED=true" >> $GITHUB_OUTPUT
-          else
-            echo "DIFF_TRUNCATED=false" >> $GITHUB_OUTPUT
-          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Run Claude review via Bedrock
+          REVIEW_ROUND: ${{ needs.check-review-status.outputs.review_round }}
+          PR_NUMBER: ${{ inputs.pr_number }}
         run: |
-          REVIEW_ROUND="${{ needs.check-review-status.outputs.review_round }}"
+          HEAD_SHA=$(gh pr view "$PR_NUMBER" --json headRefOid -q .headRefOid)
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
+          if [ "$REVIEW_ROUND" = "2" ]; then
+            FIRST=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[0].oid')
+            git diff "$FIRST"..HEAD > pr.diff
+          else
+            gh pr diff "$PR_NUMBER" > pr.diff
+          fi
+
+          gh pr view "$PR_NUMBER" --json files -q '.files[].path' > changed_files.txt
+
+          DIFF_SIZE=$(wc -c < pr.diff)
+          if [ "$DIFF_SIZE" -gt "$MAX_DIFF_SIZE" ]; then
+            head -c "$MAX_DIFF_SIZE" pr.diff > pr.diff.tmp && mv pr.diff.tmp pr.diff
+            echo "diff_truncated=true" >> $GITHUB_OUTPUT
+          else
+            echo "diff_truncated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call review API (with provider failover)
+        id: call
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # GitHub Models uses the built-in GITHUB_TOKEN; `models: read`
+          # on the job permissions is what actually authorizes the call.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DIFF_TRUNCATED: ${{ steps.pr.outputs.diff_truncated }}
+          REVIEW_ROUND: ${{ needs.check-review-status.outputs.review_round }}
+        run: |
           node << 'SCRIPT'
           const fs = require('fs');
 
-          const round = process.env.REVIEW_ROUND;
-          const diffTruncated = process.env.DIFF_TRUNCATED === 'true';
-          const promptFile = `${process.env.HOME}/.config/claude/prompts/pr-review.md`;
-
-          let systemPrompt = 'You are a senior software engineer performing a code review. Analyze the PR diff carefully and provide actionable, specific feedback. Focus on bugs, security issues, performance problems, and code quality.';
-          if (fs.existsSync(promptFile)) {
-            systemPrompt = fs.readFileSync(promptFile, 'utf8');
-          } else {
-            console.log(`Warning: No prompt file at ${promptFile}, using default prompt`);
-          }
-
           const diff = fs.readFileSync('pr.diff', 'utf8');
-          const changedFiles = fs.readFileSync('changed_files.txt', 'utf8').trim();
+          const files = fs.readFileSync('changed_files.txt', 'utf8').trim();
+          const round = process.env.REVIEW_ROUND;
+          const truncated = process.env.DIFF_TRUNCATED === 'true';
 
-          const parts = [
+          const system = [
+            'You are a senior software engineer performing a code review.',
+            'Analyze the PR diff carefully and provide actionable, specific feedback.',
+            'Focus on bugs, security issues, performance problems, and significant code-quality concerns.',
+            'Do not include nitpicks, style preferences, or suggestions to add comments.',
+          ].join(' ');
+
+          const user = [
             `Review Round: ${round}`,
             '',
             '## Files changed in this PR',
-            'These are the ONLY files modified in this PR. Do NOT reference any other files in your feedback:',
-            changedFiles,
+            'These are the ONLY files modified. Do NOT reference any other files in feedback:',
+            files,
             '',
-          ];
-
-          if (diffTruncated) {
-            parts.push(
-              '> **Note**: The diff was truncated due to size. Review only the code shown below.',
-              ''
-            );
-          }
-
-          parts.push(
+            truncated ? '> **Note**: Diff truncated due to size. Review only what is shown below.\n' : '',
             '## Diff',
             '',
             '```diff',
             diff,
             '```',
             '',
-            'Respond with ONLY a valid JSON object (no markdown fences, no extra text, no explanation).',
-            'Use this exact structure:',
-            '{',
-            '  "summary": "Brief summary of the changes and their purpose",',
-            '  "changes": ["Key change 1", "Key change 2"],',
-            '  "feedback": [',
-            '    {"file": "path/to/file.ts", "line": 42, "comment": "Your suggestion here"}',
-            '  ]',
-            '}',
+            'Respond with ONLY a valid JSON object (no markdown fences). Use this exact structure:',
+            '{"summary": "...", "changes": ["..."], "feedback": [{"file": "path", "line": 42, "comment": "..."}]}',
             '',
             'Rules:',
-            '- The "file" field MUST be one of the files listed above in "Files changed in this PR". Never reference files outside this list.',
-            '- The "line" field MUST reference a line number from the NEW version of the file (right side of diff, lines with + prefix). Cross-check line numbers against the @@ hunk headers.',
-            '- Only include feedback for actual issues: bugs, security problems, performance issues, or significant code quality concerns.',
-            '- Do NOT include nitpicks, style preferences, or suggestions to add comments/documentation.',
-            '- Do NOT hallucinate methods, functions, or variables that are not visible in the diff. Only reference code that is explicitly shown.',
-            '- If there are no issues, return an empty feedback array.',
-            '- Keep comments concise and actionable.',
-          );
+            '- The "file" field MUST be one of the files listed above.',
+            '- The "line" field MUST reference a line number from the NEW version (right side of diff, + lines). Cross-check against @@ hunk headers.',
+            '- Include feedback only for real issues; skip nits.',
+            '- Do NOT hallucinate code not visible in the diff.',
+            '- If no issues, return an empty feedback array.',
+          ].join('\n');
 
-          const userMessage = parts.join('\n');
-
-          const request = {
-            anthropic_version: 'bedrock-2023-05-31',
-            max_tokens: 8192,
-            system: systemPrompt,
-            messages: [{ role: 'user', content: userMessage }],
+          // Pricing por 1M tokens USD. Atualizar quando providers mudarem rates.
+          // Entradas faltando silenciosamente pulam exibição de custo (tokens
+          // ainda são mostrados).
+          const PRICING = {
+            'claude-haiku-4-5-20251001': { in: 1.00, out: 5.00 },
+            'claude-sonnet-4-6': { in: 3.00, out: 15.00 },
+            'claude-opus-4-7': { in: 15.00, out: 75.00 },
+            'gpt-4o-mini': { in: 0.15, out: 0.60 },
+            'gpt-4o': { in: 2.50, out: 10.00 },
+            'gpt-5-mini': { in: 0.25, out: 2.00 },
           };
 
-          fs.writeFileSync('/tmp/bedrock-request.json', JSON.stringify(request));
-          console.log(`Request built (diff: ${diff.length} chars, files: ${changedFiles.split('\n').length}, round: ${round})`);
+          function computeCost(model, promptTokens, completionTokens) {
+            const rate = PRICING[model];
+            if (!rate) return null;
+            return (promptTokens / 1_000_000) * rate.in + (completionTokens / 1_000_000) * rate.out;
+          }
+
+          const providers = {
+            anthropic: {
+              label: 'Anthropic',
+              envKey: 'ANTHROPIC_API_KEY',
+              modelEnv: 'ANTHROPIC_MODEL',
+              defaultModel: 'claude-haiku-4-5-20251001',
+              build: (model, key) => ({
+                url: 'https://api.anthropic.com/v1/messages',
+                headers: {
+                  'content-type': 'application/json',
+                  'x-api-key': key,
+                  'anthropic-version': '2023-06-01',
+                },
+                body: JSON.stringify({
+                  model,
+                  max_tokens: 8192,
+                  system,
+                  messages: [{ role: 'user', content: user }],
+                }),
+              }),
+              extractText: (r) => r?.content?.[0]?.text ?? '',
+              extractUsage: (r) => ({
+                prompt_tokens: r?.usage?.input_tokens ?? 0,
+                completion_tokens: r?.usage?.output_tokens ?? 0,
+              }),
+              extractError: (r) => r?.error?.message ?? r?.message ?? 'see workflow logs',
+            },
+            openai: {
+              label: 'OpenAI',
+              envKey: 'OPENAI_API_KEY',
+              modelEnv: 'OPENAI_MODEL',
+              defaultModel: 'gpt-4o-mini',
+              build: (model, key) => ({
+                url: 'https://api.openai.com/v1/chat/completions',
+                headers: {
+                  'content-type': 'application/json',
+                  Authorization: `Bearer ${key}`,
+                },
+                body: JSON.stringify({
+                  model,
+                  max_tokens: 8192,
+                  messages: [
+                    { role: 'system', content: system },
+                    { role: 'user', content: user },
+                  ],
+                  response_format: { type: 'json_object' },
+                }),
+              }),
+              extractText: (r) => r?.choices?.[0]?.message?.content ?? '',
+              extractUsage: (r) => ({
+                prompt_tokens: r?.usage?.prompt_tokens ?? 0,
+                completion_tokens: r?.usage?.completion_tokens ?? 0,
+              }),
+              extractError: (r) => r?.error?.message ?? 'see workflow logs',
+            },
+            // GitHub Models — OpenAI-compatible API authenticated via the
+            // built-in GITHUB_TOKEN + `models: read` permission. No
+            // external API key needed, so this is the fallback when
+            // neither Anthropic nor OpenAI secrets are configured.
+            // Rate limits apply per-repo; the models catalog lists what's
+            // available. `openai/gpt-4o-mini` is a safe default.
+            'github-models': {
+              label: 'GitHub Models',
+              envKey: 'GITHUB_TOKEN',
+              modelEnv: 'GITHUB_MODELS_MODEL',
+              defaultModel: 'openai/gpt-4o-mini',
+              build: (model, key) => ({
+                url: 'https://models.github.ai/inference/chat/completions',
+                headers: {
+                  'content-type': 'application/json',
+                  Authorization: `Bearer ${key}`,
+                },
+                body: JSON.stringify({
+                  model,
+                  max_tokens: 8192,
+                  messages: [
+                    { role: 'system', content: system },
+                    { role: 'user', content: user },
+                  ],
+                  response_format: { type: 'json_object' },
+                }),
+              }),
+              extractText: (r) => r?.choices?.[0]?.message?.content ?? '',
+              extractUsage: (r) => ({
+                prompt_tokens: r?.usage?.prompt_tokens ?? 0,
+                completion_tokens: r?.usage?.completion_tokens ?? 0,
+              }),
+              extractError: (r) => r?.error?.message ?? 'see workflow logs',
+            },
+          };
+
+          // Provider order: prefer Anthropic (best output quality), then
+          // OpenAI, then GitHub Models as a keyless fallback. Each
+          // provider is skipped if its auth env var isn't set.
+          const order = ['anthropic', 'openai', 'github-models'];
+
+          const setOutput = (k, v) => {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${k}<<EOF\n${String(v)}\nEOF\n`);
+          };
+
+          async function tryProvider(name) {
+            const p = providers[name];
+            const key = process.env[p.envKey];
+            if (!key) return { ok: false, reason: 'no key configured', skip: true };
+
+            const model = process.env[p.modelEnv] || p.defaultModel;
+            const req = p.build(model, key);
+
+            try {
+              const resp = await fetch(req.url, {
+                method: 'POST',
+                headers: req.headers,
+                body: req.body,
+              });
+              const text = await resp.text();
+              let parsed;
+              try {
+                parsed = JSON.parse(text);
+              } catch {
+                return { ok: false, reason: `HTTP ${resp.status}: non-JSON response`, provider: name, model };
+              }
+              if (!resp.ok) {
+                return {
+                  ok: false,
+                  reason: `HTTP ${resp.status}: ${p.extractError(parsed)}`,
+                  provider: name,
+                  model,
+                };
+              }
+              const reviewText = p.extractText(parsed);
+              const usage = p.extractUsage(parsed);
+              return { ok: true, provider: name, model, reviewText, usage };
+            } catch (e) {
+              return { ok: false, reason: `network error: ${e.message}`, provider: name, model };
+            }
+          }
+
+          (async () => {
+            const attempts = [];
+            let winner = null;
+
+            for (const name of order) {
+              const attempt = await tryProvider(name);
+              attempts.push(attempt);
+              if (attempt.ok) {
+                winner = attempt;
+                break;
+              }
+              if (attempt.skip) continue;
+              console.log(`::warning::${providers[name].label} failed: ${attempt.reason}`);
+            }
+
+            if (!winner) {
+              const configured = attempts.filter((a) => !a.skip);
+              if (configured.length === 0) {
+                console.log('::warning::No review providers configured. Skipping.');
+                setOutput('status', 'skipped');
+                setOutput('error_reason', 'no providers configured');
+              } else {
+                const reasons = configured
+                  .map((a) => `${providers[a.provider].label}: ${a.reason}`)
+                  .join('; ');
+                console.log(`::warning::All providers failed. ${reasons}`);
+                setOutput('status', 'error');
+                setOutput('error_reason', reasons);
+              }
+              return;
+            }
+
+            fs.writeFileSync('review.json', winner.reviewText);
+            setOutput('status', 'ok');
+            setOutput('provider_label', providers[winner.provider].label);
+            setOutput('provider_model', winner.model);
+
+            const promptTokens = winner.usage.prompt_tokens;
+            const completionTokens = winner.usage.completion_tokens;
+            const cost = computeCost(winner.model, promptTokens, completionTokens);
+            setOutput('prompt_tokens', String(promptTokens));
+            setOutput('completion_tokens', String(completionTokens));
+            setOutput('cost_usd', cost == null ? '' : cost.toFixed(4));
+
+            const failed = attempts.filter((a) => !a.ok && !a.skip);
+            const fellBack = failed.length > 0;
+            setOutput('fell_back', fellBack ? 'true' : 'false');
+            if (fellBack) {
+              const notes = failed
+                .map((a) => `${providers[a.provider].label} failed: ${a.reason}`)
+                .join('; ');
+              console.log(`::notice::Fell back to ${providers[winner.provider].label}. ${notes}`);
+            }
+          })();
           SCRIPT
-
-          aws bedrock-runtime invoke-model \
-            --model-id us.anthropic.claude-opus-4-6-v1 \
-            --content-type application/json \
-            --accept application/json \
-            --body fileb:///tmp/bedrock-request.json \
-            /tmp/bedrock-response.json
-
-          node -e "
-            const fs = require('fs');
-            const resp = JSON.parse(fs.readFileSync('/tmp/bedrock-response.json', 'utf8'));
-            const text = resp.content[0].text;
-            fs.writeFileSync('review.json', text);
-            const usage = resp.usage || {};
-            fs.writeFileSync('review-usage.json', JSON.stringify(usage));
-            console.log('Review output:');
-            console.log(text.substring(0, 500) + (text.length > 500 ? '...' : ''));
-            console.log('Token usage:', JSON.stringify(usage));
-          "
-        env:
-          REVIEW_ROUND: ${{ needs.check-review-status.outputs.review_round }}
-          DIFF_TRUNCATED: ${{ steps.pr.outputs.DIFF_TRUNCATED }}
 
       - name: Post review
         uses: actions/github-script@v8
@@ -283,88 +397,91 @@ jobs:
             const fs = require('fs');
             const prNumber = ${{ steps.pr.outputs.number }};
             const headSha = '${{ steps.pr.outputs.head_sha }}';
-            const reviewRound = '${{ needs.check-review-status.outputs.review_round }}';
+            const round = '${{ needs.check-review-status.outputs.review_round }}';
+            const status = `${{ steps.call.outputs.status }}`;
+            const errorReason = `${{ steps.call.outputs.error_reason }}`;
+            const providerLabel = `${{ steps.call.outputs.provider_label }}`;
+            const providerModel = `${{ steps.call.outputs.provider_model }}`;
+            const promptTokens = Number(`${{ steps.call.outputs.prompt_tokens }}` || '0');
+            const completionTokens = Number(`${{ steps.call.outputs.completion_tokens }}` || '0');
+            const costUsd = `${{ steps.call.outputs.cost_usd }}`;
+            const fellBack = `${{ steps.call.outputs.fell_back }}` === 'true';
 
-            let usage = { input_tokens: 0, output_tokens: 0 };
-            try {
-              usage = JSON.parse(fs.readFileSync('review-usage.json', 'utf8'));
-            } catch (e) {
-              console.log('Warning: Could not read token usage');
-            }
-            const inputCost = (usage.input_tokens / 1_000_000) * 5;
-            const outputCost = (usage.output_tokens / 1_000_000) * 25;
-            const totalCost = inputCost + outputCost;
+            const fmt = (n) => n.toLocaleString('en-US');
+            const costPart = costUsd ? ` | $${costUsd}` : '';
+            const usagePart = promptTokens + completionTokens > 0
+              ? ` | ${fmt(promptTokens)} in / ${fmt(completionTokens)} out${costPart}`
+              : '';
+            const fallbackBadge = fellBack ? ' (fallback)' : '';
 
-            const rawOutput = fs.readFileSync('review.json', 'utf8').trim();
-            console.log('Raw Claude output:', rawOutput);
-
-            let review;
-            try {
-              let jsonStr = rawOutput;
-              if (jsonStr.startsWith('```')) {
-                jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-              }
-              review = JSON.parse(jsonStr);
-            } catch (e) {
-              console.log('JSON parse failed:', e.message);
+            // Caminhos de falha — sem marker, de modo que o próximo push
+            // retenta como Round 1.
+            if (status !== 'ok') {
+              const note = status === 'skipped'
+                ? `Review skipped — ${errorReason}. No round marker emitted; the next PR activity will retry as Round 1.`
+                : `Review failed — ${errorReason}. No round marker emitted; the next PR activity will retry as Round 1.`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `## Claude Review (Round ${reviewRound})\n\n${rawOutput}\n\n---\n*Automated review by Claude Opus 4.6 | ${usage.input_tokens.toLocaleString()} in / ${usage.output_tokens.toLocaleString()} out | $${totalCost.toFixed(4)}*`
+                body: `### Automated Review — not posted\n\n${note}`,
+              });
+              return;
+            }
+
+            const raw = fs.readFileSync('review.json', 'utf8').trim();
+            let review;
+            try {
+              let s = raw;
+              if (s.startsWith('```')) s = s.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+              review = JSON.parse(s);
+            } catch (e) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `## Automated Review (Round ${round})\n\n${raw}\n\n---\n*Reviewed by ${providerLabel} ${providerModel}${fallbackBadge}${usagePart}*`,
               });
               return;
             }
 
             const summary = review.summary || 'No summary provided';
-            const changes = (review.changes || []).map(c => `- ${c}`).join('\n');
-            const feedbackCount = (review.feedback || []).length;
+            const changes = (review.changes || []).map(c => `- ${c}`).join('\n') || '_none_';
+            const feedback = review.feedback || [];
 
-            const isRound1 = reviewRound === '1';
-            const marker = isRound1 ? '<!-- CLAUDE_REVIEW_ROUND_1 -->' : '<!-- CLAUDE_REVIEW_ROUND_2_COMPLETE -->';
-            const roundLabel = isRound1 ? 'Round 1' : 'Round 2 (Final)';
+            const isRound1 = round === '1';
+            const marker = isRound1 ? '<!-- AUTOMATED_REVIEW_ROUND_1 -->' : '<!-- AUTOMATED_REVIEW_ROUND_2_COMPLETE -->';
+            const label = isRound1 ? 'Round 1' : 'Round 2 (Final)';
 
-            let body = `## Claude Review - ${roundLabel}\n\n${marker}\n\n`;
+            let body = `## Automated Review — ${label}\n\n${marker}\n\n`;
             body += `### Summary\n${summary}\n\n`;
-            body += `### Changes\n${changes}\n\n`;
-            body += `---\n`;
-
-            if (feedbackCount === 0) {
-              body += `:white_check_mark: No issues found\n\n`;
-            } else {
-              body += `:mag: Found ${feedbackCount} suggestions (see inline comments)\n\n`;
-            }
-
-            const costLine = `${usage.input_tokens.toLocaleString()} in / ${usage.output_tokens.toLocaleString()} out | $${totalCost.toFixed(4)}`;
-            if (isRound1) {
-              body += `*Automated review by Claude Opus 4.6 - Round 1 of 2 | ${costLine}*`;
-            } else {
-              body += `*Automated review by Claude Opus 4.6 - Round 2 (Final) - No further reviews will be performed | ${costLine}*`;
-            }
+            body += `### Changes\n${changes}\n\n---\n`;
+            body += feedback.length === 0
+              ? `:white_check_mark: No issues found\n\n`
+              : `:mag: Found ${feedback.length} suggestion${feedback.length === 1 ? '' : 's'} (see inline comments)\n\n`;
+            body += `*Reviewed by ${providerLabel} ${providerModel}${fallbackBadge}${usagePart}`;
+            body += isRound1 ? ` — Round 1 of 2*` : ` — Round 2 (Final); no further reviews will be performed*`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body
+              body,
             });
 
-            if (feedbackCount > 0) {
-              for (const item of review.feedback) {
-                try {
-                  await github.rest.pulls.createReviewComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: prNumber,
-                    body: item.comment,
-                    path: item.file,
-                    line: item.line,
-                    commit_id: headSha,
-                    side: 'RIGHT'
-                  });
-                  console.log(`Posted comment on ${item.file}:${item.line}`);
-                } catch (e) {
-                  console.log(`Warning: Failed to post comment on ${item.file}:${item.line}:`, e.message);
-                }
+            for (const item of feedback) {
+              try {
+                await github.rest.pulls.createReviewComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  body: item.comment,
+                  path: item.file,
+                  line: item.line,
+                  commit_id: headSha,
+                  side: 'RIGHT',
+                });
+              } catch (e) {
+                console.log(`Failed to post comment on ${item.file}:${item.line} — ${e.message}`);
               }
             }

@@ -1,0 +1,77 @@
+name: Publish to npm
+
+# Reusable workflow — publishes workspace packages to npm after release.
+# Consumers pass the list of package dirs as a newline-separated input;
+# each dir is published idempotently (checks the registry first).
+#
+# Pins to `release_sha` so a concurrent push can't change the tree
+# between release creation and publish.
+
+on:
+  workflow_call:
+    inputs:
+      release_sha:
+        description: 'Commit SHA to check out (the chore(release) commit from _release.yml)'
+        type: string
+        required: true
+      packages:
+        description: 'Newline-separated list of package directories to publish (e.g. "packages/core\npackages/calculators")'
+        type: string
+        required: true
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    # `id-token: write` is for Sigstore attestations (`--provenance`),
+    # NOT for npm auth. Auth uses `NPM_TOKEN` org-secret — OIDC trusted
+    # publishing was evaluated and rejected because it requires manual
+    # per-package click-through in the npm web UI (no CLI/API to
+    # automate). `--provenance` gives us supply chain attestations
+    # regardless of auth method.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.release_sha }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm turbo run build
+
+      - name: Publish packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PACKAGES: ${{ inputs.packages }}
+        run: |
+          set -e
+          publish_if_needed() {
+            local dir="$1"
+            local pkg_name pkg_version
+            pkg_name=$(node -p "require('./$dir/package.json').name")
+            pkg_version=$(node -p "require('./$dir/package.json').version")
+
+            if npm view "$pkg_name@$pkg_version" version 2>/dev/null; then
+              echo "Skipping $pkg_name@$pkg_version (already published)"
+            else
+              echo "Publishing $pkg_name@$pkg_version..."
+              ( cd "$dir" && pnpm publish --provenance --access public --no-git-checks )
+            fi
+          }
+
+          while IFS= read -r dir; do
+            [ -z "$dir" ] && continue
+            publish_if_needed "$dir"
+          done <<< "$PACKAGES"
