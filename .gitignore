@@ -14,3 +14,6 @@ scripts/data/raw/
 # São o dado canônico do leaderboard — consumidos pelo site em build time
 # via `import.meta.glob('../../../results/**/*.json')` e precisam estar no
 # repositório para o deploy do Cloudflare Pages.
+
+# Claude Code session artifacts
+.claude/scheduled_tasks.lock
