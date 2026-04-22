@@ -124,7 +124,7 @@ async function callAnthropic(model, userPrompt) {
   });
   const json = await res.json();
   if (!res.ok) throw new Error(`Anthropic ${res.status}: ${JSON.stringify(json).slice(0, 200)}`);
-  return json.content.map((c) => (c.type === 'text' ? c.text ?? '' : '')).join('');
+  return json.content.map((c) => (c.type === 'text' ? (c.text ?? '') : '')).join('');
 }
 
 async function callOpenAI(model, userPrompt) {
@@ -198,9 +198,19 @@ async function callModel(target, userPrompt) {
     case 'google':
       return callGoogle(target.model, userPrompt);
     case 'maritaca':
-      return callOpenAICompat('https://chat.maritaca.ai/api', process.env.MARITACA_API_KEY, target.model, userPrompt);
+      return callOpenAICompat(
+        'https://chat.maritaca.ai/api',
+        process.env.MARITACA_API_KEY,
+        target.model,
+        userPrompt,
+      );
     case 'openrouter':
-      return callOpenAICompat('https://openrouter.ai/api/v1', process.env.OPENROUTER_API_KEY, target.model, userPrompt);
+      return callOpenAICompat(
+        'https://openrouter.ai/api/v1',
+        process.env.OPENROUTER_API_KEY,
+        target.model,
+        userPrompt,
+      );
     default:
       throw new Error(`Backend desconhecido: ${target.backend}`);
   }
@@ -208,9 +218,9 @@ async function callModel(target, userPrompt) {
 
 async function main() {
   const edition = loadEdition(EDITION_ID);
-  const samples = SAMPLE_QUESTION_NUMBERS
-    .map((n) => edition.questions.find((q) => q.number === n))
-    .filter((q) => q && !q.annulled && !q.hasImage && !q.hasTable);
+  const samples = SAMPLE_QUESTION_NUMBERS.map((n) =>
+    edition.questions.find((q) => q.number === n),
+  ).filter((q) => q && !q.annulled && !q.hasImage && !q.hasTable);
 
   const rows = [];
   for (const target of TARGETS) {
@@ -222,10 +232,22 @@ async function main() {
         const raw = await callModel(target, renderUserPrompt(q));
         const parsed = parseLetter(raw);
         const ok = parsed === q.correct;
-        results.push({ number: q.number, correct: q.correct, parsed, ok, preview: raw.slice(-200).replace(/\n/g, ' ') });
+        results.push({
+          number: q.number,
+          correct: q.correct,
+          parsed,
+          ok,
+          preview: raw.slice(-200).replace(/\n/g, ' '),
+        });
         if (!ok) failed++;
       } catch (err) {
-        results.push({ number: q.number, correct: q.correct, parsed: 'ERR', ok: false, preview: err.message });
+        results.push({
+          number: q.number,
+          correct: q.correct,
+          parsed: 'ERR',
+          ok: false,
+          preview: err.message,
+        });
         failed++;
       }
     }

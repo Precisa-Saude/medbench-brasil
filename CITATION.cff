@@ -1,14 +1,14 @@
 cff-version: 1.2.0
-title: "medbench-brasil"
-message: "Se você usar este dataset ou harness em publicações, cite este repositório."
+title: 'medbench-brasil'
+message: 'Se você usar este dataset ou harness em publicações, cite este repositório.'
 type: dataset
 authors:
-  - family-names: "Lüder"
-    given-names: "Rafael"
-    email: "rafael@precisa-saude.com.br"
-    affiliation: "Precisa Saúde"
-repository-code: "https://github.com/Precisa-Saude/medbench-brasil"
-url: "https://medbench-brasil.ia.br"
+  - family-names: 'Lüder'
+    given-names: 'Rafael'
+    email: 'rafael@precisa-saude.com.br'
+    affiliation: 'Precisa Saúde'
+repository-code: 'https://github.com/Precisa-Saude/medbench-brasil'
+url: 'https://medbench-brasil.ia.br'
 abstract: >
   Dataset estruturado e harness de avaliação reproduzível para desempenho de
   modelos de linguagem em provas médicas brasileiras (Revalida inicial),

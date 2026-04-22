@@ -1,3 +1,10 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@precisa-saude/ui/primitives';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -5,7 +12,6 @@ import { allQuestions, getEdition } from '../data/dataset';
 import type { ModelResult, PerQuestionResult } from '../data/results';
 import { SPECIALTY_LABELS, specialtyLabel } from '../data/specialties';
 import { Pagination } from './ui/pagination';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 type Filter = 'all' | 'divergent' | 'no-one-correct' | 'all-correct';
@@ -40,11 +46,13 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
   // Handlers que resetam a página quando um filtro muda — senão, estar na
   // página 2 de um resultado grande e trocar pra um filtro com poucos resultados
   // deixa pageRows vazio, mostrando a tabela sem nenhuma linha renderizada.
-  const onEditionChange = (v: string) => {
+  const onEditionChange = (v: string | null) => {
+    if (v === null) return;
     setEditionFilter(v);
     setPage(1);
   };
-  const onSpecialtyChange = (v: string) => {
+  const onSpecialtyChange = (v: string | null) => {
+    if (v === null) return;
     setSpecialtyFilter(v);
     setPage(1);
   };

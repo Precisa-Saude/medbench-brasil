@@ -6,13 +6,13 @@ O pacote `@precisa-saude/medbench-dataset` expõe o dataset de forma tipada. A d
 
 ```ts
 interface Edition {
-  id: EditionId;           // 'revalida-2025-1'
-  year: number;            // 2025
-  publishedAt: string;     // ISO YYYY-MM-DD da aplicação da prova
-  cutoffScore: number;     // proporção (0..1)
-  passRate: number;        // proporção (0..1)
+  id: EditionId; // 'revalida-2025-1'
+  year: number; // 2025
+  publishedAt: string; // ISO YYYY-MM-DD da aplicação da prova
+  cutoffScore: number; // proporção (0..1)
+  passRate: number; // proporção (0..1)
   totalInscritos?: number;
-  source: string;          // URL da página oficial INEP
+  source: string; // URL da página oficial INEP
   questions: Question[];
 }
 ```
@@ -21,17 +21,17 @@ interface Edition {
 
 ```ts
 interface Question {
-  id: string;              // 'revalida-2025-1-q42'
+  id: string; // 'revalida-2025-1-q42'
   editionId: EditionId;
-  number: number;          // número da questão na prova
-  stem: string;            // enunciado completo
+  number: number; // número da questão na prova
+  stem: string; // enunciado completo
   options: Record<'A' | 'B' | 'C' | 'D', string>;
-  correct: 'A' | 'B' | 'C' | 'D';   // gabarito pós-recurso
-  specialty: Specialty[];  // uma ou mais especialidades
-  hasImage: boolean;       // questão depende de imagem
-  hasTable: boolean;       // questão depende de tabela
-  annulled: boolean;       // questão anulada pela INEP
-  notes?: string;          // observações (ex.: alteração pós-recurso)
+  correct: 'A' | 'B' | 'C' | 'D'; // gabarito pós-recurso
+  specialty: Specialty[]; // uma ou mais especialidades
+  hasImage: boolean; // questão depende de imagem
+  hasTable: boolean; // questão depende de tabela
+  annulled: boolean; // questão anulada pela INEP
+  notes?: string; // observações (ex.: alteração pós-recurso)
 }
 ```
 

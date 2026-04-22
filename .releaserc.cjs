@@ -81,12 +81,8 @@ module.exports = {
         // apenas CHANGELOG + root package.json.
         assets: (() => {
           try {
-            const {
-              listPublishablePackages,
-            } = require('./scripts/list-publishable-packages.cjs');
-            const pkgAssets = listPublishablePackages().map(
-              (dir) => `${dir}/package.json`,
-            );
+            const { listPublishablePackages } = require('./scripts/list-publishable-packages.cjs');
+            const pkgAssets = listPublishablePackages().map((dir) => `${dir}/package.json`);
             return ['CHANGELOG.md', 'package.json', ...pkgAssets];
           } catch (err) {
             // eslint-disable-next-line no-console
@@ -96,8 +92,7 @@ module.exports = {
             return ['CHANGELOG.md', 'package.json'];
           }
         })(),
-        message:
-          'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
 

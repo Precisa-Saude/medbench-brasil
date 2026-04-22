@@ -173,7 +173,12 @@ for (const q of samples) {
 }
 
 console.log('');
-console.log('formatos:', Object.entries(formatCounts).map(([k, v]) => `${k}=${v}`).join(', '));
+console.log(
+  'formatos:',
+  Object.entries(formatCounts)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(', '),
+);
 console.log(
   suspect > 0
     ? `SUSPEITO — ${suspect}/${effectiveN} amostras em formato vulnerável ao bug phantom-A. Rerun recomendado.`

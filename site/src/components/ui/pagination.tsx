@@ -1,6 +1,11 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@precisa-saude/ui/primitives';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 
 export interface PaginationProps {
   itemsLabel?: string;
@@ -32,7 +37,12 @@ export function Pagination({
     <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-2 py-3 font-sans text-sm sm:flex-row">
       <div className="hidden items-center gap-2 sm:flex">
         <span className="text-muted-foreground">Mostrar</span>
-        <Select value={String(pageSize)} onValueChange={(v) => onPageSizeChange(Number(v))}>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => {
+            if (v !== null) onPageSizeChange(Number(v));
+          }}
+        >
           <SelectTrigger className="h-8 w-auto min-w-[5rem] px-2 py-1">
             <SelectValue />
           </SelectTrigger>
