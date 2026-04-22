@@ -101,10 +101,10 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
               style={{ gridTemplateColumns: '160px 1fr 60px' }}
             >
               <button
-                type="button"
-                onClick={() => navigate(`/models/${row.modelId}`)}
                 className="cursor-pointer truncate text-left font-medium text-ps-violet underline decoration-transparent hover:decoration-current"
                 title={`Ver detalhes de ${row.label}`}
+                type="button"
+                onClick={() => navigate(`/models/${row.modelId}`)}
               >
                 {row.label}
               </button>

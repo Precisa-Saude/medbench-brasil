@@ -30,9 +30,9 @@ export function Nav() {
         style={gridStyle}
       >
         <Link
-          to="/"
           className="inline-flex h-full items-center gap-1.5 font-margem text-xl font-bold tracking-tight text-white md:col-span-3"
           style={desktop ? { gridColumnStart: 2 + offset } : undefined}
+          to="/"
         >
           <Activity className="h-6 w-6 shrink-0 text-white" />
           medbench-brasil
@@ -41,7 +41,6 @@ export function Nav() {
         {NAV_LINKS.map((link) => (
           <NavLink
             key={link.href}
-            to={link.href}
             className={({ isActive }) =>
               cn(
                 'hidden h-full items-center justify-center border-b-2 font-margem text-base font-medium transition-colors md:flex',
@@ -51,26 +50,27 @@ export function Nav() {
               )
             }
             style={{ gridColumn: `${link.col + offset} / span ${link.span}` }}
+            to={link.href}
           >
             {link.label}
           </NavLink>
         ))}
 
         <a
-          href="https://github.com/Precisa-Saude/medbench-brasil"
-          target="_blank"
-          rel="noopener noreferrer"
           className="hidden items-center justify-center gap-1.5 self-center rounded-full bg-white/15 px-4 py-2 font-margem text-sm font-medium text-white transition-colors hover:bg-white/25 md:inline-flex"
+          href="https://github.com/Precisa-Saude/medbench-brasil"
+          rel="noopener noreferrer"
           style={{ gridColumn: `${13 + offset} / span 2` }}
+          target="_blank"
         >
           GitHub
           <ExternalLink className="h-3.5 w-3.5" />
         </a>
 
         <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-md p-2 text-white md:hidden"
           aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
+          className="rounded-md p-2 text-white md:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -86,23 +86,23 @@ export function Nav() {
           {NAV_LINKS.map((link) => (
             <NavLink
               key={link.href}
-              to={link.href}
-              onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 cn(
                   'font-margem text-base font-medium transition-colors',
                   isActive ? 'text-white' : 'text-white/70 hover:text-white',
                 )
               }
+              to={link.href}
+              onClick={() => setMobileOpen(false)}
             >
               {link.label}
             </NavLink>
           ))}
           <a
-            href="https://github.com/Precisa-Saude/medbench-brasil"
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 font-margem text-sm font-medium text-white/70"
+            href="https://github.com/Precisa-Saude/medbench-brasil"
+            rel="noopener noreferrer"
+            target="_blank"
           >
             GitHub
             <ExternalLink className="h-3.5 w-3.5" />

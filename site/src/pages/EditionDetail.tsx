@@ -35,7 +35,7 @@ export default function EditionDetail() {
     <PageContainer>
       <div className="space-y-10">
         <header>
-          <Link to="/" className="font-sans text-sm text-ps-violet underline">
+          <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
           </Link>
           <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight sm:text-4xl">
@@ -86,7 +86,7 @@ export default function EditionDetail() {
                 uma turma hipotética, apenas para contextualizar a distribuição de precisão. Não
                 implica que os modelos possam exercer medicina nem substituir candidatos humanos.
                 Ver{' '}
-                <Link to="/metodologia" className="underline text-ps-violet">
+                <Link className="underline text-ps-violet" to="/metodologia">
                   metodologia
                 </Link>{' '}
                 e Correia et al., PROPOR 2026.
@@ -106,7 +106,7 @@ export default function EditionDetail() {
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">Fonte</h2>
           <p className="text-sm text-muted-foreground">
             Provas e gabaritos pós-recurso obtidos diretamente do portal INEP. Consulte{' '}
-            <Link to="/metodologia" className="underline text-ps-violet">
+            <Link className="underline text-ps-violet" to="/metodologia">
               metodologia
             </Link>{' '}
             para detalhes sobre extração e classificação.

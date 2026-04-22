@@ -19,9 +19,9 @@ interface EditionPoint {
 export default function TrendChart({ data }: { data: EditionPoint[] }) {
   return (
     <div className="font-sans">
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer height={320} width="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis dataKey="edition" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
           <YAxis
             domain={[0, 100]}
@@ -35,32 +35,32 @@ export default function TrendChart({ data }: { data: EditionPoint[] }) {
               borderRadius: 8,
               fontSize: 12,
             }}
-            wrapperStyle={{ transition: 'none' }}
             formatter={(value: number) => `${value.toFixed(1)}%`}
+            wrapperStyle={{ transition: 'none' }}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <Line
-            type="monotone"
             dataKey="passingScore"
+            dot={false}
             name="Nota de corte"
             stroke="var(--ps-amber)"
             strokeDasharray="4 4"
-            dot={false}
+            type="monotone"
           />
           <Line
-            type="monotone"
             dataKey="estimatedHumanMean"
+            dot={false}
             name="Média humana estimada"
             stroke="var(--ps-green)"
             strokeDasharray="2 4"
-            dot={false}
+            type="monotone"
           />
           <Line
-            type="monotone"
             dataKey="modelScore"
             name="Modelo"
             stroke="var(--ps-violet)"
             strokeWidth={2}
+            type="monotone"
           />
         </LineChart>
       </ResponsiveContainer>

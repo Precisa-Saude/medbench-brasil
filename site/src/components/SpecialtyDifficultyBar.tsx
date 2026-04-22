@@ -61,24 +61,22 @@ export default function SpecialtyDifficultyBar({
 
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
-      <ResponsiveContainer width="100%" height={Math.max(240, rows.length * 56)}>
+      <ResponsiveContainer height={Math.max(240, rows.length * 56)} width="100%">
         <BarChart data={rows} layout="vertical" margin={{ bottom: 8, left: 8, right: 24, top: 16 }}>
-          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" horizontal={false} />
+          <CartesianGrid horizontal={false} stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis
-            type="number"
             domain={[0, 100]}
             tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+            type="number"
             unit="%"
           />
           <YAxis
-            type="category"
             dataKey="specialty"
             tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+            type="category"
             width={160}
           />
           <RechartsTooltip
-            cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
-            wrapperStyle={{ transition: 'none' }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const row = payload[0]?.payload as Row | undefined;
@@ -96,25 +94,27 @@ export default function SpecialtyDifficultyBar({
                 </div>
               );
             }}
+            cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
+            wrapperStyle={{ transition: 'none' }}
           />
           <Legend
             formatter={(value) => <span className="text-xs">{value}</span>}
             wrapperStyle={{ paddingTop: 8 }}
           />
           <Bar
+            barSize={10}
             dataKey="poolAcc"
-            name="Média dos demais modelos"
             fill="var(--muted-foreground)"
             fillOpacity={0.35}
-            barSize={10}
             isAnimationActive={false}
+            name="Média dos demais modelos"
           />
           <Bar
-            dataKey="modelAcc"
-            name={model.label}
-            fill="var(--ps-violet)"
             barSize={16}
+            dataKey="modelAcc"
+            fill="var(--ps-violet)"
             isAnimationActive={false}
+            name={model.label}
           />
         </BarChart>
       </ResponsiveContainer>

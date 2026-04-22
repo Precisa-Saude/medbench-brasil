@@ -21,13 +21,13 @@ export default function App() {
 
         <main className="flex-1 pt-16">
           <Routes>
-            <Route path="/" element={<Leaderboard />} />
-            <Route path="/models/*" element={<ModelDetail />} />
-            <Route path="/editions/:id" element={<EditionDetail />} />
-            <Route path="/questoes" element={<Questoes />} />
-            <Route path="/metodologia" element={<Metodologia />} />
-            <Route path="/reproducao" element={<Reproducao />} />
-            <Route path="/dataset" element={<Dataset />} />
+            <Route element={<Leaderboard />} path="/" />
+            <Route element={<ModelDetail />} path="/models/*" />
+            <Route element={<EditionDetail />} path="/editions/:id" />
+            <Route element={<Questoes />} path="/questoes" />
+            <Route element={<Metodologia />} path="/metodologia" />
+            <Route element={<Reproducao />} path="/reproducao" />
+            <Route element={<Dataset />} path="/dataset" />
           </Routes>
         </main>
 

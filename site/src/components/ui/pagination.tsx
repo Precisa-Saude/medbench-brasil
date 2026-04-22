@@ -62,26 +62,26 @@ export function Pagination({
           {totalRows} {itemsLabel}
         </span>
         <div className="flex items-center gap-1">
-          <IconButton disabled={!canPrev} onClick={() => onPageChange(1)} label="Primeira página">
+          <IconButton disabled={!canPrev} label="Primeira página" onClick={() => onPageChange(1)}>
             <ChevronsLeft className="h-4 w-4" />
           </IconButton>
           <IconButton
             disabled={!canPrev}
-            onClick={() => onPageChange(current - 1)}
             label="Anterior"
+            onClick={() => onPageChange(current - 1)}
           >
             <ChevronLeft className="h-4 w-4" />
           </IconButton>
           <span className="min-w-[4rem] text-center font-mono text-muted-foreground">
             {current} / {totalPages}
           </span>
-          <IconButton disabled={!canNext} onClick={() => onPageChange(current + 1)} label="Próxima">
+          <IconButton disabled={!canNext} label="Próxima" onClick={() => onPageChange(current + 1)}>
             <ChevronRight className="h-4 w-4" />
           </IconButton>
           <IconButton
             disabled={!canNext}
-            onClick={() => onPageChange(totalPages)}
             label="Última página"
+            onClick={() => onPageChange(totalPages)}
           >
             <ChevronsRight className="h-4 w-4" />
           </IconButton>
@@ -104,11 +104,11 @@ function IconButton({
 }) {
   return (
     <button
-      type="button"
       aria-label={label}
-      onClick={onClick}
-      disabled={disabled}
       className="rounded-full border border-border p-1 text-foreground transition-colors hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
+      disabled={disabled}
+      type="button"
+      onClick={onClick}
     >
       {children}
     </button>

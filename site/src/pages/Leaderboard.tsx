@@ -85,12 +85,12 @@ export default function Leaderboard() {
           </p>
           <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
         </div>
-        <LeaderboardTable models={MODELS} contaminationScope={scope} />
+        <LeaderboardTable contaminationScope={scope} models={MODELS} />
         <p className="pt-2 text-center font-sans text-sm text-muted-foreground">
           Edições publicadas antes do corte de treino do modelo são marcadas como{' '}
           <em>contaminadas</em>. A coluna <strong>Δ</strong> mostra a diferença entre a precisão em
           contaminadas e limpas — Δ alto sugere memorização.{' '}
-          <Link to="/metodologia#contaminacao" className="underline text-ps-violet">
+          <Link className="underline text-ps-violet" to="/metodologia#contaminacao">
             Entenda a metodologia
           </Link>
           .
