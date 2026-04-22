@@ -110,54 +110,54 @@ export default function LeaderboardTable({
             <TableHead>Modelo</TableHead>
             <TableHead>Fornecedor</TableHead>
             <TableHead>Tier</TableHead>
-            <SortableHead label="Precisão" k="acc" sort={sort} onClick={toggleSort} align="right" />
+            <SortableHead align="right" k="acc" label="Precisão" sort={sort} onClick={toggleSort} />
             <SortableHead
-              label="IC 95%"
+              align="right"
               k="ci"
+              label="IC 95%"
               sort={sort}
-              onClick={toggleSort}
-              align="right"
               tooltip="Faixa plausível da precisão real (Wilson 95%). Faixas sobrepostas = empate estatístico."
+              onClick={toggleSort}
             />
             <SortableHead
-              label="Limpa"
+              align="right"
               k="clean"
+              label="Limpa"
               sort={sort}
-              onClick={toggleSort}
-              align="right"
               tooltip="Precisão em edições posteriores ao corte de treino — provas que o modelo não viu."
+              onClick={toggleSort}
             />
             <SortableHead
-              label="Contaminada"
+              align="right"
               k="cont"
+              label="Contaminada"
               sort={sort}
-              onClick={toggleSort}
-              align="right"
               tooltip="Precisão em edições anteriores ao corte — podem ter aparecido no treino."
+              onClick={toggleSort}
             />
             <SortableHead
-              label="Δ"
+              align="right"
               k="delta"
+              label="Δ"
               sort={sort}
-              onClick={toggleSort}
-              align="right"
               tooltip="Contaminada − limpa (pp). Positivo sugere memorização."
+              onClick={toggleSort}
             />
             <SortableHead
-              label="Acima do corte"
+              align="right"
               k="pass"
+              label="Acima do corte"
               sort={sort}
-              onClick={toggleSort}
-              align="right"
               tooltip="Edições em que a precisão do modelo em múltipla escolha supera a nota de corte oficial. Métrica de benchmark; não equivale a aprovação em prova real, que exige outras etapas."
+              onClick={toggleSort}
             />
             <SortableHead
-              label="Corte treino"
-              k="cutoff"
-              sort={sort}
-              onClick={toggleSort}
               align="right"
+              k="cutoff"
+              label="Corte treino"
+              sort={sort}
               tooltip="Data até a qual o fornecedor coletou dados de treino. Define o que é limpo vs contaminado."
+              onClick={toggleSort}
             />
           </TableRow>
         </TableHeader>
@@ -167,8 +167,8 @@ export default function LeaderboardTable({
               <TableCell className="text-muted-foreground">{start + idx + 1}</TableCell>
               <TableCell>
                 <Link
-                  to={`/models/${model.modelId}`}
                   className="font-medium text-ps-violet hover:underline"
+                  to={`/models/${model.modelId}`}
                 >
                   {model.label}
                 </Link>
@@ -216,6 +216,7 @@ export default function LeaderboardTable({
       </Table>
 
       <Pagination
+        itemsLabel="modelos"
         page={page}
         pageSize={pageSize}
         totalRows={totalRows}
@@ -224,7 +225,6 @@ export default function LeaderboardTable({
           setPageSize(s);
           setPage(1);
         }}
-        itemsLabel="modelos"
       />
     </div>
   );
@@ -248,11 +248,11 @@ function SortableHead({
   const active = sort.key === k;
   const button = (
     <button
-      type="button"
-      onClick={() => onClick(k)}
       className={`inline-flex items-center gap-1 ${
         active ? 'text-foreground' : 'hover:text-foreground'
       } ${tooltip ? 'cursor-pointer underline decoration-dotted decoration-muted-foreground/40 underline-offset-4' : ''}`}
+      type="button"
+      onClick={() => onClick(k)}
     >
       {label}
       {active && <span aria-hidden>{sort.dir === 'desc' ? '↓' : '↑'}</span>}

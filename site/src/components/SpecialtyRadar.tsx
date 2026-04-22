@@ -22,7 +22,7 @@ export default function SpecialtyRadar({
 }) {
   const chartData = data.map((d) => ({ accuracy: d.accuracy * 100, specialty: d.specialty }));
   return (
-    <ResponsiveContainer width="100%" height={320}>
+    <ResponsiveContainer height={320} width="100%">
       <RadarChart data={chartData} outerRadius="75%">
         <PolarGrid stroke="var(--border)" />
         <PolarAngleAxis
@@ -31,12 +31,12 @@ export default function SpecialtyRadar({
             const { payload, textAnchor, x, y } = props as AngleTick;
             return (
               <text
-                x={x}
-                y={y}
-                textAnchor={textAnchor}
                 fill="var(--muted-foreground)"
                 fontFamily="Roboto, system-ui, sans-serif"
                 fontSize={12}
+                textAnchor={textAnchor}
+                x={x}
+                y={y}
               >
                 {payload.value}
               </text>
@@ -44,19 +44,19 @@ export default function SpecialtyRadar({
           }}
         />
         <PolarRadiusAxis
-          domain={[0, 100]}
           angle={90}
+          domain={[0, 100]}
           tick={(props) => {
             const { payload, x, y } = props as RadiusTick;
             if (payload.value === 0 || payload.value === 100) return <g />;
             return (
               <text
-                x={x}
-                y={y}
                 fill="var(--muted-foreground)"
                 fontFamily="Roboto, system-ui, sans-serif"
                 fontSize={10}
                 textAnchor="middle"
+                x={x}
+                y={y}
               >
                 {payload.value}
               </text>
@@ -65,9 +65,9 @@ export default function SpecialtyRadar({
         />
         <Radar
           dataKey="accuracy"
-          stroke="var(--ps-violet)"
           fill="var(--ps-violet)"
           fillOpacity={0.3}
+          stroke="var(--ps-violet)"
         />
       </RadarChart>
     </ResponsiveContainer>

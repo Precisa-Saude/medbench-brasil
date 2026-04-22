@@ -102,31 +102,28 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
         contra contaminação. Modelos com cortes mais recentes tendem a ter menos benchmark público
         anterior no treino.
       </p>
-      <ResponsiveContainer width="100%" height={340}>
+      <ResponsiveContainer height={340} width="100%">
         <ScatterChart margin={{ bottom: 40, left: 8, right: 24, top: 16 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis
-            type="number"
             dataKey="cutoffMs"
             domain={[tsMin - 30 * 86400000, tsMax + 30 * 86400000]}
-            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-            tickFormatter={(ms: number) => {
-              const d = new Date(ms);
-              return `${d.toLocaleString('pt-BR', { month: 'short' })}/${String(d.getFullYear()).slice(-2)}`;
-            }}
             label={{
               fill: 'var(--muted-foreground)',
               offset: -5,
               position: 'insideBottom',
               value: 'Corte de treino',
             }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+            tickFormatter={(ms: number) => {
+              const d = new Date(ms);
+              return `${d.toLocaleString('pt-BR', { month: 'short' })}/${String(d.getFullYear()).slice(-2)}`;
+            }}
+            type="number"
           />
           <YAxis
-            type="number"
             dataKey="delta"
             domain={[-deltaMax, deltaMax]}
-            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
-            tickFormatter={(v: number) => `${v > 0 ? '+' : ''}${v.toFixed(0)}pp`}
             label={{
               angle: -90,
               fill: 'var(--muted-foreground)',
@@ -134,12 +131,13 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
               style: { textAnchor: 'middle' },
               value: 'Δ contaminadas − limpas',
             }}
+            tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+            tickFormatter={(v: number) => `${v > 0 ? '+' : ''}${v.toFixed(0)}pp`}
+            type="number"
           />
           <ZAxis range={[80, 80]} />
-          <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeWidth={1} />
+          <ReferenceLine stroke="var(--muted-foreground)" strokeWidth={1} y={0} />
           <RechartsTooltip
-            cursor={{ stroke: 'var(--border)', strokeDasharray: '3 3' }}
-            wrapperStyle={{ transition: 'none' }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const p = payload[0]?.payload as Point | undefined;
@@ -155,6 +153,8 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
                 </div>
               );
             }}
+            cursor={{ stroke: 'var(--border)', strokeDasharray: '3 3' }}
+            wrapperStyle={{ transition: 'none' }}
           />
           {(Object.keys(byTier) as ModelTier[]).map((tier) => {
             const data = byTier[tier];

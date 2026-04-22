@@ -43,12 +43,12 @@ export function SlidingToggle<T extends string>({
         return (
           <button
             key={item.value}
-            type="button"
-            onClick={() => onChange(item.value)}
             className={cn(
               'relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-center text-sm font-medium transition-colors duration-200 focus-visible:outline-none',
               isActive ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
+            type="button"
+            onClick={() => onChange(item.value)}
           >
             {item.label}
           </button>

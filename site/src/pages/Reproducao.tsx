@@ -26,11 +26,11 @@ export default function Reproducao() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="group relative rounded-lg border bg-card p-5 transition-colors hover:border-ps-violet/40 hover:bg-muted/50">
               <a
-                href="https://www.npmjs.com/package/@precisa-saude/medbench-harness"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
                 aria-label="Abrir @precisa-saude/medbench-harness no npm"
+                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
+                href="https://www.npmjs.com/package/@precisa-saude/medbench-harness"
+                rel="noopener noreferrer"
+                target="_blank"
               />
               <code className="font-mono text-sm font-semibold text-ps-violet-dark underline decoration-transparent group-hover:decoration-current">
                 @precisa-saude/medbench-harness
@@ -43,11 +43,11 @@ export default function Reproducao() {
             </div>
             <div className="group relative rounded-lg border bg-card p-5 transition-colors hover:border-ps-violet/40 hover:bg-muted/50">
               <a
-                href="https://www.npmjs.com/package/@precisa-saude/medbench-dataset"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
                 aria-label="Abrir @precisa-saude/medbench-dataset no npm"
+                className="absolute inset-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ps-violet focus-visible:outline-none"
+                href="https://www.npmjs.com/package/@precisa-saude/medbench-dataset"
+                rel="noopener noreferrer"
+                target="_blank"
               />
               <code className="font-mono text-sm font-semibold text-ps-violet-dark underline decoration-transparent group-hover:decoration-current">
                 @precisa-saude/medbench-dataset
@@ -55,7 +55,7 @@ export default function Reproducao() {
               <p className="mt-2 text-sm text-muted-foreground">
                 As provas anotadas — Revalida e ENAMED — com especialidade por questão, flags de
                 imagem/tabela/anulação e metadados oficiais da INEP. Documentação completa na{' '}
-                <Link to="/dataset" className="relative z-10 underline text-ps-violet">
+                <Link className="relative z-10 underline text-ps-violet" to="/dataset">
                   página Dataset
                 </Link>
                 .
@@ -105,7 +105,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           <p className="text-muted-foreground">
             O protocolo é idêntico para todos os backends: zero-shot, sem ferramentas, três
             execuções por questão. Veja a{' '}
-            <Link to="/metodologia" className="underline text-ps-violet">
+            <Link className="underline text-ps-violet" to="/metodologia">
               metodologia
             </Link>{' '}
             para o contrato completo.
@@ -145,8 +145,8 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
               <a
                 className="underline text-ps-violet"
                 href="https://openrouter.ai/models"
-                target="_blank"
                 rel="noopener noreferrer"
+                target="_blank"
               >
                 catálogo OpenRouter
               </a>

@@ -21,7 +21,7 @@ export default function ModelDetail() {
       <PageContainer>
         <div className="space-y-4">
           <p className="text-muted-foreground">Modelo não encontrado.</p>
-          <Link to="/" className="underline text-ps-violet">
+          <Link className="underline text-ps-violet" to="/">
             Voltar ao leaderboard
           </Link>
         </div>
@@ -62,7 +62,7 @@ export default function ModelDetail() {
     <PageContainer>
       <div className="space-y-10">
         <header>
-          <Link to="/" className="font-sans text-sm text-ps-violet underline">
+          <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
           </Link>
           <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight sm:text-4xl">
@@ -74,8 +74,8 @@ export default function ModelDetail() {
               <a
                 className="text-ps-violet underline"
                 href={model.trainingCutoffSource}
-                target="_blank"
                 rel="noopener noreferrer"
+                target="_blank"
               >
                 {model.trainingCutoff} ↗
               </a>
@@ -89,8 +89,8 @@ export default function ModelDetail() {
                 <a
                   className="text-ps-violet underline"
                   href={model.homepage}
-                  target="_blank"
                   rel="noopener noreferrer"
+                  target="_blank"
                 >
                   página oficial ↗
                 </a>
@@ -152,14 +152,14 @@ export default function ModelDetail() {
         {consistency !== null && (
           <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Card
+              hint="% de questões onde as 3 execuções escolheram a mesma letra"
               label="Consistência entre runs"
               value={`${(consistency * 100).toFixed(1)}%`}
-              hint="% de questões onde as 3 execuções escolheram a mesma letra"
             />
             <Card
+              hint={`${model.runsPerQuestion} runs cada`}
               label="Questões avaliadas"
               value={String(perQuestion.length)}
-              hint={`${model.runsPerQuestion} runs cada`}
             />
             <Card
               label="Maioria correta"
@@ -189,7 +189,7 @@ export default function ModelDetail() {
             ) : (
               Object.entries(model.accuracyByEdition).map(([eid, b]) => (
                 <li key={eid} className="px-4 py-3 flex items-center justify-between">
-                  <Link to={`/editions/${eid}`} className="text-ps-violet underline">
+                  <Link className="text-ps-violet underline" to={`/editions/${eid}`}>
                     {eid}
                   </Link>
                   <span className="font-mono text-sm">
@@ -210,8 +210,8 @@ export default function ModelDetail() {
             <a
               className="text-ps-violet underline"
               href={`https://github.com/Precisa-Saude/medbench-brasil/tree/main/results`}
-              target="_blank"
               rel="noopener noreferrer"
+              target="_blank"
             >
               <code>results/&lt;edição&gt;/{model.modelId}.json</code>
             </a>

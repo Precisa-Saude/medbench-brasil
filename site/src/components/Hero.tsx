@@ -45,19 +45,19 @@ export function Hero() {
           <p className="max-w-4xl font-serif text-xl leading-snug text-primary-foreground/70 sm:text-2xl">
             Leaderboard reproduzível das provas{' '}
             <a
-              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida"
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-ps-mint underline decoration-ps-mint/40 underline-offset-4 transition-colors hover:decoration-ps-mint"
+              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Revalida
             </a>{' '}
             e{' '}
             <a
-              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enamed"
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-ps-mint underline decoration-ps-mint/40 underline-offset-4 transition-colors hover:decoration-ps-mint"
+              href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enamed"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               ENAMED
             </a>
@@ -71,14 +71,14 @@ export function Hero() {
               viewports estreitos, evitando clipping e wrap. */}
           <div className="grid w-[calc(3*var(--col-w)+2rem)] min-w-fit grid-cols-1 gap-3">
             <Link
-              to="/metodologia"
               className="flex items-center justify-center whitespace-nowrap rounded-full bg-ps-mint px-5 py-2.5 font-sans text-sm font-medium text-ps-violet-dark transition-colors hover:bg-ps-mint/90"
+              to="/metodologia"
             >
               Metodologia →
             </Link>
             <Link
-              to="/reproducao"
               className="flex items-center justify-center whitespace-nowrap rounded-full border border-primary-foreground/25 px-5 py-2.5 font-sans text-sm font-medium text-primary-foreground transition-colors hover:border-ps-mint hover:text-ps-mint"
+              to="/reproducao"
             >
               Reproduza os testes →
             </Link>

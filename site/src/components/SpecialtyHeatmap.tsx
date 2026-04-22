@@ -125,10 +125,10 @@ export default function SpecialtyHeatmap({
                 style={{ gridTemplateColumns: gridTemplate }}
               >
                 <button
-                  type="button"
-                  onClick={() => navigate(`/models/${m.modelId}`)}
                   className="cursor-pointer truncate px-2 py-2 text-left font-medium text-ps-violet underline decoration-transparent hover:decoration-current"
                   title={`Ver detalhes de ${m.label}`}
+                  type="button"
+                  onClick={() => navigate(`/models/${m.modelId}`)}
                 >
                   {m.label}
                 </button>
@@ -154,9 +154,9 @@ export default function SpecialtyHeatmap({
                   return (
                     <div
                       key={sp}
-                      title={tip}
                       className="flex cursor-default items-center justify-center py-2 font-sans font-semibold"
                       style={{ backgroundColor: bg, color: textColor }}
+                      title={tip}
                     >
                       {(cell.accuracy * 100).toFixed(0)}%
                     </div>

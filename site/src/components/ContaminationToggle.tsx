@@ -18,13 +18,13 @@ export default function ContaminationToggle({
       {OPTIONS.map((opt) => (
         <button
           key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
           className={`px-3 py-1.5 rounded ${
             value === opt.value
               ? 'bg-primary text-primary-foreground'
               : 'text-muted-foreground hover:text-foreground'
           }`}
+          type="button"
+          onClick={() => onChange(opt.value)}
         >
           {opt.label}
         </button>

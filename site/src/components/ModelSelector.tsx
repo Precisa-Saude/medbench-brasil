@@ -21,12 +21,12 @@ export default function ModelSelector({
         return (
           <button
             key={m.modelId}
-            type="button"
-            onClick={() => toggle(m.modelId)}
+            aria-pressed={on}
             className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 font-sans text-xs transition ${
               on ? 'bg-card text-foreground' : 'bg-muted text-muted-foreground opacity-70'
             }`}
-            aria-pressed={on}
+            type="button"
+            onClick={() => toggle(m.modelId)}
           >
             <span
               className="inline-block h-2.5 w-2.5 rounded-full"

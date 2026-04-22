@@ -50,7 +50,7 @@ export default function ContaminationPanel({
             treino do modelo) ou não. A coluna <strong>Δ</strong> na tabela abaixo mostra a
             diferença entre a precisão em edições contaminadas e limpas — um Δ alto sugere que o
             modelo se beneficia da memorização.{' '}
-            <Link to="/metodologia#contaminacao" className="underline text-ps-violet">
+            <Link className="underline text-ps-violet" to="/metodologia#contaminacao">
               Entenda a metodologia
             </Link>
             .
@@ -59,8 +59,8 @@ export default function ContaminationPanel({
             <p className="mt-2 text-sm">
               Maior Δ até agora:{' '}
               <Link
-                to={`/models/${highlight.modelId}`}
                 className="font-medium text-ps-violet hover:underline"
+                to={`/models/${highlight.modelId}`}
               >
                 {highlight.label}
               </Link>{' '}
