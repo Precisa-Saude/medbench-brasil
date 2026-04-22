@@ -1,0 +1,168 @@
+name: Deploy site
+
+# Reusable workflow — builds the repo's site and deploys to Cloudflare
+# Pages when site files changed, then sends a Slack notification.
+# Guards on site file presence across the pushed range.
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: 'Cloudflare Pages project name'
+        type: string
+        required: true
+      site_filter:
+        description: 'pnpm filter to build the site (e.g. @medbench-brasil/site)'
+        type: string
+        required: true
+      site_path:
+        description: 'Output directory to deploy (default: site/dist)'
+        type: string
+        default: 'site/dist'
+
+jobs:
+  build-site:
+    name: Build site
+    runs-on: ubuntu-latest
+    outputs:
+      site_changed: ${{ steps.changes.outputs.site_changed }}
+    steps:
+      - name: Check for site changes
+        id: changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName === 'workflow_dispatch') {
+              core.setOutput('site_changed', 'true');
+              return;
+            }
+            const before = context.payload.before;
+            const after = context.sha;
+            const isInitial = !before || /^0+$/.test(before);
+            let filenames = [];
+            if (isInitial) {
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner, repo: context.repo.repo, ref: after,
+              });
+              filenames = (commit.files ?? []).map(f => f.filename);
+            } else {
+              const pages = await github.paginate(
+                github.rest.repos.compareCommitsWithBasehead,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100,
+                },
+              );
+              filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
+            }
+            const siteChanged = filenames.some(f => f.startsWith('site/'));
+            core.setOutput('site_changed', siteChanged ? 'true' : 'false');
+
+      - uses: actions/checkout@v6
+        if: steps.changes.outputs.site_changed == 'true'
+      - uses: pnpm/action-setup@v4
+        if: steps.changes.outputs.site_changed == 'true'
+      - uses: actions/setup-node@v6
+        if: steps.changes.outputs.site_changed == 'true'
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - name: Install dependencies
+        if: steps.changes.outputs.site_changed == 'true'
+        run: pnpm install --frozen-lockfile
+      # `--filter=<site>...` includes workspace deps; without `...` tsc
+      # breaks not finding types/dist of consumed packages.
+      - name: Build site
+        if: steps.changes.outputs.site_changed == 'true'
+        run: pnpm turbo run build --filter=${{ inputs.site_filter }}...
+      - uses: actions/upload-artifact@v6
+        if: steps.changes.outputs.site_changed == 'true'
+        with:
+          name: site-dist
+          path: ${{ inputs.site_path }}
+          retention-days: 1
+
+  deploy-site:
+    name: Deploy site
+    needs: build-site
+    if: always() && !cancelled() && needs.build-site.outputs.site_changed == 'true' && needs.build-site.result == 'success' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: site-dist
+          path: ${{ inputs.site_path }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm
+          command: pages deploy ${{ inputs.site_path }} --project-name=${{ inputs.project_name }} --branch=main --commit-hash=${{ github.sha }} --commit-message="${{ github.sha }}"
+      - name: Purge Cloudflare cache
+        if: env.CLOUDFLARE_ZONE_ID != ''
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+
+  notify:
+    name: Notify Slack
+    needs: [build-site, deploy-site]
+    if: always() && github.event_name != 'pull_request' && needs.deploy-site.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      # Slack payload via jq -n — auto-escapes quotes, backslashes,
+      # newlines, control chars. Interpolating commit messages or SHAs raw
+      # into YAML strings is injection-prone.
+      - name: Build notification
+        env:
+          GH_SHA: ${{ github.sha }}
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+          DEPLOY_RESULT: ${{ needs.deploy-site.result }}
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          SHORT_SHA="${GH_SHA:0:7}"
+          RUN_URL="${GH_SERVER}/${GH_REPO}/actions/runs/${GH_RUN_ID}"
+          COMMIT_URL="${GH_SERVER}/${GH_REPO}/commit/${GH_SHA}"
+
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            HEADER=":rocket: ${PROJECT_NAME} site deployed"
+            RESULT_LINE=":white_check_mark: *Site* — deployed to Cloudflare Pages"
+            TEXT="Deploy successful"
+          else
+            HEADER=":rotating_light: ${PROJECT_NAME} site deploy failed"
+            RESULT_LINE=":x: *Site* — deploy failed"
+            TEXT="Deploy failed"
+          fi
+
+          jq -n \
+            --arg text "$TEXT" \
+            --arg header "$HEADER" \
+            --arg result_line "$RESULT_LINE" \
+            --arg context "*Commit:* <${COMMIT_URL}|${SHORT_SHA}> | *Run:* <${RUN_URL}|View logs>" \
+            '{
+              text: $text,
+              blocks: [
+                { type: "header",  text: { type: "plain_text", text: $header, emoji: true } },
+                { type: "section", text: { type: "mrkdwn", text: $result_line } },
+                { type: "context", elements: [ { type: "mrkdwn", text: $context } ] }
+              ]
+            }' > /tmp/slack-payload.json
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload-file-path: /tmp/slack-payload.json

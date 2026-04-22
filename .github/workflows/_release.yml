@@ -1,0 +1,156 @@
+name: Release
+
+# Reusable workflow — semantic-release with packages_changed guard.
+# Produces outputs so downstream jobs (publish, deploy-site) can gate
+# on whether a release happened and which commit carries the bump.
+#
+# Guards release on `packages/**` or root `package.json` changing in
+# the pushed range. Site-only or docs-only pushes skip the release
+# cycle. Set `require_package_changes: false` to release regardless.
+
+on:
+  workflow_call:
+    inputs:
+      require_package_changes:
+        description: 'Only run semantic-release if packages/** or package.json changed'
+        type: boolean
+        default: true
+    outputs:
+      released:
+        description: 'Whether a new version was released'
+        value: ${{ jobs.release.outputs.released }}
+      version:
+        description: 'The released version number (without leading v)'
+        value: ${{ jobs.release.outputs.version }}
+      release_sha:
+        description: 'The commit SHA that was released (chore(release) commit, or github.sha on no-op)'
+        value: ${{ jobs.release.outputs.release_sha }}
+
+jobs:
+  release:
+    name: semantic-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      released: ${{ steps.semantic.outputs.released }}
+      version: ${{ steps.semantic.outputs.version }}
+      # Fallback to github.sha on no-op — consumers without an `if: released == 'true'`
+      # guard won't checkout an empty ref.
+      release_sha: ${{ steps.semantic.outputs.release_sha || github.sha }}
+    steps:
+      - name: Check for package changes across pushed commits
+        id: changes
+        if: inputs.require_package_changes
+        uses: actions/github-script@v7
+        with:
+          # Compares `before..after` from the push payload. Paginates explicitly
+          # because `compareCommits` truncates at 300 files per page — a large
+          # push could otherwise silently miss detection.
+          script: |
+            const before = context.payload.before;
+            const after = context.sha;
+            const isInitial = !before || /^0+$/.test(before);
+            let filenames = [];
+            if (isInitial) {
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner, repo: context.repo.repo, ref: after,
+              });
+              filenames = (commit.files ?? []).map(f => f.filename);
+            } else {
+              const pages = await github.paginate(
+                github.rest.repos.compareCommitsWithBasehead,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  basehead: `${before}...${after}`,
+                  per_page: 100,
+                },
+              );
+              filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
+            }
+            const packageChanged = filenames.some(
+              f => f.startsWith('packages/') || f === 'package.json'
+            );
+            core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
+            core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);
+
+      - name: Generate GitHub App token
+        id: app-token
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v4
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+
+      - uses: actions/setup-node@v6
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        run: pnpm turbo run build
+
+      - name: Run semantic-release
+        id: semantic
+        if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          HUSKY: 0
+        # Three cases:
+        #   (a) success with release: stdout contains 'Published release' →
+        #       we take the version from `git describe --tags` (more robust
+        #       to format changes in semantic-release's stdout).
+        #   (b) no-op: exit 0 AND stdout mentions 'no relevant changes' →
+        #       released=false. Requiring BOTH conditions avoids masking
+        #       silent failures where the tool exits 0 without publishing
+        #       or explaining why.
+        #   (c) real error: any other combination → non-zero exit.
+        run: |
+          set +e
+          OUTPUT=$(npx semantic-release 2>&1)
+          EXIT=$?
+          set -e
+          echo "$OUTPUT"
+
+          if echo "$OUTPUT" | grep -q "Published release"; then
+            RAW_TAG=$(git describe --tags --abbrev=0)
+            VERSION="${RAW_TAG#v}"
+            if [ -z "$VERSION" ]; then
+              echo "::error::semantic-release published but git describe found no tag"
+              exit 1
+            fi
+            RELEASE_SHA=$(git rev-parse HEAD)
+            {
+              echo "released=true"
+              echo "version=$VERSION"
+              echo "release_sha=$RELEASE_SHA"
+            } >> "$GITHUB_OUTPUT"
+          elif [ "$EXIT" -eq 0 ] && echo "$OUTPUT" | grep -qE "no relevant changes|There are no relevant changes"; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::semantic-release exited $EXIT with no recognized release or no-op marker"
+            exit "${EXIT:-1}"
+          fi
+
+      - name: Skip release (no package changes)
+        if: inputs.require_package_changes && steps.changes.outputs.packages_changed != 'true'
+        run: echo "No changes under packages/** — release skipped"
