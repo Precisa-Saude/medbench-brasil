@@ -1,6 +1,7 @@
-import { useDesktop, useWideGrid } from '@precisa-saude/ui/hooks';
+import { Header } from '@precisa-saude/ui';
+import { useWideGrid } from '@precisa-saude/ui/hooks';
 import { cn } from '@precisa-saude/ui/utils';
-import { Activity, ExternalLink, Menu, X } from 'lucide-react';
+import { Activity, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -11,104 +12,99 @@ const NAV_LINKS = [
   { col: 11, href: '/dataset', label: 'Dataset', span: 2 },
 ] as const;
 
-const gridStyle = {
-  gridTemplateColumns: 'repeat(var(--grid-cols), 1fr)',
-  maxWidth: 'var(--grid-max-w)',
-  width: '100%',
-} as const;
+const GITHUB_URL = 'https://github.com/Precisa-Saude/medbench-brasil';
+
+const logo = (
+  <Link
+    className="inline-flex h-full items-center gap-1.5 font-margem text-xl font-bold tracking-tight text-white"
+    to="/"
+  >
+    <Activity className="h-6 w-6 shrink-0 text-white" />
+    medbench-brasil
+  </Link>
+);
 
 export function Nav() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const desktop = useDesktop();
+  const [open, setOpen] = useState(false);
   const wide = useWideGrid();
   const offset = wide ? 1 : 0;
 
+  const navItems = (
+    <>
+      {NAV_LINKS.map((link) => (
+        <NavLink
+          key={link.href}
+          className={({ isActive }) =>
+            cn(
+              'hidden h-full items-center justify-center border-b-2 font-margem text-base font-medium transition-colors lg:flex',
+              isActive
+                ? 'border-white text-white'
+                : 'border-transparent text-white/70 hover:border-white hover:text-white',
+            )
+          }
+          style={{ gridColumn: `${link.col + offset} / span ${link.span}` }}
+          to={link.href}
+        >
+          {link.label}
+        </NavLink>
+      ))}
+    </>
+  );
+
+  const actions = (
+    <a
+      className="hidden items-center justify-center gap-1.5 self-center rounded-full bg-white/15 px-4 py-2 font-margem text-sm font-medium text-white transition-colors hover:bg-white/25 lg:inline-flex"
+      href={GITHUB_URL}
+      rel="noopener noreferrer"
+      style={{ gridColumn: `${13 + offset} / span 2` }}
+      target="_blank"
+    >
+      GitHub
+      <ExternalLink className="h-3.5 w-3.5" />
+    </a>
+  );
+
+  const mobileNavItems = (
+    <div className="flex flex-col gap-4 px-6 py-6">
+      {NAV_LINKS.map((link) => (
+        <NavLink
+          key={link.href}
+          className={({ isActive }) =>
+            cn(
+              'font-margem text-base font-medium transition-colors',
+              isActive ? 'text-foreground' : 'text-foreground/70 hover:text-foreground',
+            )
+          }
+          to={link.href}
+          onClick={() => setOpen(false)}
+        >
+          {link.label}
+        </NavLink>
+      ))}
+      <a
+        className="inline-flex items-center gap-1.5 font-margem text-sm font-medium text-foreground/70"
+        href={GITHUB_URL}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        GitHub
+        <ExternalLink className="h-3.5 w-3.5" />
+      </a>
+    </div>
+  );
+
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-ps-violet-dark/95 backdrop-blur-md">
-      <div
-        className="mx-auto flex h-16 items-center justify-between px-4 md:grid md:items-stretch md:gap-4 md:px-0"
-        style={gridStyle}
-      >
-        <Link
-          className="inline-flex h-full items-center gap-1.5 font-margem text-xl font-bold tracking-tight text-white md:col-span-3"
-          style={desktop ? { gridColumnStart: 2 + offset } : undefined}
-          to="/"
-        >
-          <Activity className="h-6 w-6 shrink-0 text-white" />
-          medbench-brasil
-        </Link>
-
-        {NAV_LINKS.map((link) => (
-          <NavLink
-            key={link.href}
-            className={({ isActive }) =>
-              cn(
-                'hidden h-full items-center justify-center border-b-2 font-margem text-base font-medium transition-colors md:flex',
-                isActive
-                  ? 'border-white text-white'
-                  : 'border-transparent text-white/70 hover:border-white hover:text-white',
-              )
-            }
-            style={{ gridColumn: `${link.col + offset} / span ${link.span}` }}
-            to={link.href}
-          >
-            {link.label}
-          </NavLink>
-        ))}
-
-        <a
-          className="hidden items-center justify-center gap-1.5 self-center rounded-full bg-white/15 px-4 py-2 font-margem text-sm font-medium text-white transition-colors hover:bg-white/25 md:inline-flex"
-          href="https://github.com/Precisa-Saude/medbench-brasil"
-          rel="noopener noreferrer"
-          style={{ gridColumn: `${13 + offset} / span 2` }}
-          target="_blank"
-        >
-          GitHub
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-
-        <button
-          aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
-          className="rounded-md p-2 text-white md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-
-      <div
-        className={cn(
-          'overflow-hidden border-t border-white/10 bg-ps-violet-dark/95 backdrop-blur-md transition-all duration-200 md:hidden',
-          mobileOpen ? 'max-h-80' : 'max-h-0 border-t-0',
-        )}
-      >
-        <div className="flex flex-col gap-4 px-6 py-4">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.href}
-              className={({ isActive }) =>
-                cn(
-                  'font-margem text-base font-medium transition-colors',
-                  isActive ? 'text-white' : 'text-white/70 hover:text-white',
-                )
-              }
-              to={link.href}
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </NavLink>
-          ))}
-          <a
-            className="inline-flex items-center gap-1.5 font-margem text-sm font-medium text-white/70"
-            href="https://github.com/Precisa-Saude/medbench-brasil"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            GitHub
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-        </div>
-      </div>
-    </nav>
+    <Header
+      actions={actions}
+      className="border-b border-white/10 bg-ps-violet-dark/95 backdrop-blur-md"
+      containerClassName="mx-auto px-4 md:px-0"
+      contentClassName="grid h-16 items-center gap-4"
+      iconClassName="text-white"
+      isMobileMenuOpen={open}
+      logo={logo}
+      mobileNavItems={mobileNavItems}
+      navItems={navItems}
+      onToggleMobileMenu={setOpen}
+    />
   );
 }
