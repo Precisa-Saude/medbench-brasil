@@ -12,23 +12,23 @@ importers:
         specifier: ^20.5.0
         version: 20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3)
       '@precisa-saude/agent-instructions':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.5.0
+        version: 1.5.0
       '@precisa-saude/commitlint-config':
-        specifier: ^1.1.2
-        version: 1.1.2(@commitlint/cli@20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3))
+        specifier: ^1.5.0
+        version: 1.5.0(@commitlint/cli@20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3))
       '@precisa-saude/eslint-config':
-        specifier: ^1.1.2
-        version: 1.1.2(eslint@10.2.1(jiti@2.6.1))(jiti@2.6.1)(prettier@3.8.3)(tailwindcss@4.2.2)(typescript@5.7.3)
+        specifier: ^1.5.0
+        version: 1.5.0(eslint@10.2.1(jiti@2.6.1))(jiti@2.6.1)(prettier@3.8.3)(tailwindcss@4.2.2)(typescript@5.7.3)
       '@precisa-saude/prettier-config':
-        specifier: ^1.1.2
-        version: 1.1.2(prettier-plugin-packagejson@3.0.2(prettier@3.8.3))(prettier@3.8.3)
+        specifier: ^1.5.0
+        version: 1.5.0(prettier-plugin-packagejson@3.0.2(prettier@3.8.3))(prettier@3.8.3)
       '@precisa-saude/tsconfig':
-        specifier: ^1.1.2
-        version: 1.1.2(typescript@5.7.3)
+        specifier: ^1.5.0
+        version: 1.5.0(typescript@5.7.3)
       '@precisa-saude/worktree-cli':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.5.0
+        version: 1.5.0
       '@semantic-release/changelog':
         specifier: ^6.0.3
         version: 6.0.3(semantic-release@25.0.3(typescript@5.7.3))
@@ -143,11 +143,11 @@ importers:
         specifier: workspace:*
         version: link:../packages/eval-harness
       '@precisa-saude/themes':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.5.0
+        version: 1.5.0
       '@precisa-saude/ui':
-        specifier: ^1.1.2
-        version: 1.1.2(@base-ui/react@1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(lucide-react@0.562.0(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(recharts@2.15.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
+        specifier: ^1.5.0
+        version: 1.5.0(@base-ui/react@1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(lucide-react@0.562.0(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(recharts@2.15.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -1408,25 +1408,25 @@ packages:
     resolution: {integrity: sha512-h104Kh26rR8tm+a3Qkc5S4VLYint3FE48as7+/5oCEcKR2idC/pF1G6AhIXKI+eHPJa/3J9i5z0Al47IeGHPkA==}
     engines: {node: '>=12'}
 
-  '@precisa-saude/agent-instructions@1.1.2':
-    resolution: {integrity: sha512-tuih07S1/cD0E89mX2TU4sOmsdFkMi9VvPpY78uZGQZgeHvMen/dziMh/30J8O4PWmPEqaCaXrQ8AG4F9ZSZYw==}
+  '@precisa-saude/agent-instructions@1.5.0':
+    resolution: {integrity: sha512-seuH8WydA1znxoFRy+W4UnPLyMwVjomhr7buhK9chhDGN1zfC2+SWMRWnGJSaLVI91imzP0Ru2k+HdhsgzV4ig==}
     engines: {node: '>=22.0.0'}
 
-  '@precisa-saude/commitlint-config@1.1.2':
-    resolution: {integrity: sha512-cfn0iaWBpefJYNf3zwL9TbhMORmQbax7d7hSm5DOdddUy0vSMPHjXp8KyygkjNe96OTeHP2FKKjrDs8RO9M/yA==}
+  '@precisa-saude/commitlint-config@1.5.0':
+    resolution: {integrity: sha512-iEHxqAYK5/mxgYLM5FhfGXeTDc1j57BzCnRdPKKu0J9mMmohLxJhpcccdh7QTTeIHA6bpPC2DUeD7l0cM9srqw==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       '@commitlint/cli': '>=19'
 
-  '@precisa-saude/eslint-config@1.1.2':
-    resolution: {integrity: sha512-Z1HJaTXuLfTvRNeTFcz/TBbi6vJt1Y4L7UhHEpDDl7dooPZGhTY/Sn7sNBLnGlJ4N59f5GkIuaMq5FaLPz+fyA==}
+  '@precisa-saude/eslint-config@1.5.0':
+    resolution: {integrity: sha512-PxA3bIjy3X++mIvfK0ANggYcYyLRU2cv2NUBLZle9jgKikOUpta2UJa6llChOVTCwhpDQLv1Dt7qgtmOJ/38TQ==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       eslint: ^9.0.0 || ^10.0.0
       prettier: ^3.0.0
 
-  '@precisa-saude/prettier-config@1.1.2':
-    resolution: {integrity: sha512-sx5Q16EkyXknYEOHyNzSNPC6VtIyv+kASvgpudxC5yGoiQCPZ7f44g0jpM5FUq2/LLZqDlhrHAjoN369parQKQ==}
+  '@precisa-saude/prettier-config@1.5.0':
+    resolution: {integrity: sha512-0ebjvA1MEWsrnCdWNyk26QkyqFxXthyXTNCabc3oB1H9kx/zrtDbsMQHQRIjIRDm6qL5HpnKUEB4WfTr564/1Q==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       prettier: ^3.0.0
@@ -1436,18 +1436,18 @@ packages:
       prettier-plugin-tailwindcss:
         optional: true
 
-  '@precisa-saude/themes@1.1.2':
-    resolution: {integrity: sha512-vJiEuERomQnLv7FOqthBWLJhs8ovBXmFH00y6MwsoGGKPv/6iqC+PnkmKgSqI+pEpW40+aDKAy6j+uX6QR/Vow==}
+  '@precisa-saude/themes@1.5.0':
+    resolution: {integrity: sha512-7xuDOg9u51Ft7+FvRvzVaFiAA/v48LrcAcfqIrL29HGxBvDb/AkFCkNrhQv2Hh6WtwupBHyuwcTIud/lRFxACg==}
     engines: {node: '>=22.0.0'}
 
-  '@precisa-saude/tsconfig@1.1.2':
-    resolution: {integrity: sha512-hSihJiGigG6NoMtDSMjk8F8NmYGSfoZuOulW6rZfc7xkH2icMrIWO2WoEQSxTVOsh2lNPIdI7B6Sne+gf6d9eQ==}
+  '@precisa-saude/tsconfig@1.5.0':
+    resolution: {integrity: sha512-eA4/UFu9NLEyctBZzyvOpzrvUS6ltde241KsnZcsnFBeD7KDDaKxlcN4WIZFQr17ZuLDls6XhThL01cGkcg04g==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       typescript: '>=5.0.0'
 
-  '@precisa-saude/ui@1.1.2':
-    resolution: {integrity: sha512-irV21e7t5qs0V5bY1drk8D3IxrpVACQdxq1eAgyAimn+EspG0UULPgC4hlrt/FgYsq0v0vWyel3x2lKWgJ7HeA==}
+  '@precisa-saude/ui@1.5.0':
+    resolution: {integrity: sha512-l93EW8KV5ptwRpRtYm0uH6aVa+AFthmuEXxfZIPdw69d1IRBrDvqL4x2b4snRIPJ/1Lw9ZgeiTHPmfd4RsxiDA==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       '@base-ui/react': ^1.3.0
@@ -1464,8 +1464,8 @@ packages:
       shiki:
         optional: true
 
-  '@precisa-saude/worktree-cli@1.1.2':
-    resolution: {integrity: sha512-hIVrek23W1rVeMFufd5xRL3h7diYfeNmZ8FiQHmxUAVaVa5Pf9lfzTPcLb7wirA7PXpUvheG696sXHb/Oxu3ug==}
+  '@precisa-saude/worktree-cli@1.5.0':
+    resolution: {integrity: sha512-usYs4jpGAZvIwt3pBkEu89cdBa2k4UkDPJbnfSclw0JLzYGd4utrItSxR4raMlUDyzVKDdJp/THcwcF8r4ztOA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
@@ -7121,14 +7121,14 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@precisa-saude/agent-instructions@1.1.2': {}
+  '@precisa-saude/agent-instructions@1.5.0': {}
 
-  '@precisa-saude/commitlint-config@1.1.2(@commitlint/cli@20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3))':
+  '@precisa-saude/commitlint-config@1.5.0(@commitlint/cli@20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3))':
     dependencies:
       '@commitlint/cli': 20.5.0(@types/node@22.19.17)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@5.7.3)
       '@commitlint/config-conventional': 20.5.0
 
-  '@precisa-saude/eslint-config@1.1.2(eslint@10.2.1(jiti@2.6.1))(jiti@2.6.1)(prettier@3.8.3)(tailwindcss@4.2.2)(typescript@5.7.3)':
+  '@precisa-saude/eslint-config@1.5.0(eslint@10.2.1(jiti@2.6.1))(jiti@2.6.1)(prettier@3.8.3)(tailwindcss@4.2.2)(typescript@5.7.3)':
     dependencies:
       '@eslint/js': 9.39.4
       '@html-eslint/eslint-plugin': 0.52.1(eslint@10.2.1(jiti@2.6.1))(jiti@2.6.1)
@@ -7154,18 +7154,18 @@ snapshots:
       - tailwindcss
       - typescript
 
-  '@precisa-saude/prettier-config@1.1.2(prettier-plugin-packagejson@3.0.2(prettier@3.8.3))(prettier@3.8.3)':
+  '@precisa-saude/prettier-config@1.5.0(prettier-plugin-packagejson@3.0.2(prettier@3.8.3))(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
       prettier-plugin-packagejson: 3.0.2(prettier@3.8.3)
 
-  '@precisa-saude/themes@1.1.2': {}
+  '@precisa-saude/themes@1.5.0': {}
 
-  '@precisa-saude/tsconfig@1.1.2(typescript@5.7.3)':
+  '@precisa-saude/tsconfig@1.5.0(typescript@5.7.3)':
     dependencies:
       typescript: 5.7.3
 
-  '@precisa-saude/ui@1.1.2(@base-ui/react@1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(lucide-react@0.562.0(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(recharts@2.15.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
+  '@precisa-saude/ui@1.5.0(@base-ui/react@1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(lucide-react@0.562.0(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(recharts@2.15.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
     dependencies:
       '@base-ui/react': 1.4.1(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       class-variance-authority: 0.7.1
@@ -7177,7 +7177,7 @@ snapshots:
       lucide-react: 0.562.0(react@19.2.5)
       recharts: 2.15.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
-  '@precisa-saude/worktree-cli@1.1.2':
+  '@precisa-saude/worktree-cli@1.5.0':
     dependencies:
       chalk: 5.6.2
       commander: 12.1.0
