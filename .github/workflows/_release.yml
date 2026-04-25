@@ -91,7 +91,7 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         if: "!inputs.require_package_changes || steps.changes.outputs.packages_changed == 'true'"
 
       - uses: actions/setup-node@v6

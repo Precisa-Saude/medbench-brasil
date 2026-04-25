@@ -62,7 +62,7 @@ jobs:
 
       - uses: actions/checkout@v6
         if: steps.changes.outputs.site_changed == 'true'
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         if: steps.changes.outputs.site_changed == 'true'
       - uses: actions/setup-node@v6
         if: steps.changes.outputs.site_changed == 'true'
