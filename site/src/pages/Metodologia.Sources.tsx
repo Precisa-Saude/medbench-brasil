@@ -103,6 +103,24 @@ export default function MetodologiaSources() {
       </ul>
 
       <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+        Benchmarks médicos relacionados em pt-BR
+      </h3>
+      <ul className="mt-3 space-y-3">
+        <AbntRef
+          author="ABONIZIO, H.; LOPES, F. R.; LOTUFO, R.; NOGUEIRA, R."
+          imprint="arXiv:2605.01077, 1 maio 2026"
+          title="Teaching LLMs Brazilian Healthcare: injecting knowledge from official clinical guidelines"
+          url="https://arxiv.org/abs/2605.01077"
+        />
+        <AbntRef
+          author="ABONIZIO, H. et al."
+          imprint="[S. l.]: GitHub, 2026. Repositório com benchmarks abertos (HealthBench-BR, PCDT-QA) e checkpoints Qwen2.5-14B"
+          title="clinical-protocols-br"
+          url="https://github.com/hugoabonizio/clinical-protocols-br"
+        />
+      </ul>
+
+      <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
         Cortes de treino — documentação oficial dos fornecedores
       </h3>
       <p className="mt-3 text-sm text-muted-foreground">
