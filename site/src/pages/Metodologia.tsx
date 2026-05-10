@@ -190,6 +190,42 @@ export default function Metodologia() {
           </div>
         </section>
 
+        <section id="benchmarks-relacionados">
+          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
+            Benchmarks relacionados
+          </h2>
+          <p className="mt-3">
+            O medbench mede conhecimento de prova oficial: questões de múltipla escolha do INEP
+            (ENAMED, Revalida, Enare), com gabarito pós-recurso e parsing determinístico de A/B/C/D.
+            Existem outros benchmarks médicos abertos em pt-BR com escopo distinto e complementar —
+            úteis para triangular as fortalezas e limitações de um modelo, não para substituir esta
+            avaliação.
+          </p>
+          <ul className="mt-3 list-disc list-inside space-y-2">
+            <li>
+              <strong>HealthBench-BR</strong> — 1.780 asserções verdadeiro/falso (10 por diretriz),
+              em pares contrastivos sobre 178 Protocolos Clínicos e Diretrizes Terapêuticas (PCDTs)
+              do Ministério da Saúde. Mede recall fiel a detalhes de dosagem, via de administração e
+              intervalo de monitoramento.
+            </li>
+            <li>
+              <strong>PCDT-QA</strong> — 890 questões abertas (5 por diretriz) com respostas
+              fundamentadas no texto da diretriz. Avaliação por LLM-as-a-judge (GPT-4.1) com
+              veredicto binário; cobre o lado aberto que um benchmark de múltipla escolha não
+              alcança.
+            </li>
+          </ul>
+          <p className="mt-3">
+            Ambos são publicados por Abonizio et al. (2026) junto com checkpoints abertos baseados
+            em Qwen2.5-14B com pré-treino contínuo e GRPO sobre as diretrizes do SUS. Citações
+            completas em{' '}
+            <a className="text-ps-violet hover:underline" href="#fontes">
+              Fontes
+            </a>
+            .
+          </p>
+        </section>
+
         <section id="linha-de-base">
           <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
             Linha de base humana e o sentido da nota de corte
@@ -257,6 +293,7 @@ const TOC_ITEMS: ReadonlyArray<{ href: string; label: string }> = [
   { href: '#prompt', label: 'System prompt literal' },
   { href: '#variancia', label: 'Por que rodamos três vezes' },
   { href: '#contaminacao', label: 'Contaminação de treino' },
+  { href: '#benchmarks-relacionados', label: 'Benchmarks relacionados' },
   { href: '#linha-de-base', label: 'Linha de base humana e o sentido da nota de corte' },
   { href: '#fontes', label: 'Fontes' },
 ];
