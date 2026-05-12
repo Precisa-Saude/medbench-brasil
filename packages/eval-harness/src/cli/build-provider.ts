@@ -9,14 +9,15 @@ export type Backend =
   | 'openai'
   | 'google'
   | 'ollama'
+  | 'mlx'
   | 'maritaca'
   | 'together'
   | 'openrouter';
 
 /**
  * Traduz os argumentos do CLI em uma instância de `Provider`. Backends
- * `maritaca`, `together` e `openrouter` reutilizam o provider OpenAI-compatível
- * apontando para os respectivos endpoints.
+ * `maritaca`, `together`, `openrouter`, `ollama` e `mlx` reutilizam o provider
+ * OpenAI-compatível apontando para os respectivos endpoints.
  */
 export function buildProvider(backend: Backend, args: Record<string, string>): Provider {
   const model = args.model;
@@ -25,6 +26,8 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
   }
   const cutoff = args.cutoff;
   const label = args.label;
+  const maxTokens = args['max-tokens'] ? Number(args['max-tokens']) : undefined;
+  const timeoutMs = args['timeout-ms'] ? Number(args['timeout-ms']) : undefined;
 
   switch (backend) {
     case 'anthropic':
@@ -37,8 +40,21 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
       return openAiCompatProvider({
         baseUrl: args.baseUrl ?? 'http://localhost:11434/v1',
         label,
+        maxTokens,
         model,
         provider: 'Ollama',
+        timeoutMs,
+        trainingCutoff: cutoff,
+      });
+    case 'mlx':
+      return openAiCompatProvider({
+        baseUrl: args.baseUrl ?? 'http://localhost:8080/v1',
+        label,
+        maxTokens,
+        model,
+        provider: 'MLX',
+        requestModel: args['request-model'],
+        timeoutMs,
         trainingCutoff: cutoff,
       });
     case 'maritaca': {
