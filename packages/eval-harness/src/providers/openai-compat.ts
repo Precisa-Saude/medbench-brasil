@@ -7,6 +7,13 @@ interface OpenAICompatOptions extends ProviderBaseOptions {
   baseUrl: string;
   /** Nome do fornecedor para display — ex.: 'Ollama', 'vLLM'. */
   provider: string;
+  /**
+   * Nome de modelo enviado no body do request (campo `model`). Quando ausente,
+   * usa `model`. Útil para servidores MLX rodando base + LoRA adapter, onde o
+   * id reportado nos resultados é o checkpoint composto mas o servidor só
+   * conhece o base name.
+   */
+  requestModel?: string;
 }
 
 /**
@@ -23,6 +30,7 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   const maxTokens = opts.maxTokens ?? 8192;
   const temperature = opts.temperature ?? 0;
   const timeoutMs = opts.timeoutMs ?? 300_000;
+  const requestModel = opts.requestModel ?? opts.model;
 
   return {
     id: opts.model,
@@ -35,7 +43,7 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
           { content: input.systemPrompt, role: 'system' },
           { content: input.userPrompt, role: 'user' },
         ],
-        model: opts.model,
+        model: requestModel,
         temperature,
       } as const;
 

@@ -108,7 +108,7 @@ async function runEval(args: Record<string, string>) {
   const backend = args.backend as Backend;
   const provider = buildProvider(backend, args);
 
-  const defaultConcurrency = backend === 'ollama' ? 1 : 10;
+  const defaultConcurrency = backend === 'ollama' || backend === 'mlx' ? 1 : 10;
   const concurrency = args.concurrency ? Number(args.concurrency) : defaultConcurrency;
   const edition = args.edition ?? 'revalida-2025-1';
   const logRaw = args['no-raw-log'] !== 'true';

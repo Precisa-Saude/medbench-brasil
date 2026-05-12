@@ -13,12 +13,21 @@ Comandos:
             erros de consenso) a partir dos scored JSONs existentes.
 
 Opções de eval/smoke (exigem --backend e --model):
-  --backend <anthropic|openai|google|ollama|maritaca|together|openrouter>
+  --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter>
   --model <id>
   --edition revalida-2025-1   (padrão)
   --label "Nome legível"
   --cutoff YYYY-MM-DD
-  --concurrency N             (padrão: 10 para APIs, 1 para ollama)
+  --concurrency N             (padrão: 10 para APIs, 1 para ollama/mlx)
+  --max-tokens N              Override do max_tokens (padrão 8192 em ollama/mlx,
+                              1024 em providers diretos)
+  --timeout-ms N              Override do timeout HTTP por requisição
+                              (padrão 300000 em ollama/mlx)
+  --request-model <id>        (mlx) Nome de modelo enviado no body do request.
+                              Útil quando o servidor MLX serve base + LoRA: o
+                              --model identifica o checkpoint composto nos
+                              resultados, enquanto --request-model usa o base
+                              que o servidor de fato carregou.
 
 Opções de eval:
   --runs N                    (padrão: 3)

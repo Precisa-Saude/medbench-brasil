@@ -210,6 +210,18 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     trainingCutoff: '2025-08-31',
     trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-5.4',
   },
+  'hugo/protocolos-clinicos-br-cpt-4gen-14b': {
+    description:
+      'Continued pretraining do Qwen 2.5 14B em Protocolos Clínicos e Diretrizes Terapêuticas (PCDTs) do SUS. Abonizio et al., arXiv:2605.01077.',
+    homepage: 'https://arxiv.org/abs/2605.01077',
+    label: 'Qwen 2.5 14B CPT-4gen (clinical-protocols-br)',
+    modelId: 'hugo/protocolos-clinicos-br-cpt-4gen-14b',
+    provider: 'Abonizio et al. · MLX local',
+    releaseDate: '2026-05-01',
+    tier: 'open-weight',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   'meta-llama/llama-3.3-70b-instruct': {
     description:
       'Llama 3.3 70B Instruct — flagship dense da geração anterior ao Llama 4, lançado em dezembro de 2024.',
@@ -273,6 +285,23 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     modelId: 'mistralai/mistral-large-2512',
     provider: 'Mistral · OpenRouter',
     releaseDate: '2025-12-01',
+    tier: 'open-weight',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
+  // Runs locais via MLX para o estudo de transferência PCDT→prova oficial INEP
+  // (cpt-4gen e, em seguida, rl-4gen são checkpoints de Abonizio et al.,
+  // arXiv:2605.01077, "Teaching LLMs Brazilian Healthcare: Injecting Knowledge
+  // from Official Clinical Guidelines"). Qwen não publica pretraining data
+  // cutoff — ficam `undefined`.
+  'mlx-community/Qwen2.5-14B-Instruct-bf16': {
+    description:
+      'Baseline Qwen 2.5 14B Instruct (bf16), rodado localmente via MLX. Referência sem fine-tuning para o estudo de transferência PCDT→prova oficial INEP.',
+    homepage: 'https://qwenlm.github.io/blog/qwen2.5/',
+    label: 'Qwen 2.5 14B (MLX bf16)',
+    modelId: 'mlx-community/Qwen2.5-14B-Instruct-bf16',
+    provider: 'Alibaba · MLX local',
+    releaseDate: '2024-09-19',
     tier: 'open-weight',
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,

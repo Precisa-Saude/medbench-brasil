@@ -6,3 +6,5 @@ coverage
 pnpm-lock.yaml
 results
 scripts/data/raw
+.venv
+.venv-*
