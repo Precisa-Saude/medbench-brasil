@@ -7,6 +7,10 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 
+# Ambientes virtuais Python locais (ex.: MLX runtime para runs no Apple Silicon)
+.venv/
+.venv-*/
+
 # Dados brutos extraídos da INEP (PDFs + gabaritos)
 scripts/data/raw/
 
