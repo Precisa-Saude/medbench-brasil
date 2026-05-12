@@ -1,3 +1,22 @@
+## [1.5.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.4.0...v1.5.0) (2026-05-12)
+
+### Features
+
+* **results:** publica Qwen 2.5 14B baseline + CPT-4gen via MLX local ([#37](https://github.com/Precisa-Saude/medbench-brasil/issues/37)) ([ccbb02a](https://github.com/Precisa-Saude/medbench-brasil/commit/ccbb02ad7a8e559c9b4312a26f548456e6f1928e))
+* **site:** consumir Header e OpenFooter compartilhados do @precisa-saude/ui ([#33](https://github.com/Precisa-Saude/medbench-brasil/issues/33)) ([6c10cbd](https://github.com/Precisa-Saude/medbench-brasil/commit/6c10cbd7394964eaf9ddc68a1c2c281830fed8bc))
+
+### Documentation
+
+* **site:** adiciona seção "Benchmarks relacionados" em Metodologia ([#36](https://github.com/Precisa-Saude/medbench-brasil/issues/36)) ([fcd77b7](https://github.com/Precisa-Saude/medbench-brasil/commit/fcd77b72994afde476971e50ecfcfe25ffcab212))
+
+### CI/CD
+
+* bump pnpm/action-setup para v5 (Node.js 24) ([#34](https://github.com/Precisa-Saude/medbench-brasil/issues/34)) ([6705f42](https://github.com/Precisa-Saude/medbench-brasil/commit/6705f429d57d726f8ca77630b4fae1eeff294a73))
+
+### Chores
+
+* **deps:** bump @precisa-saude/* para ^1.5.0 ([#32](https://github.com/Precisa-Saude/medbench-brasil/issues/32)) ([8c27e93](https://github.com/Precisa-Saude/medbench-brasil/commit/8c27e93ccf1b63f608589b1c5f8b8123c8acfe78))
+
 ## [1.4.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.3.0...v1.4.0) (2026-04-22)
 
 ### Features
