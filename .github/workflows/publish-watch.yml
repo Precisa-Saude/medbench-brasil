@@ -1,0 +1,139 @@
+name: Publish watch
+
+# Tripwire — confirma que toda versão publicada no npm tem uma tag git
+# correspondente neste repo. Roda em cron de 15 em 15 min e ad-hoc via
+# workflow_dispatch.
+#
+# Para cada pacote público em packages/**, compara a versão `latest` no
+# registry com as tags `v<versão>` deste repo. Se a versão do npm não
+# existe como tag local, abre uma issue de prioridade alta — sinal de
+# publicação fora do fluxo (workflow comprometido, token vazado,
+# republicação manual).
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: publish-watch
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    name: Verify npm versions match git tags
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+
+      - name: Compare npm latest vs git tags
+        id: check
+        run: |
+          set -e
+          mismatches=""
+          # Lista pacotes públicos do workspace. `pnpm m ls --json` retorna
+          # name, version, path, private para cada workspace package.
+          pnpm m ls --json --depth -1 > /tmp/ws.json
+          mapfile -t entries < <(
+            node -e '
+              const ws = JSON.parse(require("fs").readFileSync("/tmp/ws.json","utf8"));
+              for (const p of ws) {
+                if (p.private || !p.name) continue;
+                if (!p.name.startsWith("@")) continue;
+                process.stdout.write(p.name + "\n");
+              }
+            '
+          )
+          for name in "${entries[@]}"; do
+            [ -z "$name" ] && continue
+            npm_version=$(npm view "$name" version 2>/dev/null || true)
+            if [ -z "$npm_version" ]; then
+              echo "$name: not on npm yet, skipping"
+              continue
+            fi
+            # Tag convention: semantic-release emits `<name>@<ver>` for
+            # monorepos and `v<ver>` for single-package repos. Accept both.
+            if git rev-parse -q --verify "refs/tags/${name}@${npm_version}" >/dev/null 2>&1 \
+               || git rev-parse -q --verify "refs/tags/v${npm_version}" >/dev/null 2>&1; then
+              echo "$name@$npm_version: tag found"
+            else
+              echo "::warning::$name@$npm_version published on npm but no matching git tag in this repo"
+              mismatches="${mismatches}- \`${name}@${npm_version}\` (no matching tag)\n"
+            fi
+          done
+          if [ -n "$mismatches" ]; then
+            {
+              echo "mismatches<<EOF"
+              printf "%b" "$mismatches"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open issue on mismatch
+        if: steps.check.outputs.mismatches != ''
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        with:
+          script: |
+            const mismatches = `${{ steps.check.outputs.mismatches }}`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Não duplica: se já existe uma issue aberta com este título,
+            // só comenta nela com a evidência da rodada atual.
+            const title = 'publish-watch: versão npm sem tag git correspondente';
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,publish-watch',
+              per_page: 50,
+            });
+            const open = existing.find(i => i.title === title);
+
+            const body = [
+              '`publish-watch` detectou uma ou mais versões publicadas no npm que',
+              'não têm tag git correspondente neste repo. Isto pode indicar:',
+              '',
+              '- publicação fora do fluxo (workflow comprometido, token vazado, republicação manual)',
+              '- semantic-release configurado com convenção de tag diferente (revisar)',
+              '- pacote movido para outro repo sem atualizar o filtro do watch',
+              '',
+              '**Versões sem tag local:**',
+              '',
+              mismatches,
+              '',
+              `Log da rodada: ${runUrl}`,
+              '',
+              '## Próximos passos',
+              '',
+              '1. Conferir `npm view <pacote> time` para o horário da publicação.',
+              '2. Cruzar com runs de `_publish.yml` / `publish-tag.yml` recentes.',
+              '3. Se não há run correspondente, tratar como incidente: rotação de NPM_TOKEN, revisão de logs de auditoria do npm, deprecate da versão suspeita.',
+            ].join('\n');
+
+            if (open) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: open.number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['security', 'publish-watch'],
+              });
+            }
