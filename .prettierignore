@@ -8,3 +8,4 @@ results
 scripts/data/raw
 .venv
 .venv-*
+CHANGELOG.md
