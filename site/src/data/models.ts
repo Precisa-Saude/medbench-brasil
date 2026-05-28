@@ -91,6 +91,19 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
     trainingCutoff: '2026-01-01',
     trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
   },
+  'claude-opus-4-8': {
+    description:
+      'Sucessor do Opus 4.7 (maio/2026), com adaptive thinking e ganhos em raciocínio agêntico e uso de ferramentas.',
+    homepage: 'https://www.anthropic.com/news/claude-opus-4-8',
+    label: 'Claude Opus 4.8',
+    modelId: 'claude-opus-4-8',
+    provider: 'Anthropic',
+    releaseDate: '2026-05-28',
+    tier: 'proprietaria',
+    // "Claude Opus 4.8 ... Training data cutoff Jan 2026" — Models overview.
+    trainingCutoff: '2026-01-01',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/about-claude/models/overview',
+  },
   // DeepSeek só publica cutoff explícito para um modelo: R1. O paper R1
   // (arXiv:2501.12948, seção Decontamination) afirma "DeepSeek-V3 base has a
   // knowledge cutoff date of July 2024" no contexto de justificar que R1 é
