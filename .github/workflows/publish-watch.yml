@@ -1,7 +1,7 @@
 name: Publish watch
 
 # Tripwire — confirma que toda versão publicada no npm tem uma tag git
-# correspondente neste repo. Roda em cron de 15 em 15 min e ad-hoc via
+# correspondente neste repo. Roda em cron diário e ad-hoc via
 # workflow_dispatch.
 #
 # Para cada pacote público em packages/**, compara a versão `latest` no
@@ -12,7 +12,7 @@ name: Publish watch
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
