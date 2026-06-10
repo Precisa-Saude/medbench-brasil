@@ -66,6 +66,13 @@ describe('anthropicProvider', () => {
     expect(res.requestParams).not.toHaveProperty('temperature');
   });
 
+  it('omite temperature para Fable 5 (sampling params rejeitados com 400)', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    const provider = anthropicProvider({ apiKey: 'k', model: 'claude-fable-5' });
+    const res = await provider.run(INPUT);
+    expect(res.requestParams).not.toHaveProperty('temperature');
+  });
+
   it('envia temperature para modelos fora da família Opus 4+', async () => {
     mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
     const provider = anthropicProvider({ apiKey: 'k', model: 'claude-sonnet-4-6' });

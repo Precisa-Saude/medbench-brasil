@@ -45,6 +45,27 @@ export type ModelMetadata = ModelMetadataBase & TrainingCutoffFields;
 // de cada valor está em `trainingCutoffSource` e no comentário acima da
 // entrada, incluindo a citação verbatim quando disponível.
 export const MODELS_METADATA: Record<string, ModelMetadata> = {
+  // Fable 5: a Anthropic NÃO publica training data cutoff para este modelo —
+  // a tabela do Fable 5 no Models overview (platform.claude.com) omite a linha
+  // "Training data cutoff" presente nas tabelas dos demais modelos, e a página
+  // de lançamento ("Introducing Claude Fable 5 and Claude Mythos 5") também
+  // não declara (verificado em 2026-06-10). Pela política do repo, ambos os
+  // campos ficam undefined → contaminação `unknown`. Se o cutoff for
+  // publicado, preencher e rodar `medbench rescore --from-raw --edition <id>
+  // --model claude-fable-5 --cutoff <data>` para cada edição.
+  'claude-fable-5': {
+    description:
+      'Modelo mais capaz da Anthropic (junho/2026), novo tier acima do Opus, com adaptive thinking sempre ativo.',
+    homepage:
+      'https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5',
+    label: 'Claude Fable 5',
+    modelId: 'claude-fable-5',
+    provider: 'Anthropic',
+    releaseDate: '2026-06-09',
+    tier: 'proprietaria',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   // Anthropic publica dois cutoffs por modelo: "training data cutoff" (janela
   // ampla do corpus) e "reliable knowledge cutoff" (data em que o
   // conhecimento é considerado confiável). Usamos o training data cutoff —
