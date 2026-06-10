@@ -5,10 +5,11 @@ import { fetchWithTimeout } from './_http.js';
 type AnthropicProviderOptions = ProviderBaseOptions;
 
 // Modelos Opus 4.x (e demais famílias com reasoning fixo) deprecam o parâmetro
-// `temperature`. Em vez de mandar 0 e ser rejeitado, omitimos quando o nome do
-// modelo indica família Opus 4+.
+// `temperature`. Fable 5 e Mythos 5 vão além: rejeitam sampling params com 400
+// e têm adaptive thinking sempre ativo (não desligável). Em vez de mandar 0 e
+// ser rejeitado, omitimos quando o nome do modelo indica essas famílias.
 function anthropicModelQuirks(model: string): { omitTemperature: boolean } {
-  return { omitTemperature: /^claude-opus-[4-9]/i.test(model) };
+  return { omitTemperature: /^claude-(opus-[4-9]|fable-|mythos-)/i.test(model) };
 }
 
 /**
