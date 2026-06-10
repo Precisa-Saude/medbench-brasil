@@ -1,3 +1,15 @@
+## [1.6.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.5.0...v1.6.0) (2026-06-10)
+
+### Features
+
+* avalia Claude Fable 5 no ENAMED 2025 ([#42](https://github.com/Precisa-Saude/medbench-brasil/issues/42)) ([2c47b99](https://github.com/Precisa-Saude/medbench-brasil/commit/2c47b99b430117fc74fda282b5a4194ba51077f1))
+* avalia Claude Opus 4.8 nas 4 edições ([#39](https://github.com/Precisa-Saude/medbench-brasil/issues/39)) ([ba127ef](https://github.com/Precisa-Saude/medbench-brasil/commit/ba127ef468773c4f4633bf5b3a8c92aa603addec))
+
+### CI/CD
+
+* pin actions e tripwire publish-watch (postmortem TanStack) ([#38](https://github.com/Precisa-Saude/medbench-brasil/issues/38)) ([08a8a09](https://github.com/Precisa-Saude/medbench-brasil/commit/08a8a0951a04a25038ce4568a1427e3c3a5d8eb8))
+* roda publish-watch uma vez por dia em vez de a cada 15min ([#40](https://github.com/Precisa-Saude/medbench-brasil/issues/40)) ([5098406](https://github.com/Precisa-Saude/medbench-brasil/commit/5098406ed9884b3e628416f824e0ce5befa4821f))
+
 ## [1.5.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.4.0...v1.5.0) (2026-05-12)
 
 ### Features
