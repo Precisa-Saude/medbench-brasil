@@ -26,6 +26,16 @@ export interface ProviderResponse {
   parsedAnswer: QuestionOption | null;
   rawResponse: string;
   requestParams: Record<string, unknown>;
+  /**
+   * Motivo de parada declarado pelo provider (ex.: `end_turn`, `max_tokens`,
+   * `refusal` na Anthropic). Preenchido só onde a API expõe o campo.
+   *
+   * Sem ele, uma `rawResponse` vazia é ambígua: recusa por classificador de
+   * segurança, truncamento por `max_tokens` e falha silenciosa ficam
+   * indistinguíveis no log bruto — e a diferença muda a leitura do resultado
+   * (recusa é comportamento do modelo; truncamento é erro de configuração).
+   */
+  stopReason?: string;
   timings: { durationMs: number };
 }
 
@@ -60,6 +70,8 @@ export interface RawResponseRecord {
   rawResponse: string;
   requestParams: Record<string, unknown>;
   run: number;
+  /** Ver `ProviderResponse.stopReason`. Ausente em providers que não expõem. */
+  stopReason?: string;
 }
 
 export interface PerQuestionResult {

@@ -69,6 +69,35 @@ describe('parseLetter', () => {
     expect(parseLetter('A\n')).toBe('A');
   });
 
+  it('caso real Claude Sonnet 5: abre com o rótulo da alternativa e depois refuta as outras', () => {
+    // A resposta correta é B, anunciada em "**B) ...**" na primeira linha.
+    // Em seguida o modelo refuta A, C e D sob cabeçalhos em bold. Sem a regra
+    // do rótulo inicial, a regra da última ocorrência de `X)` devolvia D.
+    const real = [
+      '**B) Transtorno de oposição desafiante.**',
+      '',
+      'O quadro clínico descrito é característico do TOD, caracterizado por:',
+      '',
+      '- **Humor irritável/colérico**: irritação quando contrariado',
+      '- **Vingativo**: age deliberadamente para aborrecer os outros',
+      '',
+      '**Por que não as outras opções:**',
+      '',
+      '- **A) Transtorno afetivo bipolar**: não há episódios de mania.',
+      '- **C) Transtorno disruptivo da desregulação do humor**: exige explosões graves.',
+      '- **D) TDAH**: não há menção a desatenção ou hiperatividade.',
+    ].join('\n');
+    expect(parseLetter(real)).toBe('B');
+
+    // Mesmo formato sem bold no rótulo inicial.
+    expect(parseLetter('C) Esporotricose.\n\nAs demais: A) furunculose; D) paraco.')).toBe('C');
+  });
+
+  it('rótulo inicial não sobrepõe frase de compromisso posterior', () => {
+    // Se o modelo abre com um rótulo mas depois se corrige, o compromisso vence.
+    expect(parseLetter('B) Primeira hipótese.\n\nNa verdade, a resposta correta é C.')).toBe('C');
+  });
+
   it('não regride: frase de compromisso ganha da letra inicial', () => {
     // Mesmo começando com "A" (artigo), a frase de compromisso aponta para C.
     expect(parseLetter('A resposta correta é C) paracetamol')).toBe('C');
