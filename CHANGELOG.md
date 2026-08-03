@@ -1,3 +1,13 @@
+## [1.7.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.6.0...v1.7.0) (2026-08-03)
+
+### Features
+
+* **harness:** avalia Gemini 3.6 Flash, Claude Opus 5 e Sonnet 5 no ENAMED 2025 ([#47](https://github.com/Precisa-Saude/medbench-brasil/issues/47)) ([d190b73](https://github.com/Precisa-Saude/medbench-brasil/commit/d190b73173f1a47e9eca6760bafc079ba5284248))
+
+### CI/CD
+
+* atualizar GitHub Actions para o runtime Node 24 ([#44](https://github.com/Precisa-Saude/medbench-brasil/issues/44)) ([0105e1b](https://github.com/Precisa-Saude/medbench-brasil/commit/0105e1b9b15c0545952facc313cf3b05e46cc514))
+
 ## [1.6.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.5.0...v1.6.0) (2026-06-10)
 
 ### Features
