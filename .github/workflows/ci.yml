@@ -1,8 +1,18 @@
 name: CI/CD
 
-# Orchestrator — wires reusable workflows. See
-# tooling/templates/github/workflows/ci.yml for the canonical shape.
-# Manual recovery from interrupted publish: publish-tag.yml (standalone).
+# Canonical CI/CD orchestrator — mirrors platform's split-workflow shape.
+# Each concern lives in its own reusable workflow under `.github/workflows/`:
+#
+#   _checks.yml       — parallel CI checks (lint, typecheck, format, build, test)
+#   _release.yml      — semantic-release with packages_changed guard
+#   _publish.yml      — npm publish pinned to release_sha
+#   _deploy-site.yml  — Cloudflare Pages deploy + Slack notify (repos with sites)
+#   review.yml        — automated Anthropic → OpenAI code review
+#   publish-tag.yml   — manual recovery (workflow_dispatch)
+#
+# Per-repo customization flows through `.precisa.json`:
+#   publishesToNpm + publishPackages[] gate the `publish` job
+#   hasSite + siteProjectName + siteFilter gate the `deploy-site` job
 
 on:
   push:
@@ -18,7 +28,6 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-  deployments: write
   id-token: write
   # `models: read` pelo mesmo motivo: review.yml chama GitHub Models
   # via GITHUB_TOKEN no fallback de providers.
@@ -29,10 +38,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── CI checks (every PR and push) ──────────────────────────────
   checks:
     uses: ./.github/workflows/_checks.yml
     secrets: inherit
 
+  # ── Automated code review (PR only, after checks) ──────────────
   review:
     needs: checks
     if: github.event_name == 'pull_request'
@@ -41,32 +52,33 @@ jobs:
       pr_number: ${{ github.event.pull_request.number }}
     secrets: inherit
 
+  # ── Release (main only, guarded on package changes) ────────────
   release:
     needs: checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     uses: ./.github/workflows/_release.yml
     secrets: inherit
 
+  # ── Publish to npm (when release created a new version) ────────
   publish:
     needs: release
     if: needs.release.outputs.released == 'true'
     uses: ./.github/workflows/_publish.yml
     with:
       release_sha: ${{ needs.release.outputs.release_sha }}
+      # Newline-separated list of package directories. One per line.
       packages: |
         packages/dataset
         packages/eval-harness
     secrets: inherit
 
+  # ── Deploy site (Cloudflare Pages + Slack notify) ──────────────
   deploy-site:
     needs: checks
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/_deploy-site.yml
     with:
-      project_name: medbench-brasil
+      project_name: 'medbench-brasil'
       site_filter: '@medbench-brasil/site'
-      # `results/` entra porque o leaderboard é montado a partir dele em
-      # `site/src/data/results.ts` (`import.meta.glob('../../../results/*/*.json')`).
-      # Uma PR que só adiciona modelos muda o site sem tocar em `site/`.
-      watch_paths: 'site/,results/'
+      site_source_path: 'site/,results/'
     secrets: inherit

@@ -25,5 +25,9 @@
     "conduct": "conduct@precisa-saude.com.br"
   },
   "nodeVersion": "22",
-  "pnpmVersion": "9.15.9"
+  "pnpmVersion": "9.15.9",
+  "publishPackages": ["packages/dataset", "packages/eval-harness"],
+  "siteFilter": "@medbench-brasil/site",
+  "siteProjectName": "medbench-brasil",
+  "siteSourcePath": ["site/", "results/"]
 }
