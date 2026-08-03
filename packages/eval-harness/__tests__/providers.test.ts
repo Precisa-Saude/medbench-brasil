@@ -165,13 +165,24 @@ describe('openAiProvider', () => {
 
   // 5.1/5.2/5.4 aceitam temperature: 0 e já estão publicados com esse valor —
   // o recorte do GPT-5.6+ não pode alcançá-los.
-  it.each(['gpt-5.1', 'gpt-5.2', 'gpt-5.4'])(
+  it.each(['gpt-5.1', 'gpt-5.2', 'gpt-5.4', 'gpt-5.5'])(
     'mantém temperature: 0 em %s (comparabilidade com artefatos publicados)',
     async (model) => {
       mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
       const provider = openAiProvider({ apiKey: 'k', model });
       const res = await provider.run(INPUT);
       expect(res.requestParams).toHaveProperty('temperature', 0);
+    },
+  );
+
+  // O corte é comparação numérica da minor version: 5.10 é POSTERIOR a 5.6.
+  it.each(['gpt-5.10', 'gpt-5.7', 'gpt-5.100'])(
+    'omite temperature em %s (minor >= 6 por comparação numérica)',
+    async (model) => {
+      mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+      const provider = openAiProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).not.toHaveProperty('temperature');
     },
   );
 });
@@ -238,8 +249,14 @@ describe('openAiCompatProvider', () => {
     expect(res.stopReason).toBe('content_filter');
   });
 
-  it('omite stopReason quando o provider não devolve finish_reason', async () => {
-    mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+  // `null` (geração em andamento, pela spec da OpenAI) e "" (alguns servidores
+  // OpenAI-compat) não carregam informação — são tratados como ausência.
+  it.each([
+    ['ausente', { choices: [{ message: { content: 'A' } }] }],
+    ['null', { choices: [{ finish_reason: null, message: { content: 'A' } }] }],
+    ['string vazia', { choices: [{ finish_reason: '', message: { content: 'A' } }] }],
+  ])('omite stopReason quando finish_reason é %s', async (_label, body) => {
+    mockFetchResponse({ body });
     const provider = openAiCompatProvider({
       baseUrl: 'http://localhost:11434/v1',
       model: 'qwen:latest',

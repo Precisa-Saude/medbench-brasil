@@ -15,11 +15,18 @@ type OpenAIProviderOptions = ProviderBaseOptions;
 // gpt-5-mini e a família o1/o3 rejeitam `temperature != 1` — omitimos.
 // A partir do GPT-5.6 a OpenAI rejeita `temperature` diferente do default:
 // "Unsupported value: 'temperature' does not support 0 with this model. Only
-// the default (1) value is supported." O recorte é deliberadamente estreito —
-// GPT-5.1, 5.2 e 5.4 **aceitam** `temperature: 0` e já estão publicados em
-// `results/` com esse valor. Incluí-los aqui mudaria o parâmetro num re-run e
-// quebraria a comparabilidade com os artefatos existentes.
-const OMITS_TEMPERATURE_GPT5 = /^gpt-5\.(?:[6-9]|\d{2,})/i;
+// the default (1) value is supported."
+//
+// O corte é por comparação numérica da minor version, não por regex de dígitos:
+// `gpt-5.10` é posterior ao `gpt-5.6`, e uma classe como `[6-9]|\d{2,}` acerta
+// esse caso por acidente enquanto classifica `gpt-5.05` errado. Comparar
+// número com número deixa a intenção explícita — "5.6 em diante".
+const GPT5_TEMPERATURE_FLOOR = 6;
+
+function gpt5MinorVersion(model: string): null | number {
+  const m = /^gpt-5\.(\d+)/i.exec(model);
+  return m ? Number(m[1]) : null;
+}
 
 function openAiModelQuirks(model: string): {
   isReasoningModel: boolean;
@@ -27,12 +34,16 @@ function openAiModelQuirks(model: string): {
   usesNewParamName: boolean;
 } {
   const isReasoningModel = /^gpt-5/i.test(model) || /^o[1-9]/i.test(model);
+  // GPT-5.1, 5.2 e 5.4 **aceitam** `temperature: 0` e já estão publicados em
+  // `results/` com esse valor. Mantê-los fora do corte preserva a
+  // comparabilidade: um re-run deles precisa mandar o mesmo parâmetro.
+  const minor = gpt5MinorVersion(model);
   return {
     isReasoningModel,
     omitTemperature:
       /^gpt-5-nano/i.test(model) ||
       /^gpt-5-mini/i.test(model) ||
-      OMITS_TEMPERATURE_GPT5.test(model) ||
+      (minor !== null && minor >= GPT5_TEMPERATURE_FLOOR) ||
       /^o[1-9]/i.test(model),
     usesNewParamName: isReasoningModel,
   };
