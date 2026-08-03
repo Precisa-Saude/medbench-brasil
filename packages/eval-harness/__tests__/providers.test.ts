@@ -79,6 +79,55 @@ describe('anthropicProvider', () => {
     const res = await provider.run(INPUT);
     expect(res.requestParams).toHaveProperty('temperature', 0);
   });
+
+  // `max_tokens` limita thinking + texto visível juntos. Em modelos que
+  // raciocinam sem receber o parâmetro `thinking`, o teto de 1024 trunca a
+  // resposta (chega a sair vazia) e chega a mudar a letra escolhida.
+  it.each(['claude-fable-5', 'claude-mythos-5', 'claude-opus-5', 'claude-sonnet-5'])(
+    'usa teto de 8192 tokens para %s (raciocina por padrão)',
+    async (model) => {
+      mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+      const provider = anthropicProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).toHaveProperty('max_tokens', 8192);
+    },
+  );
+
+  it.each(['claude-opus-4-7', 'claude-opus-4-8', 'claude-sonnet-4-6'])(
+    'mantém teto de 1024 tokens para %s (não raciocina sem o parâmetro thinking)',
+    async (model) => {
+      mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+      const provider = anthropicProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).toHaveProperty('max_tokens', 1024);
+    },
+  );
+
+  it('--max-tokens explícito ganha do padrão por família', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    const provider = anthropicProvider({ apiKey: 'k', maxTokens: 2048, model: 'claude-opus-5' });
+    const res = await provider.run(INPUT);
+    expect(res.requestParams).toHaveProperty('max_tokens', 2048);
+  });
+
+  // Recusa do classificador vem como HTTP 200 com `content` vazio. Sem o
+  // stop_reason no log, ela fica indistinguível de truncamento ou falha.
+  it('propaga stop_reason=refusal com content vazio', async () => {
+    mockFetchResponse({ body: { content: [], stop_reason: 'refusal' } });
+    const provider = anthropicProvider({ apiKey: 'k', model: 'claude-fable-5' });
+    const res = await provider.run(INPUT);
+    expect(res.rawResponse).toBe('');
+    expect(res.stopReason).toBe('refusal');
+  });
+
+  it('propaga stop_reason=end_turn em resposta normal', async () => {
+    mockFetchResponse({
+      body: { content: [{ text: 'A', type: 'text' }], stop_reason: 'end_turn' },
+    });
+    const provider = anthropicProvider({ apiKey: 'k', model: 'claude-opus-5' });
+    const res = await provider.run(INPUT);
+    expect(res.stopReason).toBe('end_turn');
+  });
 });
 
 describe('openAiProvider', () => {

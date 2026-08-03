@@ -31,6 +31,14 @@ function renderUserPrompt(q: Question): string {
  *      onde a justificativa contém o artigo "a" — a regra 5 (última letra
  *      isolada) capturaria o artigo por engano.
  *   5. Última ocorrência de letra isolada `\bX\b`
+ *
+ * Formato "resposta primeiro": modelos recentes (Claude Sonnet 5, entre
+ * outros) abrem com o rótulo da alternativa escolhida — `**B) <texto>**` —
+ * e em seguida refutam as demais sob cabeçalhos `**A)**`, `**C)**`, `**D)**`.
+ * Nesse formato nenhuma frase de compromisso aparece e o bold envolve o
+ * rótulo inteiro (não só a letra), então as regras 1 e 2 não disparam e a
+ * regra 3 devolve a ÚLTIMA refutação — quase sempre `D)`, errada. O rótulo
+ * inicial é tratado antes da regra 3 para cobrir esse caso.
  */
 export function parseLetter(raw: string): QuestionOption | null {
   const text = raw.trim();
@@ -41,6 +49,7 @@ export function parseLetter(raw: string): QuestionOption | null {
   //      — take LAST, cobre modelos que argumentam várias letras antes de fechar.
   //   2. Bold **X** (fallback se não houve commit explícito) — take FIRST.
   //   3. Loose commit: só a palavra de compromisso — "Resposta: A".
+  //   3.5. Rótulo de alternativa abrindo a resposta: `^**X)` ou `^X)`.
   //   4. Última ocorrência de X)
   //   5. Última letra isolada \bX\b.
   const commitWord = String.raw`(?:\bresposta\b|\balternativa\b|\bletra\b|\bop[cç][aã]o\b)`;
@@ -68,6 +77,12 @@ export function parseLetter(raw: string): QuestionOption | null {
     const firstLetter = lookahead.match(/\b([ABCD])\b/);
     if (firstLetter) return firstLetter[1] as QuestionOption;
   }
+
+  // Rótulo da alternativa escolhida abrindo a resposta, com ou sem bold:
+  // "**B) Transtorno...**" ou "B) Transtorno...". Precisa vir antes da regra
+  // da última ocorrência de `X)`, que devolveria a última refutação.
+  const leadingOption = upper.match(/^(?:\*\*)?\s*([ABCD])\)/);
+  if (leadingOption) return leadingOption[1] as QuestionOption;
 
   const parenMatches = [...upper.matchAll(/\b([ABCD])\)/g)];
   if (parenMatches.length > 0) {
@@ -214,6 +229,7 @@ export async function runEvaluation(
             rawResponse: response.rawResponse,
             requestParams: response.requestParams,
             run: run + 1,
+            ...(response.stopReason === undefined ? {} : { stopReason: response.stopReason }),
           });
         }
         done += 1;
