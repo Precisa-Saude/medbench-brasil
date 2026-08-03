@@ -65,4 +65,8 @@ jobs:
     with:
       project_name: medbench-brasil
       site_filter: '@medbench-brasil/site'
+      # `results/` entra porque o leaderboard é montado a partir dele em
+      # `site/src/data/results.ts` (`import.meta.glob('../../../results/*/*.json')`).
+      # Uma PR que só adiciona modelos muda o site sem tocar em `site/`.
+      watch_paths: 'site/,results/'
     secrets: inherit
