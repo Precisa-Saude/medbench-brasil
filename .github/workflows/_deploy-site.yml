@@ -1,8 +1,8 @@
 name: Deploy site
 
 # Reusable workflow — builds the repo's site and deploys to Cloudflare
-# Pages when site files changed, then sends a Slack notification.
-# Guards on site file presence across the pushed range.
+# Pages when watched files changed, then sends a Slack notification.
+# Guards on watched file presence across the pushed range.
 
 on:
   workflow_call:
@@ -19,6 +19,14 @@ on:
         description: 'Output directory to deploy (default: site/dist)'
         type: string
         default: 'site/dist'
+      watch_paths:
+        description: >-
+          Comma-separated path prefixes that should trigger a deploy.
+          Defaults to `site/`, but a site whose content comes from outside
+          that directory has to declare those inputs here, or the deploy is
+          silently skipped while CI still reports green.
+        type: string
+        default: 'site/'
 
 jobs:
   build-site:
@@ -57,7 +65,16 @@ jobs:
               );
               filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
             }
-            const siteChanged = filenames.some(f => f.startsWith('site/'));
+            // Prefixos vêm de `watch_paths` porque nem todo conteúdo do site
+            // mora em `site/`. No medbench-brasil o leaderboard é montado a
+            // partir de `results/` via `import.meta.glob`, então uma PR que só
+            // adiciona modelos muda o site sem tocar em `site/` — e o deploy
+            // era pulado em silêncio, com o CI verde.
+            const prefixes = '${{ inputs.watch_paths }}'
+              .split(',')
+              .map(p => p.trim())
+              .filter(Boolean);
+            const siteChanged = filenames.some(f => prefixes.some(p => f.startsWith(p)));
             core.setOutput('site_changed', siteChanged ? 'true' : 'false');
 
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -87,7 +104,11 @@ jobs:
   deploy-site:
     name: Deploy site
     needs: build-site
-    if: always() && !cancelled() && needs.build-site.outputs.site_changed == 'true' && needs.build-site.result == 'success' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # `workflow_dispatch` entra junto com `push`: o passo de detecção já força
+    # `site_changed=true` nesse evento, mas o gate exigia `push` e o deploy
+    # manual nunca saía — build verde, nada publicado. Sem isso não há como
+    # republicar o site depois de um deploy pulado por engano.
+    if: always() && !cancelled() && needs.build-site.outputs.site_changed == 'true' && needs.build-site.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
