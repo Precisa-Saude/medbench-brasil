@@ -66,14 +66,28 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
         throw new Error(`${opts.provider} API erro ${res.status}: ${await res.text()}`);
       }
       const body = (await res.json()) as {
-        choices?: Array<{ message?: { content?: string } }>;
+        choices?: Array<{ finish_reason?: null | string; message?: { content?: string } }>;
       };
       const rawResponse = body.choices?.[0]?.message?.content ?? '';
+      // `finish_reason` é o equivalente OpenAI-compat do `stop_reason` da
+      // Anthropic (`stop`, `length`, `content_filter`, ...). Sem ele, uma
+      // resposta vazia é ambígua entre filtro de conteúdo, truncamento e
+      // falha transitória do provider — distinção que muda a leitura do
+      // resultado. Ver `ProviderResponse.stopReason`.
+      //
+      // `null` e string vazia são tratados como ausência: a especificação
+      // OpenAI devolve `null` enquanto a geração está em andamento, e alguns
+      // servidores OpenAI-compat mandam "" em vez de omitir o campo. Nenhum
+      // dos dois carrega informação — gravá-los sujaria o JSONL com um campo
+      // que não distingue nada.
+      const rawStopReason = body.choices?.[0]?.finish_reason;
+      const stopReason = rawStopReason ? rawStopReason : undefined;
 
       return {
         parsedAnswer: null,
         rawResponse,
         requestParams,
+        ...(stopReason === undefined ? {} : { stopReason }),
         timings: { durationMs },
       };
     },

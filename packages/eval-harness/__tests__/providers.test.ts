@@ -153,8 +153,36 @@ describe('openAiProvider', () => {
     expect(res.requestParams).not.toHaveProperty('max_completion_tokens');
   });
 
-  it.each(['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini'])(
+  it.each(['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini', 'gpt-5.6-sol', 'gpt-5.6'])(
     'omite temperature para modelo sem suporte: %s',
+    async (model) => {
+      mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+      const provider = openAiProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).not.toHaveProperty('temperature');
+    },
+  );
+
+  // 5.1/5.2/5.4 aceitam temperature: 0 e já estão publicados com esse valor —
+  // o recorte do GPT-5.6+ não pode alcançá-los.
+  // Sondagem contra a API em 2026-08-03: gpt-5.4 aceita, gpt-5.5 e gpt-5.6-sol
+  // rejeitam. A fronteira medida é 5.5. Estes três também já estão publicados
+  // em `results/` com temperature: 0 — um re-run precisa mandar o mesmo valor.
+  it.each(['gpt-5.1', 'gpt-5.2', 'gpt-5.4'])(
+    'mantém temperature: 0 em %s (aceito pela API e publicado com esse valor)',
+    async (model) => {
+      mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+      const provider = openAiProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).toHaveProperty('temperature', 0);
+    },
+  );
+
+  // 5.5 é a fronteira medida. 5.10 é POSTERIOR a 5.5 — daí a comparação
+  // numérica em vez de classe de dígitos. Sufixo de variante e patch não mudam
+  // o comportamento: quem manda é a minor.
+  it.each(['gpt-5.5', 'gpt-5.6-sol', 'gpt-5.6.1', 'gpt-5.7', 'gpt-5.10', 'gpt-5.100'])(
+    'omite temperature em %s (minor >= 5 por comparação numérica)',
     async (model) => {
       mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
       const provider = openAiProvider({ apiKey: 'k', model });
@@ -210,6 +238,39 @@ describe('googleProvider', () => {
 });
 
 describe('openAiCompatProvider', () => {
+  // Sem o finish_reason, uma resposta vazia é ambígua entre filtro de
+  // conteúdo, truncamento e falha transitória do provider.
+  it('propaga finish_reason como stopReason', async () => {
+    mockFetchResponse({
+      body: { choices: [{ finish_reason: 'content_filter', message: { content: '' } }] },
+    });
+    const provider = openAiCompatProvider({
+      baseUrl: 'https://openrouter.ai/api/v1',
+      model: 'deepseek/deepseek-v4-pro',
+      provider: 'OpenRouter',
+    });
+    const res = await provider.run(INPUT);
+    expect(res.rawResponse).toBe('');
+    expect(res.stopReason).toBe('content_filter');
+  });
+
+  // `null` (geração em andamento, pela spec da OpenAI) e "" (alguns servidores
+  // OpenAI-compat) não carregam informação — são tratados como ausência.
+  it.each([
+    ['ausente', { choices: [{ message: { content: 'A' } }] }],
+    ['null', { choices: [{ finish_reason: null, message: { content: 'A' } }] }],
+    ['string vazia', { choices: [{ finish_reason: '', message: { content: 'A' } }] }],
+  ])('omite stopReason quando finish_reason é %s', async (_label, body) => {
+    mockFetchResponse({ body });
+    const provider = openAiCompatProvider({
+      baseUrl: 'http://localhost:11434/v1',
+      model: 'qwen:latest',
+      provider: 'Ollama',
+    });
+    const res = await provider.run(INPUT);
+    expect(res).not.toHaveProperty('stopReason');
+  });
+
   it('omite header Authorization quando apiKey não é fornecida', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       json: async () => ({ choices: [{ message: { content: 'A' } }] }),

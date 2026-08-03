@@ -98,6 +98,12 @@ Ver `docs/contamination.md` seção "Canary tests". Não bloqueante para v1; esc
 - [ ] shuffled options (memorização posicional)
 - [ ] paraphrase (memorização vs compreensão)
 
+## Planos topicais
+
+- [`plano-enamed-2026.md`](./plano-enamed-2026.md) — ENAMED 2026 (prova em
+  13/09/2026): primeira edição que post-data o corte de treino de todos os
+  modelos, tornando o roster inteiro uma medição limpa.
+
 ## Arquitetura
 
 Decisões registradas em `docs/development/adr/`.
