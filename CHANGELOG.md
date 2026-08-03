@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.7.0...v1.8.0) (2026-08-03)
+
+### Features
+
+* **harness:** avalia GPT-5.6 Sol, Qwen 3.7 Max, DeepSeek V4 Pro, Kimi K3 e Grok 4.5 no ENAMED 2025 ([#48](https://github.com/Precisa-Saude/medbench-brasil/issues/48)) ([d1a65a3](https://github.com/Precisa-Saude/medbench-brasil/commit/d1a65a3577be099f868b5e2ed0ab54252e9fa7f6))
+
 ## [1.7.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.6.0...v1.7.0) (2026-08-03)
 
 ### Features
