@@ -1,44 +1,33 @@
 ---
-name: Bug report
-about: Reporte um problema com o site, o harness ou o dataset
-title: '[BUG] '
-labels: bug
+name: Reporte de bug
+about: Algo está quebrado
+title: '[bug] '
+labels: [bug]
 ---
 
-## Descrição
+## O que aconteceu
 
-Descreva o problema de forma clara e concisa.
+<!-- Descrição curta do comportamento inesperado. -->
 
-## Área afetada
+## Reprodução
 
-- [ ] Site (leaderboard, metodologia)
-- [ ] Harness de avaliação (`packages/eval-harness/`)
-- [ ] Dataset (`packages/dataset/`)
-- [ ] Resultados publicados em `results/`
+<!-- Passos mínimos. Inclua o comando exato executado, pacote + versão, versões do Node/pnpm. -->
 
-## Passos para reproduzir
+```bash
+# comando(s)
+```
 
-1. ...
-2. ...
-3. ...
+## Esperado
 
-## Comportamento esperado
-
-O que deveria acontecer.
-
-## Comportamento atual
-
-O que realmente acontece.
+<!-- O que você esperava que acontecesse. -->
 
 ## Ambiente
 
-- Pacote: `@medbench-brasil/<pkg>@x.x.x` (se aplicável)
-- Node: `vX.X.X`
-- pnpm: `vX.X.X`
+- Pacote + versão:
+- Node: `node --version`
+- pnpm: `pnpm --version`
 - SO: macOS / Linux / Windows
 
 ## Contexto adicional
 
-Se o bug envolve uma edição específica do Revalida ou um modelo
-específico, inclua: edição (ano/UF), modelo (versão exata), e — para
-problemas de scoring — o hash da run em `results/`.
+<!-- Stack trace, logs de CI, etc. -->

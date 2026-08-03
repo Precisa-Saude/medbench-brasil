@@ -3,7 +3,7 @@ name: Template drift audit
 # Monthly audit — runs `precisa doctor` to detect drift between this
 # repo's templated files (workflows, dotfiles, configs) and the current
 # `@precisa-saude/cli` templates. When drift shows up, open a PR running
-# `pnpm exec precisa sync` to absorb the changes.
+# `precisa sync` to absorb the changes.
 #
 # Runs on the 1st of each month at 06:00 America/Sao_Paulo (09:00 UTC).
 # `workflow_dispatch` is wired so you can trigger it ad-hoc.
@@ -13,6 +13,12 @@ name: Template drift audit
 # in each repo. See fhir-brasil#26 (PAT_TOKEN → GitHub App) for the
 # concrete failure mode — drift went undetected until a conditional
 # job finally fired in production.
+#
+# Roda via `npx @precisa-saude/cli`, não via `pnpm exec`. O CLI não é
+# devDependency de nenhum repo consumidor, então `pnpm exec precisa` saía
+# "command not found" — não-zero, indistinguível de drift real. Todo repo
+# com este workflow abriu uma issue de "drift" por mês sem nunca ter
+# inspecionado um template. Ver a separação de exit codes abaixo.
 
 on:
   schedule:
@@ -30,42 +36,130 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 22
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+
+      # `npx --yes` dispensa o CLI como devDependency (nenhum repo o tem) e
+      # dispensa `pnpm install` — o doctor só lê `.precisa.json` e os templates
+      # que vêm dentro do próprio pacote.
+      #
+      # O exit code é capturado em vez de virar falha do step, para separar os
+      # dois casos que antes colidiam:
+      #   0            — sem drift
+      #   1            — drift encontrado (o doctor rodou e comparou)
+      #   2            — `.precisa.json` ausente ou inválido (nada comparado)
+      #   qualquer outro — o audit não rodou (rede, versão quebrada, etc.)
+      # `PIPESTATUS[0]` pega o código do npx, não do `tee`.
       - name: Audit templates
         id: doctor
-        run: pnpm exec precisa doctor
-        continue-on-error: true
-      - name: Open issue on drift
-        if: steps.doctor.outcome == 'failure'
+        # `shell: bash` explícito: `PIPESTATUS` é bashismo. É o default em
+        # runners Linux, mas depender do default deixa o passo frágil se o
+        # workflow for reaproveitado em outro runner.
+        shell: bash
+        env:
+          NO_COLOR: '1'
+        run: |
+          set +e
+          npx --yes @precisa-saude/cli@latest doctor 2>&1 | tee "$RUNNER_TEMP/precisa-doctor.log"
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      # Falha barulhenta e visível quando a própria auditoria quebra. Antes
+      # isso virava uma issue mensal de "drift" — o modo de falha que fez o
+      # sinal perder credibilidade.
+      - name: Fail when the manifest is invalid
+        if: steps.doctor.outputs.exit_code == '2'
+        run: |
+          echo "::error title=.precisa.json inválido::O manifesto deste repo não valida contra o schema atual do CLI, então nenhum template foi comparado. Isto NÃO é drift — rodar 'sync' não resolve. Corrija os campos listados no log acima."
+          exit 1
+
+      - name: Fail when the audit could not run
+        if: steps.doctor.outputs.exit_code != '0' && steps.doctor.outputs.exit_code != '1' && steps.doctor.outputs.exit_code != '2'
+        run: |
+          echo "::error title=precisa doctor não rodou::exit ${{ steps.doctor.outputs.exit_code }} — isto NÃO é drift; a auditoria em si falhou."
+          exit 1
+
+      # Uma issue por repo, atualizada a cada rodada. A versão anterior criava
+      # uma issue nova todo mês, acumulando duplicatas até ninguém mais ler.
+      - name: Report drift
+        if: steps.doctor.outputs.exit_code == '1'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
+            const fs = require('node:fs');
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const MARKER = '<!-- precisa-doctor-drift -->';
+
+            let log = '';
+            try {
+              // `RUNNER_TEMP` em vez de `/tmp`: é limpo por job e não colide
+              // com outro job no mesmo runner (relevante em self-hosted).
+              log = fs.readFileSync(`${process.env.RUNNER_TEMP}/precisa-doctor.log`, 'utf8').trim();
+            } catch {
+              log = '(log indisponível)';
+            }
+            // Cabe folgado no limite de 65536 chars do corpo de uma issue.
+            // Corta em fronteira de linha: cada linha do doctor é um arquivo,
+            // e cortar no meio produziria um nome de arquivo pela metade.
+            const LIMITE = 20000;
+            if (log.length > LIMITE) {
+              const corte = log.lastIndexOf('\n', LIMITE);
+              log = `${log.slice(0, corte > 0 ? corte : LIMITE)}\n… (truncado — ver o log completo do run)`;
+            }
+
             const body = [
-              '`precisa doctor` detected drift between this repo and the canonical templates.',
+              MARKER,
+              '`precisa doctor` encontrou divergência entre este repo e os templates canônicos.',
               '',
-              `Full log: ${runUrl}`,
+              '### Saída do doctor',
               '',
-              'To fix:',
-              '',
-              '```bash',
-              'pnpm exec precisa sync --dry-run  # review the diff',
-              'pnpm exec precisa sync            # apply',
+              '```',
+              log,
               '```',
               '',
-              'Drift typically shows up when `@precisa-saude/cli` publishes',
-              'new templates (workflow changes, dotfile updates) and this',
-              'repo has not run `precisa sync` since.',
+              `Log completo do run: ${runUrl}`,
+              '',
+              '### Como resolver',
+              '',
+              '```bash',
+              'npx @precisa-saude/cli@latest sync --dry-run  # revisar o diff',
+              'npx @precisa-saude/cli@latest sync            # aplicar',
+              '```',
+              '',
+              '> **Revise o `--dry-run` antes de aplicar.** Templates marcados',
+              '> `overwrite` são reescritos sem backup nem confirmação — se este',
+              '> repo tem customização deliberada num arquivo templatizado, o',
+              '> sync a descarta. Nesse caso, leve a mudança para o `tooling`',
+              '> em vez de rodar o sync.',
+              '',
+              `Atualizado em ${new Date().toISOString()} pelo run ${context.runId}.`,
             ].join('\n');
-            await github.rest.issues.create({
+
+            const title = 'precisa doctor: template drift detected';
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'precisa doctor: template drift detected',
-              body,
-              labels: ['dependencies', 'tooling-drift'],
+              state: 'open',
+              labels: 'tooling-drift',
+              per_page: 100,
             });
+            const open = existing.find((i) => !i.pull_request && (i.body ?? '').includes(MARKER));
+
+            if (open) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: open.number,
+                body,
+              });
+              core.notice(`Drift persiste — issue #${open.number} atualizada.`);
+            } else {
+              const { data } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['dependencies', 'tooling-drift'],
+              });
+              core.notice(`Drift detectado — issue #${data.number} aberta.`);
+            }

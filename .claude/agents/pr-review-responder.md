@@ -15,6 +15,14 @@ You will receive a PR number. If not provided, detect it from the current branch
 gh pr view --json number --jq '.number'
 ```
 
+Resolve the current repository once and reuse it throughout the workflow:
+
+```bash
+REPO="${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner --jq '.nameWithOwner')}"
+OWNER="${REPO%%/*}"
+NAME="${REPO#*/}"
+```
+
 ## Workflow
 
 Follow these steps exactly:
@@ -22,7 +30,7 @@ Follow these steps exactly:
 ### Step 1: Fetch all inline comments
 
 ```bash
-gh api repos/Precisa-Saude/platform/pulls/<PR_NUMBER>/comments \
+gh api "repos/$REPO/pulls/<PR_NUMBER>/comments" \
   --jq '.[] | "\(.id) | \(.path):\(.line // .original_line) | \(.body)"'
 ```
 
@@ -46,26 +54,28 @@ For "Fix" items:
 Use the replies endpoint (NOT the comments endpoint):
 
 ```bash
-gh api repos/Precisa-Saude/platform/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies \
+gh api "repos/$REPO/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies" \
   -f body="Fixed in upcoming commit - <explanation>"
 ```
 
 For "Won't fix" items, provide clear rationale:
 
 ```bash
-gh api repos/Precisa-Saude/platform/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies \
+gh api "repos/$REPO/pulls/<PR_NUMBER>/comments/<COMMENT_ID>/replies" \
   -f body="Won't fix - <rationale>"
 ```
 
 ### Step 5: Resolve all threads
 
-First, get thread IDs:
+First, get thread IDs (pass owner/name as GraphQL variables via `-F`):
 
 ```bash
-gh api graphql -f query='
-query {
-  repository(owner: "Precisa-Saude", name: "platform") {
-    pullRequest(number: <PR_NUMBER>) {
+gh api graphql \
+  -F owner="$OWNER" -F name="$NAME" -F number=<PR_NUMBER> \
+  -f query='
+query($owner: String!, $name: String!, $number: Int!) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
       reviewThreads(first: 50) {
         nodes {
           id
@@ -101,10 +111,7 @@ Stage all modified files for a single commit. Do NOT create the commit — the u
 - **Batch all replies and resolves** into minimal Bash calls. Do not make individual tool calls per comment.
 - **Reply and resolve BEFORE pushing** — this prevents the reviewer from running again on push.
 - **Never add AI attribution** to replies or commits.
-- **Run lint and typecheck** on affected packages after making changes:
-  ```bash
-  pnpm turbo run lint typecheck --filter=@precisasaude/<package>
-  ```
+- **Run lint and typecheck** on affected packages after making changes.
 - **Ask before committing** — stage changes but let the user decide on commit message and timing.
 
 ## Output

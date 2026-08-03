@@ -1,30 +1,18 @@
 ---
-name: Feature request
-about: Sugira uma melhoria no site, no harness de avaliação ou no dataset
-title: '[FEATURE] '
-labels: enhancement
+name: Solicitação de feature
+about: Proponha uma nova funcionalidade ou melhoria
+title: '[feat] '
+labels: [enhancement]
 ---
 
-## Descrição
+## Problema
 
-Descreva a funcionalidade ou melhoria desejada.
+<!-- Qual limitação ou fricção você está enfrentando? -->
 
-## Área
+## Solução proposta
 
-- [ ] Site (leaderboard, metodologia, páginas)
-- [ ] Harness de avaliação (`packages/eval-harness/`)
-- [ ] Dataset (`packages/dataset/`)
-- [ ] Documentação / metodologia
+<!-- Esboce a API / comportamento. Exemplos concretos preferíveis a prosa. -->
 
-## Motivação
+## Alternativas consideradas
 
-Por que essa mudança seria útil?
-
-## Referências
-
-Se a sugestão envolve uma nova métrica, método de scoring ou integração
-de modelo, inclua:
-
-- Link para paper ou documentação técnica
-- Justificativa metodológica (principalmente para mudanças no harness —
-  ver garantias não-negociáveis em `AGENTS.md`)
+<!-- Outras abordagens que você considerou e por que descartou. -->
