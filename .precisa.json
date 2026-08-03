@@ -29,5 +29,6 @@
   "publishPackages": ["packages/dataset", "packages/eval-harness"],
   "siteFilter": "@medbench-brasil/site",
   "siteProjectName": "medbench-brasil",
-  "siteSourcePath": ["site/", "results/"]
+  "siteSourcePath": ["site/", "results/"],
+  "ignoreTemplates": [".commitlintrc.cjs", ".prettierignore"]
 }

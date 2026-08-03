@@ -1,7 +1,7 @@
 name: Publish watch
 
 # Tripwire — confirma que toda versão publicada no npm tem uma tag git
-# correspondente neste repo. Roda em cron diário e ad-hoc via
+# correspondente neste repo. Roda uma vez por dia e ad-hoc via
 # workflow_dispatch.
 #
 # Para cada pacote público em packages/**, compara a versão `latest` no
@@ -9,6 +9,12 @@ name: Publish watch
 # existe como tag local, abre uma issue de prioridade alta — sinal de
 # publicação fora do fluxo (workflow comprometido, token vazado,
 # republicação manual).
+#
+# Cadência diária, não de 15 em 15 min: os seis repos consumidores já tinham
+# migrado para diário por conta própria — o template é que estava atrás, e um
+# `precisa sync` teria regredido todos eles para 96 execuções/dia. Isto é um
+# tripwire de publicação fora do fluxo, não um monitor de tempo real; o minuto
+# quebrado evita o pico de agendamentos no topo da hora.
 
 on:
   schedule:
@@ -73,19 +79,35 @@ jobs:
             fi
           done
           if [ -n "$mismatches" ]; then
+            # Delimitador aleatório, não `EOF` literal. O conteúdo deriva de
+            # `npm view`, que é resposta de registry — entrada externa. Uma
+            # linha igual ao delimitador encerraria o bloco cedo e o resto
+            # viraria par chave=valor no `$GITHUB_OUTPUT`, injetando outputs
+            # arbitrários neste job. Com delimitador imprevisível, não há o
+            # que casar. (O `%b` abaixo expande `\n`, então basta uma
+            # sequência que sobreviva a essa expansão para tentar o ataque.)
+            delim="MISMATCHES_EOF_${RANDOM}${RANDOM}_$(date +%s)"
             {
-              echo "mismatches<<EOF"
+              echo "mismatches<<$delim"
               printf "%b" "$mismatches"
-              echo "EOF"
+              echo "$delim"
             } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Open issue on mismatch
         if: steps.check.outputs.mismatches != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        # A saída vai por `env`, não interpolada no corpo do script. A forma
+        # anterior — `const mismatches = ${{ steps.check.outputs.mismatches }}`
+        # dentro de um template literal — injetava a string direto no fonte JS:
+        # um nome de pacote com crase ou `${` fecha o literal e passa a executar
+        # como código, com as permissões deste job. O valor vem do registry npm,
+        # que não é entrada confiável.
+        env:
+          MISMATCHES: ${{ steps.check.outputs.mismatches }}
         with:
           script: |
-            const mismatches = `${{ steps.check.outputs.mismatches }}`;
+            const mismatches = process.env.MISMATCHES;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
             // Não duplica: se já existe uma issue aberta com este título,

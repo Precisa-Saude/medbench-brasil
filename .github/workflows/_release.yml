@@ -71,8 +71,11 @@ jobs:
               );
               filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
             }
+            // `templates/**` conta como mudança de pacote: o cli empacota o
+            // diretório templates no build, então editar um template precisa
+            // republicar o cli (senão `precisa sync` distribui o template antigo).
             const packageChanged = filenames.some(
-              f => f.startsWith('packages/') || f === 'package.json'
+              f => f.startsWith('packages/') || f.startsWith('templates/') || f === 'package.json'
             );
             core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
             core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);

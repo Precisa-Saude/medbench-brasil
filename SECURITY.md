@@ -1,17 +1,22 @@
-# Security Policy
+# Política de Segurança
 
-## Supported versions
+## Reportar uma Vulnerabilidade
 
-Este projeto está em estágio inicial (`0.x`). Apenas a versão mais recente publicada em `main` é suportada.
+Se você descobrir uma vulnerabilidade de segurança neste projeto, por favor reporte de forma responsável.
 
-## Reporting a vulnerability
+**Não abra uma issue pública no GitHub.**
 
-Encontrou uma vulnerabilidade? Por favor **não** abra uma issue pública. Em vez disso, envie um relato para:
+Envie um e-mail para: **security@precisa-saude.com.br**
 
-- GitHub Security Advisories: https://github.com/Precisa-Saude/medbench-brasil/security/advisories/new
+Inclua:
 
-Inclua passos para reproduzir, impacto estimado e, se possível, uma sugestão de correção. Respondemos em até 7 dias úteis.
+- Descrição da vulnerabilidade
+- Passos para reproduzir
+- Impacto potencial
+- Correção sugerida (se houver)
 
-## Escopo
+Confirmaremos o recebimento em até 48 horas e forneceremos um cronograma para resolução.
 
-Este repositório contém apenas código de avaliação, scripts de ingestão de dados públicos e um site estático. Não processamos dados pessoais nem credenciais de usuários. Chaves de API usadas no harness são lidas de variáveis de ambiente e nunca são commitadas.
+## Divulgação
+
+A divulgação é coordenada de forma privada. Correções são lançadas no(s) pacote(s) afetado(s) e registradas no CHANGELOG.

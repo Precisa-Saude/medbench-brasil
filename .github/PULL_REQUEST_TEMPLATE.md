@@ -1,20 +1,18 @@
+<!-- Obrigado pela contribuição. Por favor preencha as seções abaixo. -->
+
 ## Resumo
 
-<!-- O que este PR faz? Referencie a issue: Closes #... -->
+<!-- Uma ou duas frases sobre o que muda e por quê. -->
 
-## Tipo de mudança
+## Tipo de alteração
 
-- [ ] Nova edição do Revalida (`feat(dataset): ...`)
-- [ ] Novo provider de modelo (`feat(harness): ...`)
-- [ ] Correção de gabarito ou classificação (`fix(dataset): ...`)
-- [ ] Mudança no site (`feat(site): ...` / `fix(site): ...`)
-- [ ] Documentação / metodologia (`docs: ...`)
-- [ ] Infra / CI (`ci: ...`)
+- [ ] Correção de bug (`fix` — patch)
+- [ ] Nova funcionalidade (`feat` — minor)
+- [ ] Breaking change (major — inclua um footer `BREAKING CHANGE:` no commit)
+- [ ] Apenas docs / CI (sem bump de versão esperado)
 
-## Checklist
+## Plano de teste
 
-- [ ] Commits em pt-BR seguindo Conventional Commits com escopo válido
-- [ ] `pnpm turbo run build typecheck lint test` passa localmente
-- [ ] Para dados: fonte INEP oficial citada
-- [ ] Para novo modelo: `trainingCutoff` declarado e documentado
-- [ ] Para mudança de protocolo: ADR em `docs/development/adr/`
+<!-- Como um revisor pode verificar essa mudança. -->
+
+- [ ]
