@@ -1,8 +1,8 @@
 name: Deploy site
 
 # Reusable workflow — builds the repo's site and deploys to Cloudflare
-# Pages when watched files changed, then sends a Slack notification.
-# Guards on watched file presence across the pushed range.
+# Pages when site files changed, then sends a Slack notification.
+# Guards on site file presence across the pushed range.
 
 on:
   workflow_call:
@@ -19,12 +19,12 @@ on:
         description: 'Output directory to deploy (default: site/dist)'
         type: string
         default: 'site/dist'
-      watch_paths:
+      site_source_path:
         description: >-
-          Comma-separated path prefixes that should trigger a deploy.
-          Defaults to `site/`, but a site whose content comes from outside
-          that directory has to declare those inputs here, or the deploy is
-          silently skipped while CI still reports green.
+          Comma-separated path prefixes treated as site source for change
+          detection (default: site/). Declare every path the built site reads
+          from — a site whose content comes from outside these prefixes is
+          silently never deployed, while CI still reports green.
         type: string
         default: 'site/'
 
@@ -38,6 +38,8 @@ jobs:
       - name: Check for site changes
         id: changes
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          SITE_SOURCE_PATHS: ${{ inputs.site_source_path }}
         with:
           script: |
             if (context.eventName === 'workflow_dispatch') {
@@ -65,15 +67,27 @@ jobs:
               );
               filenames = pages.flatMap(p => (p.files ?? []).map(f => f.filename));
             }
-            // Prefixos vêm de `watch_paths` porque nem todo conteúdo do site
+            // Lista de prefixos, não prefixo único: nem todo conteúdo do site
             // mora em `site/`. No medbench-brasil o leaderboard é montado a
             // partir de `results/` via `import.meta.glob`, então uma PR que só
             // adiciona modelos muda o site sem tocar em `site/` — e o deploy
-            // era pulado em silêncio, com o CI verde.
-            const prefixes = '${{ inputs.watch_paths }}'
+            // era pulado em silêncio, com o CI verde. Um valor único segue
+            // válido: vira lista de um elemento.
+            //
+            // Vai por `env` em vez de interpolado no fonte do script: o valor
+            // sai do manifesto do repo e não deve virar código.
+            const prefixes = (process.env.SITE_SOURCE_PATHS ?? '')
               .split(',')
               .map(p => p.trim())
               .filter(Boolean);
+            // Lista vazia faria o `some` abaixo devolver sempre false — o site
+            // nunca mais publicaria, em silêncio. O manifesto já rejeita valor
+            // vazio; isto é a segunda barreira, porque o custo do modo de falha
+            // é alto e o de checar é zero.
+            if (prefixes.length === 0) {
+              core.setFailed('site_source_path vazio — nenhum prefixo para detectar mudanças.');
+              return;
+            }
             const siteChanged = filenames.some(f => prefixes.some(p => f.startsWith(p)));
             core.setOutput('site_changed', siteChanged ? 'true' : 'false');
 
@@ -104,10 +118,11 @@ jobs:
   deploy-site:
     name: Deploy site
     needs: build-site
-    # `workflow_dispatch` entra junto com `push`: o passo de detecção já força
-    # `site_changed=true` nesse evento, mas o gate exigia `push` e o deploy
-    # manual nunca saía — build verde, nada publicado. Sem isso não há como
-    # republicar o site depois de um deploy pulado por engano.
+    # `workflow_dispatch` entra junto com `push`: o passo de detecção acima já
+    # força `site_changed=true` nesse evento, mas o gate exigia `push` e o
+    # disparo manual buildava sem publicar. Sem isso não há como republicar o
+    # site depois de um deploy pulado por engano — os dois defeitos juntos
+    # deixavam a situação sem saída sem editar o workflow.
     if: always() && !cancelled() && needs.build-site.outputs.site_changed == 'true' && needs.build-site.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
