@@ -153,13 +153,25 @@ describe('openAiProvider', () => {
     expect(res.requestParams).not.toHaveProperty('max_completion_tokens');
   });
 
-  it.each(['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini'])(
+  it.each(['gpt-5-nano', 'gpt-5-mini', 'o1-preview', 'o3-mini', 'gpt-5.6-sol', 'gpt-5.6'])(
     'omite temperature para modelo sem suporte: %s',
     async (model) => {
       mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
       const provider = openAiProvider({ apiKey: 'k', model });
       const res = await provider.run(INPUT);
       expect(res.requestParams).not.toHaveProperty('temperature');
+    },
+  );
+
+  // 5.1/5.2/5.4 aceitam temperature: 0 e já estão publicados com esse valor —
+  // o recorte do GPT-5.6+ não pode alcançá-los.
+  it.each(['gpt-5.1', 'gpt-5.2', 'gpt-5.4'])(
+    'mantém temperature: 0 em %s (comparabilidade com artefatos publicados)',
+    async (model) => {
+      mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+      const provider = openAiProvider({ apiKey: 'k', model });
+      const res = await provider.run(INPUT);
+      expect(res.requestParams).toHaveProperty('temperature', 0);
     },
   );
 });
@@ -210,6 +222,33 @@ describe('googleProvider', () => {
 });
 
 describe('openAiCompatProvider', () => {
+  // Sem o finish_reason, uma resposta vazia é ambígua entre filtro de
+  // conteúdo, truncamento e falha transitória do provider.
+  it('propaga finish_reason como stopReason', async () => {
+    mockFetchResponse({
+      body: { choices: [{ finish_reason: 'content_filter', message: { content: '' } }] },
+    });
+    const provider = openAiCompatProvider({
+      baseUrl: 'https://openrouter.ai/api/v1',
+      model: 'deepseek/deepseek-v4-pro',
+      provider: 'OpenRouter',
+    });
+    const res = await provider.run(INPUT);
+    expect(res.rawResponse).toBe('');
+    expect(res.stopReason).toBe('content_filter');
+  });
+
+  it('omite stopReason quando o provider não devolve finish_reason', async () => {
+    mockFetchResponse({ body: { choices: [{ message: { content: 'A' } }] } });
+    const provider = openAiCompatProvider({
+      baseUrl: 'http://localhost:11434/v1',
+      model: 'qwen:latest',
+      provider: 'Ollama',
+    });
+    const res = await provider.run(INPUT);
+    expect(res).not.toHaveProperty('stopReason');
+  });
+
   it('omite header Authorization quando apiKey não é fornecida', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       json: async () => ({ choices: [{ message: { content: 'A' } }] }),

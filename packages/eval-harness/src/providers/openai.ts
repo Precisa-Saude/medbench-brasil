@@ -13,6 +13,14 @@ type OpenAIProviderOptions = ProviderBaseOptions;
 // Modelos GPT-5.x exigem `max_completion_tokens` (e `max_tokens` é rejeitado).
 // Modelos GPT-4.x aceitam `max_tokens` e rejeitam o novo nome. gpt-5-nano,
 // gpt-5-mini e a família o1/o3 rejeitam `temperature != 1` — omitimos.
+// A partir do GPT-5.6 a OpenAI rejeita `temperature` diferente do default:
+// "Unsupported value: 'temperature' does not support 0 with this model. Only
+// the default (1) value is supported." O recorte é deliberadamente estreito —
+// GPT-5.1, 5.2 e 5.4 **aceitam** `temperature: 0` e já estão publicados em
+// `results/` com esse valor. Incluí-los aqui mudaria o parâmetro num re-run e
+// quebraria a comparabilidade com os artefatos existentes.
+const OMITS_TEMPERATURE_GPT5 = /^gpt-5\.(?:[6-9]|\d{2,})/i;
+
 function openAiModelQuirks(model: string): {
   isReasoningModel: boolean;
   omitTemperature: boolean;
@@ -22,7 +30,10 @@ function openAiModelQuirks(model: string): {
   return {
     isReasoningModel,
     omitTemperature:
-      /^gpt-5-nano/i.test(model) || /^gpt-5-mini/i.test(model) || /^o[1-9]/i.test(model),
+      /^gpt-5-nano/i.test(model) ||
+      /^gpt-5-mini/i.test(model) ||
+      OMITS_TEMPERATURE_GPT5.test(model) ||
+      /^o[1-9]/i.test(model),
     usesNewParamName: isReasoningModel,
   };
 }
