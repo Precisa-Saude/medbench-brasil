@@ -30,6 +30,21 @@ export const OUTROS_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2024-08-01',
     trainingCutoffSource: 'https://docs.maritaca.ai/pt/modelos',
   },
+  'sabia-4-thinking': {
+    description:
+      'Modelo de raciocínio da família Sabiá, da Maritaca AI, com pensamento estruturado passo a passo antes da resposta e foco em português brasileiro.',
+    homepage: 'https://maritaca.ai/',
+    label: 'Sabiá 4 Thinking',
+    modelId: 'sabia-4-thinking',
+    provider: 'Maritaca AI',
+    // "23 de junho de 2026" — anúncio oficial, maritaca.ai/blog/sabia-4-thinking.
+    releaseDate: '2026-06-23',
+    tier: 'proprietaria',
+    // Corte de treino não publicado pela Maritaca (docs.maritaca.ai/pt/modelos
+    // não informa; anúncio oficial também não). Fica sem classificação.
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   'x-ai/grok-4.5': {
     description:
       'Flagship da xAI (julho/2026), voltado a código, chat e uso geral, com janela de contexto de 500k tokens.',
