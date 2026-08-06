@@ -37,8 +37,8 @@ export default function Reproducao() {
               </code>
               <p className="mt-2 text-sm text-muted-foreground">
                 CLI <code>medbench</code> que executa o protocolo de avaliação contra qualquer
-                backend (Anthropic, OpenAI, Google, OpenRouter, Ollama) e grava os artefatos em{' '}
-                <code>results/</code>.
+                backend (Anthropic, OpenAI, Google, Maritaca, OpenRouter, Ollama) e grava os
+                artefatos em <code>results/</code>.
               </p>
             </div>
             <div className="group relative rounded-lg border bg-card p-5 transition-colors hover:border-ps-violet/40 hover:bg-muted/50">
@@ -90,6 +90,7 @@ pnpm install`}</CodeBlock>
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 GOOGLE_API_KEY=AIza...          # ou GEMINI_API_KEY
+MARITACA_API_KEY=...            # modelos Sabiá (Maritaca AI)
 OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
 # Para modelos locais (Ollama) nada é necessário além do servidor em localhost:11434`}</CodeBlock>
           <p className="text-muted-foreground">
@@ -133,6 +134,18 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
   --backend google --model gemini-2.5-pro \\
   --edition revalida-2025-1 --runs 3 \\
   --cutoff 2025-01-01 --label "Gemini 2.5 Pro"`}</CodeBlock>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="font-sans text-lg font-semibold tracking-tight">Maritaca AI (Sabiá)</h3>
+            <p className="text-muted-foreground">
+              Omita <code>--cutoff</code> quando o fornecedor não publica o corte de treino — o
+              modelo fica sem classificação de contaminação, em vez de receber uma data inventada.
+            </p>
+            <CodeBlock language="bash">{`pnpm --filter @precisa-saude/medbench-harness exec medbench \\
+  --backend maritaca --model sabia-4-thinking \\
+  --edition revalida-2025-1 --runs 3 \\
+  --label "Sabiá 4 Thinking"`}</CodeBlock>
           </div>
 
           <div className="space-y-2">
