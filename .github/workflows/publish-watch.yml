@@ -60,11 +60,13 @@ jobs:
               for (const p of ws) {
                 if (p.private || !p.name) continue;
                 if (!p.name.startsWith("@")) continue;
-                process.stdout.write(p.name + "\n");
+                process.stdout.write(p.name + "\t" + (p.version || "") + "\n");
               }
             '
           )
-          for name in "${entries[@]}"; do
+          for entry in "${entries[@]}"; do
+            name="${entry%%$'\t'*}"
+            repo_version="${entry##*$'\t'}"
             [ -z "$name" ] && continue
             npm_version=$(npm view "$name" version 2>/dev/null || true)
             if [ -z "$npm_version" ]; then
@@ -81,20 +83,23 @@ jobs:
               mismatches="${mismatches}- \`${name}@${npm_version}\` (no matching tag)\n"
             fi
 
-            # Direção inversa: existe versão com tag que nunca foi publicada?
-            # O laço acima parte do npm, então só enxerga "publicado sem tag".
+            # Direção inversa: a versão que o repositório declara chegou ao npm?
+            # O laço parte do npm, então sozinho só enxerga "publicado sem tag".
             # O modo de falha caro é o oposto — release cortada que não chegou
             # ao consumidor —, e foi o que aconteceu no fhir-brasil: as tags
-            # v0.16.6 a v0.17.3 existiam com o npm parado na 0.16.5, e este
-            # check passava verde porque a tag da 0.16.5 estava lá.
-            latest_tag=$(git tag --sort=-v:refname --list 'v*' | head -1)
-            latest_ver="${latest_tag#v}"
-            if [ -n "$latest_ver" ] && [ "$latest_ver" != "$npm_version" ]; then
-              if npm view "$name@$latest_ver" version >/dev/null 2>&1; then
-                echo "$name@$latest_ver: tag mais recente publicada"
+            # v0.16.6 a v0.17.3 existiam com o npm parado na 0.16.5.
+            #
+            # A comparação usa a versão do package.json, e não a maior tag do
+            # repositório, porque pacote público em linha de versão própria é
+            # legítimo: o @precisa-saude/fhir-rnds-sandbox está em 0.1.0 num
+            # repo cuja tag corrente é v0.17.3, e comparar com a tag global
+            # geraria alarme falso diário.
+            if [ -n "$repo_version" ] && [ "$repo_version" != "$npm_version" ]; then
+              if npm view "$name@$repo_version" version >/dev/null 2>&1; then
+                echo "$name@$repo_version: versão do repositório publicada"
               else
-                echo "::warning::$name: tag $latest_tag existe mas $latest_ver não está no npm"
-                mismatches="${mismatches}- \`${name}@${latest_ver}\` (tag sem publicação)\n"
+                echo "::warning::$name: repositório em $repo_version, npm em $npm_version"
+                mismatches="${mismatches}- \`${name}@${repo_version}\` (versão do repo sem publicação)\n"
               fi
             fi
           done
