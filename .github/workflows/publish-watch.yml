@@ -75,9 +75,20 @@ jobs:
             fi
             # Tag convention: semantic-release emits `<name>@<ver>` for
             # monorepos and `v<ver>` for single-package repos. Accept both.
+            #
+            # A terceira condição cobre pacote público em linha de versão
+            # própria, que nunca ganha tag: o repositório etiqueta `v<ver>` da
+            # linha principal, então o @precisa-saude/fhir-rnds-sandbox, em
+            # 0.1.0 num repo cuja tag corrente é v0.17.3, ficaria para sempre
+            # sem tag correspondente e reabriria a issue todo dia. Quando a
+            # versão publicada é exatamente a que o package.json declara, a
+            # publicação está onde o repositório mandou, e a tag deixa de ser
+            # a única prova disso.
             if git rev-parse -q --verify "refs/tags/${name}@${npm_version}" >/dev/null 2>&1 \
                || git rev-parse -q --verify "refs/tags/v${npm_version}" >/dev/null 2>&1; then
               echo "$name@$npm_version: tag found"
+            elif [ -n "$repo_version" ] && [ "$repo_version" = "$npm_version" ]; then
+              echo "$name@$npm_version: sem tag, mas igual ao package.json"
             else
               echo "::warning::$name@$npm_version published on npm but no matching git tag in this repo"
               mismatches="${mismatches}- \`${name}@${npm_version}\` (no matching tag)\n"
