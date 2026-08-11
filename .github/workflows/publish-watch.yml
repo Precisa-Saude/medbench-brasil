@@ -43,6 +43,9 @@ jobs:
         with:
           node-version: 22
 
+      # O job NÃO falha em divergência, de propósito: cron diário vermelho
+      # vira ruído que se aprende a ignorar. O alerta é a issue aberta no
+      # passo final, que persiste até alguém fechar e não duplica.
       - name: Compare npm latest vs git tags
         id: check
         run: |
@@ -76,6 +79,23 @@ jobs:
             else
               echo "::warning::$name@$npm_version published on npm but no matching git tag in this repo"
               mismatches="${mismatches}- \`${name}@${npm_version}\` (no matching tag)\n"
+            fi
+
+            # Direção inversa: existe versão com tag que nunca foi publicada?
+            # O laço acima parte do npm, então só enxerga "publicado sem tag".
+            # O modo de falha caro é o oposto — release cortada que não chegou
+            # ao consumidor —, e foi o que aconteceu no fhir-brasil: as tags
+            # v0.16.6 a v0.17.3 existiam com o npm parado na 0.16.5, e este
+            # check passava verde porque a tag da 0.16.5 estava lá.
+            latest_tag=$(git tag --sort=-v:refname --list 'v*' | head -1)
+            latest_ver="${latest_tag#v}"
+            if [ -n "$latest_ver" ] && [ "$latest_ver" != "$npm_version" ]; then
+              if npm view "$name@$latest_ver" version >/dev/null 2>&1; then
+                echo "$name@$latest_ver: tag mais recente publicada"
+              else
+                echo "::warning::$name: tag $latest_tag existe mas $latest_ver não está no npm"
+                mismatches="${mismatches}- \`${name}@${latest_ver}\` (tag sem publicação)\n"
+              fi
             fi
           done
           if [ -n "$mismatches" ]; then

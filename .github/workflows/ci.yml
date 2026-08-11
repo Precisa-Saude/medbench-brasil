@@ -33,9 +33,21 @@ permissions:
   # via GITHUB_TOKEN no fallback de providers.
   models: read
 
+# Cancela só em PR. O `push` deste workflow só dispara na branch padrão, e lá
+# o run publica no npm: cancelar no meio deixa a tag criada sem a versão
+# publicada. Foi o que aconteceu no fhir-brasil, onde cinco tags (v0.16.6 a
+# v0.17.3) ficaram sem publicar porque cada merge cancelava o publish do merge
+# anterior — e o commit `chore(release)` do semantic-release dispara mais um
+# run, que cancela o próprio publish que o criou.
+#
+# Chavear por `event_name` em vez de comparar a branch evita depender de
+# `github.event.repository.default_branch`, que nem todo contexto de gatilho
+# popula — e, se viesse vazio, a comparação daria `true` e voltaria a cancelar
+# na branch padrão, justamente o que este comentário existe para impedir.
+# Assim, qualquer evento inesperado cai no lado seguro (não cancela).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # ── CI checks (every PR and push) ──────────────────────────────

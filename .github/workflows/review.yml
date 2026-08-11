@@ -50,7 +50,16 @@ jobs:
               per_page: 100,
             });
             const ignore = [/\.md$/, /^docs\//, /^\.github\//, /\.json$/, /\.ya?ml$/, /\.cff$/];
-            const hasCode = files.some(f => !ignore.some(p => p.test(f.filename)));
+            // Workflow é código: roda shell com as credenciais do repo. Ficava
+            // de fora por casar com `^.github/` e com `.yml`, e o efeito é o
+            // inverso do risco — mudança em pipeline passava sem revisão
+            // nenhuma. Dois bugs de shell chegaram à main assim (fhir-brasil
+            // #70 e #75).
+            const isWorkflow = (filename) =>
+              /^\.github\/workflows\/.+\.ya?ml$/.test(filename);
+            const hasCode = files.some(
+              f => isWorkflow(f.filename) || !ignore.some(p => p.test(f.filename)),
+            );
             if (!hasCode) {
               core.setOutput('should_run', 'false');
               core.setOutput('review_round', 'skip');

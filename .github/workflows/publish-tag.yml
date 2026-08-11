@@ -54,7 +54,10 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -e
-          pnpm -r --filter "./packages/**" --if-present exec sh -c '
+          # Sem `--if-present`: essa flag existe em `pnpm run`, não em
+          # `pnpm exec`, e fazia o comando abortar com "Unknown option"
+          # antes de publicar qualquer pacote.
+          pnpm -r --filter "./packages/**" exec sh -c '
             pkg_name=$(node -p "require(\"./package.json\").name")
             pkg_version=$(node -p "require(\"./package.json\").version")
             pkg_private=$(node -p "Boolean(require(\"./package.json\").private)")
