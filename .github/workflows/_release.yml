@@ -4,9 +4,10 @@ name: Release
 # Produces outputs so downstream jobs (publish, deploy-site) can gate
 # on whether a release happened and which commit carries the bump.
 #
-# Guards release on `packages/**` or root `package.json` changing in
-# the pushed range. Site-only or docs-only pushes skip the release
-# cycle. Set `require_package_changes: false` to release regardless.
+# Guards release on `packages/**` or root `package.json` changing since
+# the last published release. Site-only or docs-only pushes skip the
+# release cycle. Set `require_package_changes: false` to release
+# regardless.
 
 on:
   workflow_call:
@@ -41,18 +42,50 @@ jobs:
       # guard won't checkout an empty ref.
       release_sha: ${{ steps.semantic.outputs.release_sha || github.sha }}
     steps:
-      - name: Check for package changes across pushed commits
+      - name: Check for package changes since the last release
         id: changes
         if: inputs.require_package_changes
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          # Compares `before..after` from the push payload. Paginates explicitly
-          # because `compareCommits` truncates at 300 files per page — a large
-          # push could otherwise silently miss detection.
+          # Compares the last published release against the current commit —
+          # NOT `before..after` from the push payload.
+          #
+          # The push range is the wrong base: it only sees the commits of this
+          # one push, so a package change whose own run never reached this job
+          # (cancelled by concurrency, cancelled run, failed earlier job) is
+          # never reconsidered. Every later push reports its own files, none of
+          # which touch `packages/**`, and the fix sits on the default branch
+          # unreleased until someone happens to touch a package again.
+          #
+          # Anchoring on the last release makes the guard answer the question it
+          # actually means to ask — "is there anything unreleased worth
+          # releasing?" — which is stateless and self-healing: a missed run is
+          # picked up by the next push instead of being lost.
+          #
+          # The tag points at the `chore(release)` commit itself, and
+          # `base...head` excludes the base, so the release commit's own
+          # version bump never counts as a package change.
+          #
+          # Paginates explicitly because `compareCommits` truncates at 300 files
+          # per page — a long backlog could otherwise silently miss detection.
           script: |
-            const before = context.payload.before;
             const after = context.sha;
-            const isInitial = !before || /^0+$/.test(before);
+            let base = null;
+            try {
+              const { data: release } = await github.rest.repos.getLatestRelease({
+                owner: context.repo.owner, repo: context.repo.repo,
+              });
+              base = release.tag_name;
+            } catch (err) {
+              // Only a 404 means "never released", which is a valid answer.
+              // Anything else (network, auth, rate limit) is ambiguous, and
+              // ambiguity here must break loudly rather than quietly judge on
+              // the wrong base.
+              if (err.status !== 404) throw err;
+              core.info('no published release found; falling back to the push range');
+              base = context.payload.before;
+            }
+            const isInitial = !base || /^0+$/.test(base);
             let filenames = [];
             if (isInitial) {
               const { data: commit } = await github.rest.repos.getCommit({
@@ -65,7 +98,7 @@ jobs:
                 {
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  basehead: `${before}...${after}`,
+                  basehead: `${base}...${after}`,
                   per_page: 100,
                 },
               );
@@ -78,7 +111,7 @@ jobs:
               f => f.startsWith('packages/') || f.startsWith('templates/') || f === 'package.json'
             );
             core.setOutput('packages_changed', packageChanged ? 'true' : 'false');
-            core.info(`inspected ${filenames.length} files, packages_changed=${packageChanged}`);
+            core.info(`base=${base}, inspected ${filenames.length} files, packages_changed=${packageChanged}`);
 
       - name: Generate GitHub App token
         id: app-token
@@ -156,4 +189,4 @@ jobs:
 
       - name: Skip release (no package changes)
         if: inputs.require_package_changes && steps.changes.outputs.packages_changed != 'true'
-        run: echo "No changes under packages/** — release skipped"
+        run: echo "No changes under packages/** since the last release — release skipped"
