@@ -9,6 +9,12 @@ name: Code Review
 # têm review automatizado. Se todos falham (ou nenhum está configurado),
 # sai sem postar review e sem emitir marker de round, de modo que a
 # próxima atividade no PR retenta fresco.
+#
+# ATENÇÃO: o marker `<!-- AUTOMATED_REVIEW_ROUND_2_COMPLETE -->` desliga o
+# review daquele PR em definitivo — pushes posteriores não reabrem nada.
+# Para forçar um novo round depois dele: apague o comentário que contém o
+# marker e dispare o ci.yml manualmente (workflow_dispatch com pr_number)
+# ou feche/reabra o PR.
 
 on:
   workflow_call:
@@ -24,6 +30,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions:
+      # `contents: read` é necessário para o `actions/checkout` clonar um repo
+      # privado. Em repo público o checkout funciona sem, e é por isso que a
+      # falta só aparece do outro lado: um bloco `permissions` substitui o
+      # conjunto padrão inteiro, então o que não está listado vira `none`, e o
+      # GitHub responde 404 em vez de 403 para não confirmar que o repo existe.
+      # A falha chega como "Repository not found", que manda procurar
+      # credencial em vez de permissão. Aconteceu no platform e de novo no
+      # primeiro PR do decks, os dois privados.
+      contents: read
       pull-requests: read
       issues: read
     outputs:
