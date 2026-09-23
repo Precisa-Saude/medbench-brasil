@@ -26,6 +26,17 @@ const presetConfig = {
 };
 
 const releaseRules = [
+  // Quebra vem primeiro, e é por isso que ela funciona.
+  //
+  // O `@semantic-release/commit-analyzer` avalia as regras daqui **antes** das
+  // padrão dele, e só recorre às padrão se nenhuma casar. Sem esta linha, um
+  // commit `feat` com rodapé `BREAKING CHANGE` casava em `type: 'feat'` e saía
+  // como versão menor; a regra `{ breaking: true, release: 'major' }`, que é a
+  // primeira das padrão, nunca chegava a ser consultada.
+  //
+  // Nos tipos com `release: false` era pior: quebra num `chore` ou num `build`
+  // não gerava release nenhum.
+  { breaking: true, release: 'major' },
   { type: 'feat', release: 'minor' },
   { type: 'fix', release: 'patch' },
   { type: 'perf', release: 'patch' },
