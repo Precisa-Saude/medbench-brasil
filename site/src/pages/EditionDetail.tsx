@@ -42,9 +42,14 @@ export default function EditionDetail() {
             {meta.label}
           </h1>
           <p className="mt-4 font-serif text-lg leading-relaxed text-muted-foreground">
-            Nota de corte: {(meta.cutoffScore * 100).toFixed(0)}% · Taxa de aprovação:{' '}
-            {(meta.passRate * 100).toFixed(0)}% · Média humana estimada:{' '}
-            {(meta.estimatedHumanMean * 100).toFixed(0)}%
+            {[
+              ['Nota de corte', meta.cutoffScore],
+              ['Taxa de aprovação', meta.passRate],
+              ['Média humana estimada', meta.estimatedHumanMean],
+            ]
+              .filter((pair): pair is [string, number] => pair[1] !== undefined)
+              .map(([rotulo, valor]) => `${rotulo}: ${(valor * 100).toFixed(0)}%`)
+              .join(' · ') || 'Dados oficiais de corte e aprovação ainda não publicados pela INEP.'}
           </p>
           {data?.answerKeyStatus === 'preliminar' && (
             <p

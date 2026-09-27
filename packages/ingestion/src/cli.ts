@@ -110,12 +110,13 @@ async function cmdExtract(args: Record<string, string>) {
   const editionSlug = edition.slice(family.length + 1);
   const outPath = join(process.cwd(), 'packages', 'dataset', 'data', family, `${editionSlug}.json`);
   const existing = safeReadJson(outPath) ?? {};
+  // `cutoffScore` e `passRate` NÃO recebem default: são valores oficiais da
+  // INEP e um chute plausível aqui viraria eixo de gráfico e número citado.
+  // Ficam ausentes até alguém preencher com fonte (ver Edition no dataset).
   const output = {
     ...existing,
     answerKeyStatus: answerKey.status,
-    cutoffScore: existing.cutoffScore ?? 0.6,
     id: edition,
-    passRate: existing.passRate ?? 0.18,
     publishedAt: existing.publishedAt ?? new Date().toISOString().slice(0, 10),
     questions: parsed.questions,
     source: existing.source ?? INEP_SOURCE_BY_FAMILY[family],

@@ -48,8 +48,11 @@ function resolveCutoffScore(editionId: string): null | number {
   if (cutoffCache.has(editionId)) return cutoffCache.get(editionId) ?? null;
   try {
     const edition = loadEdition(editionId as EditionId);
-    cutoffCache.set(editionId, edition.cutoffScore);
-    return edition.cutoffScore;
+    // Edição sem corte oficial publicado resolve como `null`, exatamente como
+    // uma edição ausente do disco — `passesCutoff` fica `undefined` no output.
+    const cutoff = edition.cutoffScore ?? null;
+    cutoffCache.set(editionId, cutoff);
+    return cutoff;
   } catch {
     cutoffCache.set(editionId, null);
     return null;

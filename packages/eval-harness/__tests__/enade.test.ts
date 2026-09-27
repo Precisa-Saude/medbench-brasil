@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { computeEnadeConcept, rateToEnadeLevel } from '../src/enade.js';
 import type { EvaluationResult } from '../src/types.js';
@@ -51,5 +51,37 @@ describe('computeEnadeConcept', () => {
   it('retorna null quando nenhum modelo tem resultado', () => {
     const results = [mkResult('m1', 'revalida-2024-1', 0.9)];
     expect(computeEnadeConcept(results, 'revalida-2025-1')).toBeNull();
+  });
+});
+
+describe('computeEnadeConcept sem corte oficial', () => {
+  it('devolve null quando a edição não tem cutoffScore publicado', async () => {
+    // Edição ingerida antes do edital de resultado (ex.: ENAMED 2026 até
+    // 04/12/2026) não tem corte. Calcular um conceito contra corte chutado
+    // seria pior que não devolver conceito nenhum.
+    //
+    // O mock usa `revalida-2025-1` de propósito: essa edição TEM corte no
+    // dataset real. Se o mock não pegasse, `loadEdition` devolveria o corte
+    // de verdade, o conceito sairia não-nulo e o teste falharia. Com uma
+    // edição que já não tem corte no disco, o teste passaria mesmo sem mock
+    // (verificado por ablação) — ou seja, seria vacuoso.
+    vi.resetModules();
+    vi.doMock('@precisa-saude/medbench-dataset', () => ({
+      loadEdition: () => ({
+        id: 'revalida-2025-1',
+        publishedAt: '2025-04-14',
+        questions: [],
+        source: 'https://example.invalid',
+        year: 2025,
+      }),
+    }));
+    const { computeEnadeConcept: compute } = await import('../src/enade.js');
+    const results = [
+      mkResult('m1', 'revalida-2025-1', 0.9),
+      mkResult('m2', 'revalida-2025-1', 0.8),
+    ];
+    expect(compute(results, 'revalida-2025-1')).toBeNull();
+    vi.doUnmock('@precisa-saude/medbench-dataset');
+    vi.resetModules();
   });
 });

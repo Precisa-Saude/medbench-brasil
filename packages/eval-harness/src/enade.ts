@@ -48,7 +48,11 @@ export function computeEnadeConcept(
 ): EnadeConcept | null {
   let cutoffScore: number;
   try {
-    cutoffScore = loadEdition(editionId as EditionId).cutoffScore;
+    // Sem corte oficial não há como dizer quem foi aprovado — devolver um
+    // conceito calculado contra um corte chutado seria pior que não devolver.
+    const official = loadEdition(editionId as EditionId).cutoffScore;
+    if (official === undefined) return null;
+    cutoffScore = official;
   } catch {
     return null;
   }
