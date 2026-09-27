@@ -1,3 +1,5 @@
+import { getEdition } from './dataset';
+
 /**
  * Metadados editoriais das edições Revalida avaliadas.
  *
@@ -114,7 +116,22 @@ function inverseNormal(p: number): number {
 
 const SD = 0.11;
 
-export const EDITIONS: Record<string, EditionMetadata> = {
+/**
+ * Metadados que o SITE pode declarar. Os quatro campos oficiais/derivados
+ * ficam de fora de propósito: `cutoffScore` e `passRate` vêm do dataset, e a
+ * média humana é derivada deles em `getEditionMetadata`.
+ *
+ * O `Omit` é a trava que faltava na #66. Antes o corte era declarável nos dois
+ * lugares e eles divergiram — o dataset ficou com o default 0.6 enquanto aqui
+ * estava o valor real. Agora declarar corte ou taxa numa entrada curada é
+ * erro de compilação, então a divergência não pode voltar por este caminho.
+ */
+export type CuratedEditionMetadata = Omit<
+  EditionMetadata,
+  'cutoffScore' | 'estimatedHumanMean' | 'estimatedHumanSd' | 'passRate'
+>;
+
+export const EDITIONS: Record<string, CuratedEditionMetadata> = {
   // ENAMED 2025 — primeira edição, resultado divulgado em 12-dez-2025.
   // Nota de corte de proficiência: 60 pts na escala TRI (equivale a 57,87%
   // de itens corretos após exclusão de 10 itens por motivos administrativos/
@@ -124,9 +141,6 @@ export const EDITIONS: Record<string, EditionMetadata> = {
   //   Privada (for-profit 15409 × 57,2% + non-profit 12960 × 70,1%)/28369 ≈ 63,1%
   //   Pública (federal 6502 × 83,1% + estadual 2402 × 86,6%)/8904 ≈ 84,0%
   'enamed-2025': {
-    cutoffScore: 0.6,
-    estimatedHumanMean: estimateHumanMean(0.6, 0.75, SD),
-    estimatedHumanSd: SD,
     extraReferences: [
       {
         label: 'Privada',
@@ -143,7 +157,6 @@ export const EDITIONS: Record<string, EditionMetadata> = {
     ],
     id: 'enamed-2025',
     label: 'ENAMED 2025',
-    passRate: 0.75,
     publishedAt: '2025-10-26',
     sources: [
       {
@@ -172,12 +185,8 @@ export const EDITIONS: Record<string, EditionMetadata> = {
   // Revalida 2024/1 — nota de corte 91,96/150 = 61,3%; aprovação 25,35%
   // (2.549 / 10.048 presentes na 1ª etapa).
   'revalida-2024-1': {
-    cutoffScore: 0.6131,
-    estimatedHumanMean: estimateHumanMean(0.6131, 0.2535, SD),
-    estimatedHumanSd: SD,
     id: 'revalida-2024-1',
     label: 'Revalida 2024/1',
-    passRate: 0.2535,
     publishedAt: '2024-04-14',
     sources: [
       {
@@ -185,7 +194,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '14 abr. 2024',
         title: 'Revalida 2024/1: nota de corte da 1ª etapa é de 91,96 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-1-nota-de-corte-da-1a-etapa-e-de-91-96-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
@@ -198,12 +207,8 @@ export const EDITIONS: Record<string, EditionMetadata> = {
   // Revalida 2024/2 — nota de corte 86,659/150 = 57,8%; aprovação 23,18%
   // (2.509 / 10.822).
   'revalida-2024-2': {
-    cutoffScore: 0.5777,
-    estimatedHumanMean: estimateHumanMean(0.5777, 0.2318, SD),
-    estimatedHumanSd: SD,
     id: 'revalida-2024-2',
     label: 'Revalida 2024/2',
-    passRate: 0.2318,
     publishedAt: '2024-10-20',
     sources: [
       {
@@ -211,7 +216,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '14 nov. 2024',
         title: 'Revalida 2024/2: nota de corte da 1ª etapa é de 86,659 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
@@ -224,12 +229,8 @@ export const EDITIONS: Record<string, EditionMetadata> = {
   // Revalida 2025/1 — nota de corte 88/150 = 58,7%; aprovação 26,28%
   // (4.503 / 17.121 presentes na 1ª etapa).
   'revalida-2025-1': {
-    cutoffScore: 0.5867,
-    estimatedHumanMean: estimateHumanMean(0.5867, 0.2628, SD),
-    estimatedHumanSd: SD,
     id: 'revalida-2025-1',
     label: 'Revalida 2025/1',
-    passRate: 0.2628,
     publishedAt: '2025-04-14',
     sources: [
       {
@@ -237,7 +238,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '4 jun. 2025',
         title: 'Revalida 2025/1: nota de corte da 1ª etapa é de 88 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
@@ -250,14 +251,30 @@ export const EDITIONS: Record<string, EditionMetadata> = {
 };
 
 export function getEditionMetadata(id: string): EditionMetadata {
-  // Edição sem entrada curada (ex.: recém-ingerida, antes do edital de
-  // resultado) não ganha corte/taxa/média inventados — os consumidores já
-  // tratam ausência omitindo a linha correspondente.
-  return (
-    EDITIONS[id] ?? {
-      id,
-      label: id,
-      publishedAt: '',
-    }
-  );
+  const curated = EDITIONS[id];
+  const official = getEdition(id);
+
+  // Fonte de verdade única: corte e taxa oficiais vêm SEMPRE do dataset
+  // (`packages/dataset/data/**`), que carrega o valor junto da fonte que o
+  // fixa. O site guarda só o editorial — rótulo, citações ABNT, referências
+  // extras. Antes os dois lugares declaravam o corte e divergiram: o dataset
+  // ficou com o default 0.6 enquanto o site tinha o valor real (ver #66).
+  const cutoffScore = official?.cutoffScore;
+  const passRate = official?.passRate;
+  const estimatedHumanMean =
+    cutoffScore !== undefined && passRate !== undefined
+      ? estimateHumanMean(cutoffScore, passRate, SD)
+      : undefined;
+
+  // Precedência explícita: o editorial não tem como declarar estes quatro
+  // campos (ver `CuratedEditionMetadata`), então não há sobrescrita implícita
+  // — o spread só traz rótulo, data, fontes e referências extras.
+  const editorial: CuratedEditionMetadata = curated ?? { id, label: id, publishedAt: '' };
+  return {
+    ...editorial,
+    cutoffScore,
+    estimatedHumanMean,
+    estimatedHumanSd: estimatedHumanMean !== undefined ? SD : undefined,
+    passRate,
+  };
 }

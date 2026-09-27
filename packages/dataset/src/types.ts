@@ -79,6 +79,20 @@ export interface Edition {
    * um valor plausível chutado, que viraria base de gráfico e citação.
    */
   cutoffScore?: number;
+  /**
+   * URL da publicação que fixa o `cutoffScore`.
+   *
+   * Regra: se o número está no arquivo, a fonte também está — a mesma regra
+   * que o registry de modelos aplica ao corte de treino. Prefira publicação
+   * oficial da INEP (edital, nota técnica, notícia institucional); quando só
+   * houver fonte secundária, registre-a ainda assim, porque procedência real
+   * e fraca é melhor que citação forte não verificada. Sem nenhuma fonte, o
+   * campo fica ausente e o número também deveria ficar.
+   *
+   * Links da INEP podem responder 403/login durante o período eleitoral, sem
+   * que a URL esteja errada.
+   */
+  cutoffScoreSource?: string;
   id: EditionId;
   /**
    * Taxa de aprovação oficial, escala 0–1. Opcional pelo mesmo motivo do
@@ -86,6 +100,13 @@ export interface Edition {
    * edital. Na ENAMED 2026 só sai em 04/12/2026.
    */
   passRate?: number;
+  /**
+   * URL da publicação que fixa o `passRate`. Ver `cutoffScoreSource`.
+   *
+   * Nas edições Revalida o valor vem hoje de fonte secundária, não da INEP —
+   * a substanciação contra o Painel Revalida está pendente.
+   */
+  passRateSource?: string;
   publishedAt: string;
   questions: Question[];
   source: string;

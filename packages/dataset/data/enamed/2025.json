@@ -1,7 +1,9 @@
 {
   "cutoffScore": 0.6,
+  "cutoffScoreSource": "https://download.inep.gov.br/enamed/nota_tecnica_n_19_2025.pdf",
   "id": "enamed-2025",
-  "passRate": 0.18,
+  "passRate": 0.75,
+  "passRateSource": "https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/enamed/como-sao-calculadas-as-notas-do-enamed-2025",
   "publishedAt": "2025-10-26",
   "questions": [
     {
