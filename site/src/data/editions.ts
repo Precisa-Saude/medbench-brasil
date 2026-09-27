@@ -36,8 +36,11 @@ export interface EditionMetadata {
   cutoffScore?: number;
   /** Média humana estimada, escala 0–1. Depende de corte + taxa. */
   estimatedHumanMean?: number;
-  /** Desvio-padrão assumido no retrocálculo. */
-  estimatedHumanSd: number;
+  /**
+   * Desvio-padrão assumido no retrocálculo. Só faz sentido acompanhando
+   * `estimatedHumanMean`; ausente quando não há média para qualificar.
+   */
+  estimatedHumanSd?: number;
   /**
    * Linhas de referência extras (além de corte e média humana). Ex.: ENAMED
    * publica taxas de proficiência distintas para instituições públicas e
@@ -252,7 +255,6 @@ export function getEditionMetadata(id: string): EditionMetadata {
   // tratam ausência omitindo a linha correspondente.
   return (
     EDITIONS[id] ?? {
-      estimatedHumanSd: SD,
       id,
       label: id,
       publishedAt: '',
