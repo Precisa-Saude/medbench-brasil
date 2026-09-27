@@ -46,6 +46,16 @@ export default function EditionDetail() {
             {(meta.passRate * 100).toFixed(0)}% · Média humana estimada:{' '}
             {(meta.estimatedHumanMean * 100).toFixed(0)}%
           </p>
+          {data?.answerKeyStatus === 'preliminar' && (
+            <p
+              className="mt-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 font-sans text-sm leading-relaxed"
+              role="note"
+            >
+              <strong>Escore provisório.</strong> Esta edição foi corrigida com o gabarito{' '}
+              <em>preliminar</em> da INEP, anterior à análise de recursos. Os números serão
+              reprocessados quando o gabarito definitivo for publicado.
+            </p>
+          )}
         </header>
 
         {data && (

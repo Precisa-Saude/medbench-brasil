@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { EditionId, ExamFamily } from '@precisa-saude/medbench-dataset';
 import { examFamilyOf } from '@precisa-saude/medbench-dataset';
 
+import { gabaritoFilename, parseAnswerKeyStatus, resolveAnswerKey } from './answer-key.js';
 import { downloadPdf } from './downloader.js';
 import { extractPdfText } from './extractor.js';
 import { parseEdition } from './parser.js';
@@ -37,9 +38,14 @@ function parseArgs(argv: string[]): Record<string, string> {
 function usage(): never {
   console.log(`uso:
   medbench-ingest download --edition <revalida-YYYY-N|enamed-YYYY> --prova <url> --gabarito <url>
+                           [--gabarito-status preliminar|definitivo]
+    (--gabarito-status default: definitivo. Use "preliminar" para o gabarito
+     pré-recurso, que grava gabarito-preliminar.pdf e marca a edição como
+     provisória — reprocessar com rescore --from-raw quando sair o definitivo)
   medbench-ingest extract  --edition <revalida-YYYY-N|enamed-YYYY>
                            [--backend bedrock|anthropic-api] [--model <id>] [--region sa-east-1]
-    (lê scripts/data/raw/<edition>/{prova.pdf,gabarito-definitivo.pdf},
+    (lê scripts/data/raw/<edition>/prova.pdf e o gabarito disponível
+     — prefere gabarito-definitivo.pdf, cai para gabarito-preliminar.pdf —
      chama Claude (Bedrock por padrão) e escreve
      packages/dataset/data/<família>/<slug>.json)`);
   process.exit(1);
@@ -51,6 +57,7 @@ async function cmdDownload(args: Record<string, string>) {
   const gabaritoUrl = args.gabarito;
   if (!edition || !provaUrl || !gabaritoUrl) usage();
 
+  const status = parseAnswerKeyStatus(args['gabarito-status']);
   const outDir = join(process.cwd(), 'scripts', 'data', 'raw', edition);
   console.log(`baixando prova ${edition}…`);
   const prova = await downloadPdf(provaUrl, outDir, 'prova.pdf');
@@ -58,8 +65,8 @@ async function cmdDownload(args: Record<string, string>) {
     `  → ${prova.filename} (${(prova.sizeBytes / 1024).toFixed(1)} KB, sha256 ${prova.sha256.slice(0, 8)}…)`,
   );
 
-  console.log(`baixando gabarito definitivo ${edition}…`);
-  const gab = await downloadPdf(gabaritoUrl, outDir, 'gabarito-definitivo.pdf');
+  console.log(`baixando gabarito ${status} ${edition}…`);
+  const gab = await downloadPdf(gabaritoUrl, outDir, gabaritoFilename(status));
   console.log(
     `  → ${gab.filename} (${(gab.sizeBytes / 1024).toFixed(1)} KB, sha256 ${gab.sha256.slice(0, 8)}…)`,
   );
@@ -71,11 +78,12 @@ async function cmdExtract(args: Record<string, string>) {
 
   const rawDir = join(process.cwd(), 'scripts', 'data', 'raw', edition);
   const provaPath = join(rawDir, 'prova.pdf');
-  const gabaritoPath = join(rawDir, 'gabarito-definitivo.pdf');
+  const answerKey = resolveAnswerKey((filename) => existsSync(join(rawDir, filename)));
+  const gabaritoPath = join(rawDir, answerKey.filename);
 
-  console.log(`extraindo texto de ${edition}…`);
-  const provaBuf = readFileSync(provaPath);
-  const gabaritoBuf = readFileSync(gabaritoPath);
+  console.log(`extraindo texto de ${edition} (gabarito ${answerKey.status})…`);
+  const provaBuf = readRawPdf(provaPath, edition);
+  const gabaritoBuf = readRawPdf(gabaritoPath, edition);
   const [prova, gabarito] = await Promise.all([
     extractPdfText(provaBuf),
     extractPdfText(gabaritoBuf),
@@ -104,6 +112,7 @@ async function cmdExtract(args: Record<string, string>) {
   const existing = safeReadJson(outPath) ?? {};
   const output = {
     ...existing,
+    answerKeyStatus: answerKey.status,
     cutoffScore: existing.cutoffScore ?? 0.6,
     id: edition,
     passRate: existing.passRate ?? 0.18,
@@ -114,6 +123,25 @@ async function cmdExtract(args: Record<string, string>) {
   };
   writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`);
   console.log(`gravado em ${outPath}`);
+}
+
+/**
+ * Lê um PDF bruto da edição com erro acionável.
+ *
+ * `download` e `extract` são passos separados, então rodar `extract` antes do
+ * download é um erro de uso plausível — e o ENOENT cru não diz o que fazer.
+ * O gabarito já ganha mensagem explícita do `resolveAnswerKey`; isto fecha a
+ * assimetria para a prova.
+ */
+function readRawPdf(path: string, edition: string): Buffer {
+  try {
+    return readFileSync(path);
+  } catch (cause) {
+    throw new Error(
+      `não foi possível ler ${path} — rode "medbench-ingest download --edition ${edition} --prova <url> --gabarito <url>" antes do extract`,
+      { cause },
+    );
+  }
 }
 
 function safeReadJson(path: string): Record<string, unknown> | null {

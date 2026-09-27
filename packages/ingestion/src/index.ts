@@ -1,3 +1,4 @@
+export { gabaritoFilename, parseAnswerKeyStatus, resolveAnswerKey } from './answer-key.js';
 export { downloadPdf } from './downloader.js';
 export type { ExtractionResult, PageContent } from './extractor.js';
 export { extractPdfText, OcrExtractionError } from './extractor.js';
