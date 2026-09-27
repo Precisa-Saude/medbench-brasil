@@ -2,6 +2,19 @@ export type QuestionOption = 'A' | 'B' | 'C' | 'D';
 
 export type ContaminationRisk = 'likely-clean' | 'likely-contaminated' | 'unknown';
 
+/**
+ * Situação do gabarito que produziu os escores de uma edição.
+ *
+ * A INEP publica o gabarito em duas etapas: um preliminar poucos dias após a
+ * aplicação e o definitivo depois da análise de recursos — na ENAMED 2026, a
+ * prova foi em 13/09/2026 e o definitivo está previsto para 04/12/2026.
+ * Rodar contra o preliminar é deliberado (a janela limpa fecha quando as
+ * questões circulam na internet), mas o escore é provisório até o reprocesso
+ * com `rescore --from-raw`. Este campo existe para que essa diferença nunca
+ * fique implícita — nem no dataset, nem no site.
+ */
+export type AnswerKeyStatus = 'preliminar' | 'definitivo';
+
 export type Specialty =
   | 'cirurgia'
   | 'clinica-medica'
@@ -55,6 +68,11 @@ export function examFamilyOf(id: EditionId): ExamFamily {
 }
 
 export interface Edition {
+  /**
+   * Situação do gabarito usado. Ausente equivale a `'definitivo'` — todas as
+   * edições anteriores à ENAMED 2026 foram ingeridas com gabarito pós-recurso.
+   */
+  answerKeyStatus?: AnswerKeyStatus;
   cutoffScore: number;
   id: EditionId;
   passRate: number;

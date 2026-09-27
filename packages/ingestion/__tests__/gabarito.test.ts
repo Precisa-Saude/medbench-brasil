@@ -84,3 +84,44 @@ Gabarito B A A B D C -B A C B A A D A B B D D B`;
     expect(map.size).toBe(40);
   });
 });
+
+describe('gabarito preliminar ENAMED 2026', () => {
+  // Layout real do PDF preliminar da ENAMED 2026
+  // (2026_gabarito_caderno_1_preliminar.pdf, sha256 81827610…): três pares
+  // Questão/Gabarito por linha na página 1, dois na página 2. Diferente da
+  // ENAMED 2025, o preliminar não traz nenhuma anulada — anulação sai só da
+  // análise de recursos, o que é exatamente por que o escore fica provisório
+  // até o gabarito definitivo de 04/12/2026.
+  const PRELIMINAR_2026 = [
+    'Questão Gabarito Questão Gabarito Questão Gabarito',
+    '1 B 21 D 41 A ',
+    '2 C 22 C 42 B ',
+    '3 C 23 A 43 D ',
+    '20 A 40 A 60 D ',
+    ' Gabarito  ',
+    ' Preliminar  ',
+    'Questão Gabarito Questão Gabarito',
+    '61 B 81 D',
+    '100 D',
+  ].join('\n');
+
+  it('lê os pares de todas as colunas, incluindo a segunda página', () => {
+    const map = parseGabarito(PRELIMINAR_2026);
+    expect(map.get(1)).toBe('B');
+    expect(map.get(41)).toBe('A');
+    expect(map.get(60)).toBe('D');
+    expect(map.get(61)).toBe('B');
+    expect(map.get(100)).toBe('D');
+  });
+
+  it('não inventa anuladas quando o preliminar não traz nenhuma', () => {
+    const map = parseGabarito(PRELIMINAR_2026);
+    expect([...map.values()].filter((v) => v === 'ANNULLED')).toHaveLength(0);
+  });
+
+  it('ignora o cabeçalho "Questão Gabarito" repetido sem gerar entradas falsas', () => {
+    const map = parseGabarito(PRELIMINAR_2026);
+    // 4 linhas × 3 pares (página 1) + 2 pares + 1 par (página 2) = 15
+    expect(map.size).toBe(15);
+  });
+});
