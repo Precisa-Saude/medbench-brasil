@@ -79,6 +79,12 @@ export interface Edition {
    * um valor plausível chutado, que viraria base de gráfico e citação.
    */
   cutoffScore?: number;
+  /**
+   * URL da publicação oficial que fixa o `cutoffScore`. Mesma convenção do
+   * `trainingCutoffSource` do registry de modelos: se o número está aqui, a
+   * fonte também está. Sem fonte verificável, o campo fica ausente.
+   */
+  cutoffScoreSource?: string;
   id: EditionId;
   /**
    * Taxa de aprovação oficial, escala 0–1. Opcional pelo mesmo motivo do
@@ -86,6 +92,8 @@ export interface Edition {
    * edital. Na ENAMED 2026 só sai em 04/12/2026.
    */
   passRate?: number;
+  /** URL da publicação oficial que fixa o `passRate`. Ver `cutoffScoreSource`. */
+  passRateSource?: string;
   publishedAt: string;
   questions: Question[];
   source: string;

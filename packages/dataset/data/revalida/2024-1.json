@@ -1,7 +1,9 @@
 {
-  "cutoffScore": 0.6,
+  "cutoffScore": 0.6131,
+  "cutoffScoreSource": "https://www.gov.br/inep/pt-br/assuntos/noticias/revalida",
   "id": "revalida-2024-1",
-  "passRate": 0.18,
+  "passRate": 0.2535,
+  "passRateSource": "https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/",
   "publishedAt": "2024-03-17",
   "questions": [
     {

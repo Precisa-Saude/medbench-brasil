@@ -1,10 +1,10 @@
 {
+  "cutoffScore": 0.5867,
+  "cutoffScoreSource": "https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos",
   "id": "revalida-2025-1",
-  "year": 2025,
+  "passRate": 0.2628,
+  "passRateSource": "https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/",
   "publishedAt": "2025-04-14",
-  "cutoffScore": 0.6,
-  "passRate": 0.18,
-  "source": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos",
   "questions": [
     {
       "annulled": false,
@@ -1706,5 +1706,7 @@
       "specialty": ["saude-publica"],
       "stem": "Diante de um novo teste diagnóstico para hanseníase, que está sendo aplicado em uma unidade básica de saúde (UBS), o médico julga pertinente iniciar uma capacitação com sua equipe sobre a validade de testes diagnósticos, medidas de sensibilidade, especificidade e valores preditivos. Então, ele apresenta os seguintes dados a sua equipe: dentre 100 pessoas acometidas por hanseníase, 98 são verdadeiros positivos; e, dentre 100 pessoas não acometidas por hanseníase, 90 são verdadeiros negativos. A partir desses dados, é correto afirmar que o valor de sensibilidade do teste é"
     }
-  ]
+  ],
+  "source": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/revalida/provas-e-gabaritos",
+  "year": 2025
 }

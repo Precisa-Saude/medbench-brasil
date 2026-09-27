@@ -4,7 +4,7 @@
     "revalida-2024-1": {
       "accuracy": 0.6039215686274509,
       "n": 255,
-      "passesCutoff": true
+      "passesCutoff": false
     }
   },
   "ci95": [

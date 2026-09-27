@@ -5,7 +5,7 @@ import SpecialtyDifficultyBar from '../components/SpecialtyDifficultyBar';
 import SpecialtyRadar from '../components/SpecialtyRadar';
 import TrendChart from '../components/TrendChart';
 import { CodeBlock } from '../components/ui/code-block';
-import { EDITIONS } from '../data/editions';
+import { EDITIONS, getEditionMetadata } from '../data/editions';
 import { findModel, MODELS } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
 
@@ -46,7 +46,10 @@ export default function ModelDetail() {
   // para posicioná-las no eixo temporal sem inventar uma data.
   const trendData = Object.entries(model.accuracyByEdition)
     .map(([eid, b]) => {
-      const ed = EDITIONS[eid];
+      // Via getEditionMetadata: é ele que resolve corte/taxa a partir do
+      // dataset (fonte de verdade única). Ler EDITIONS direto devolveria só o
+      // editorial, sem os números oficiais.
+      const ed = EDITIONS[eid] ? getEditionMetadata(eid) : undefined;
       const ts = ed ? Date.parse(ed.publishedAt) : NaN;
       return {
         edition: ed?.label ?? eid,
