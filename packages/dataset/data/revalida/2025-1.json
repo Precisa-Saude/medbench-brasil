@@ -1,6 +1,6 @@
 {
   "cutoffScore": 0.5867,
-  "cutoffScoreSource": "https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos",
+  "cutoffScoreSource": "https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos",
   "id": "revalida-2025-1",
   "passRate": 0.2628,
   "passRateSource": "https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/",

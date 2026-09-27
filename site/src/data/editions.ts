@@ -179,7 +179,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '14 abr. 2024',
         title: 'Revalida 2024/1: nota de corte da 1ª etapa é de 91,96 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-1-nota-de-corte-da-1a-etapa-e-de-91-96-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
@@ -201,7 +201,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '14 nov. 2024',
         title: 'Revalida 2024/2: nota de corte da 1ª etapa é de 86,659 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
@@ -223,7 +223,7 @@ export const EDITIONS: Record<string, EditionMetadata> = {
         location: 'Brasília',
         publishedAt: '4 jun. 2025',
         title: 'Revalida 2025/1: nota de corte da 1ª etapa é de 88 pontos',
-        url: 'https://www.gov.br/inep/pt-br/assuntos/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos',
       },
       {
         author: 'ESTRATÉGIA MED',
