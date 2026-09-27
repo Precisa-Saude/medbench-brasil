@@ -1,6 +1,6 @@
 {
   "name": "@precisa-saude/medbench-dataset",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Dataset estruturado de questões de provas médicas brasileiras (Revalida)",
   "keywords": [
     "revalida",

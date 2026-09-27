@@ -1,3 +1,33 @@
+## [1.9.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.8.0...v1.9.0) (2026-09-27)
+
+### Features
+
+* **dataset:** distingue gabarito preliminar de definitivo ([#64](https://github.com/Precisa-Saude/medbench-brasil/issues/64)) ([ce3057e](https://github.com/Precisa-Saude/medbench-brasil/commit/ce3057e4833ee7b174dcf26b108e87438a041854)), closes [#60](https://github.com/Precisa-Saude/medbench-brasil/issues/60)
+* **harness:** adicionar Sabiá 4 Thinking (Maritaca AI) ([#52](https://github.com/Precisa-Saude/medbench-brasil/issues/52)) ([44e6ed9](https://github.com/Precisa-Saude/medbench-brasil/commit/44e6ed911afeb4e2092487273cb9b2ad1e0f82a5))
+* **results:** publica Qwen RL-4gen 14B em revalida-2025-1 (67,5%) ([#57](https://github.com/Precisa-Saude/medbench-brasil/issues/57)) ([9e642d9](https://github.com/Precisa-Saude/medbench-brasil/commit/9e642d972febf23ee8ecf0702588f5cbc44a1383))
+
+### Bug Fixes
+
+* **ci:** completa o manifesto e adota o deploy do template ([#50](https://github.com/Precisa-Saude/medbench-brasil/issues/50)) ([9c050e9](https://github.com/Precisa-Saude/medbench-brasil/commit/9c050e94b984c5d0042e98ff81eb5ffe718f5e56)), closes [tooling#43](https://github.com/Precisa-Saude/tooling/issues/43)
+* **ci:** deploy do site observa results/ e permite dispatch manual ([#49](https://github.com/Precisa-Saude/medbench-brasil/issues/49)) ([499cf16](https://github.com/Precisa-Saude/medbench-brasil/commit/499cf166599342a6c809044e901772eafecd7b61))
+* **ci:** guard de release compara desde a última release, não o push ([#56](https://github.com/Precisa-Saude/medbench-brasil/issues/56)) ([1073c8c](https://github.com/Precisa-Saude/medbench-brasil/commit/1073c8c8afadf34387f52a472ce78893ebfd872f))
+* **ci:** publish-watch aceita pacote sem tag quando bate com o package.json ([#55](https://github.com/Precisa-Saude/medbench-brasil/issues/55)) ([a7d0156](https://github.com/Precisa-Saude/medbench-brasil/commit/a7d01560df0623511aef73a261feed92a0936cd1)), closes [#48](https://github.com/Precisa-Saude/medbench-brasil/issues/48) [tooling#52](https://github.com/Precisa-Saude/tooling/issues/52)
+* **ci:** publish-watch compara a versão do pacote, não a maior tag ([#54](https://github.com/Precisa-Saude/medbench-brasil/issues/54)) ([8b0c3ee](https://github.com/Precisa-Saude/medbench-brasil/commit/8b0c3eecd8f2f6872978a2134bcbed692e427743)), closes [tooling#51](https://github.com/Precisa-Saude/tooling/issues/51)
+* quebra volta a gerar versão maior ([#61](https://github.com/Precisa-Saude/medbench-brasil/issues/61)) ([fe6dc52](https://github.com/Precisa-Saude/medbench-brasil/commit/fe6dc52a16836dca6df85774b720738320b0e82f))
+
+### Documentation
+
+* plano de custo por questão e enquadramento metodológico ([#63](https://github.com/Precisa-Saude/medbench-brasil/issues/63)) ([3a1fb5d](https://github.com/Precisa-Saude/medbench-brasil/commit/3a1fb5dcc2bae2be992ab230e1421750ac46431a))
+
+### CI/CD
+
+* sincroniza template de review-dispatch (pr_number como number) ([#59](https://github.com/Precisa-Saude/medbench-brasil/issues/59)) ([8b70d42](https://github.com/Precisa-Saude/medbench-brasil/commit/8b70d42263871864a665bbf126d18ac578e4ed78))
+
+### Chores
+
+* **ci:** sincroniza templates do cli 1.13.1 ([#53](https://github.com/Precisa-Saude/medbench-brasil/issues/53)) ([18d436c](https://github.com/Precisa-Saude/medbench-brasil/commit/18d436c306b25cf6b09240af8b3150db64fefd5a)), closes [tooling#47](https://github.com/Precisa-Saude/tooling/issues/47) [tooling#48](https://github.com/Precisa-Saude/tooling/issues/48) [tooling#50](https://github.com/Precisa-Saude/tooling/issues/50)
+* **ci:** sincroniza templates e declara divergências deliberadas ([#51](https://github.com/Precisa-Saude/medbench-brasil/issues/51)) ([fe5b029](https://github.com/Precisa-Saude/medbench-brasil/commit/fe5b0291e8be195790f21dbe9953aeb64be26260))
+
 ## [1.8.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.7.0...v1.8.0) (2026-08-03)
 
 ### Features
