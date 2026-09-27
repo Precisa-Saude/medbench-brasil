@@ -103,6 +103,11 @@ Ver `docs/contamination.md` seção "Canary tests". Não bloqueante para v1; esc
 - [`plano-enamed-2026.md`](./plano-enamed-2026.md) — ENAMED 2026 (prova em
   13/09/2026): primeira edição que post-data o corte de treino de todos os
   modelos, tornando o roster inteiro uma medição limpa.
+- [`plano-custo-e-enquadramento.md`](./plano-custo-e-enquadramento.md) —
+  custo por questão (captura de `usage` no harness + preços com fonte no
+  registry + Pareto precisão × custo) e enquadramento comparativo da
+  metodologia, motivado pelos leaderboards de busca da OpenRouter
+  (ago/2026).
 
 ## Arquitetura
 
