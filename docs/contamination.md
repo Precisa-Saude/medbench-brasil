@@ -35,6 +35,7 @@ No momento desta versão, ficam `undefined`:
 - Qwen (3, 3.5, 3.6, 3.7) — blog Qwen, model cards HF e tech reports não declaram cutoff para nenhum modelo da família Qwen3+. Confirmação secundária (não autoritativa): o repositório [HaoooWang/llm-knowledge-cutoff-dates](https://github.com/HaoooWang/llm-knowledge-cutoff-dates) também lista Qwen3 como "Unknown / TBD" e "Mistral series" como "unknown"; uma snapshot via Wayback Machine deve ser anexada a uma issue antes de qualquer ajuste baseado nessa referência, já que o repo pode mudar ou sumir.
 - DeepSeek (V3-0324, V3.1, V4 Pro) — nenhum declara cutoff próprio; ver a nota sobre o V3-Base mais abaixo. O model card do V4 Pro cita "more than 32T diverse and high-quality tokens", mas volume de corpus não é data de corte.
 - Gemini 3.6 Flash — nem a página do modelo nem o changelog da Gemini API publicam knowledge cutoff (verificado em 2026-08-03), ao contrário do Gemini 2.5 Pro e do 3.1 Pro, que declaram "January 2025".
+- Gemini 3.1 Flash-Lite — o model card diz só que o modelo é "based on Gemini 3 Pro", sem data de corte; a página do modelo na Gemini API ("Latest update: May 2026") e o changelog também não publicam (verificado em 2026-09-27). O corte do 3 Pro não é herdado.
 - Kimi K3 (Moonshot AI) — o model card no HF documenta a liberação dos pesos sob a Kimi K3 License, mas não declara cutoff nem as fontes dos dados de treino.
 
 ### Por que não usamos auto-declaração do modelo
