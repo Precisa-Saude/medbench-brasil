@@ -1,3 +1,15 @@
+## [2.0.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.9.0...v2.0.0) (2026-09-27)
+
+### ⚠ BREAKING CHANGES
+
+* **dataset:** `Edition.cutoffScore` e `Edition.passRate` agora são
+`number | undefined`. Consumidores em TypeScript strict que lêem os
+campos direto precisam tratar ausência.
+
+### Features
+
+* **dataset:** edição ENAMED 2026 com gabarito preliminar ([#65](https://github.com/Precisa-Saude/medbench-brasil/issues/65)) ([7f0f2dc](https://github.com/Precisa-Saude/medbench-brasil/commit/7f0f2dc414c5d834f19c705e1981043a02641462)), closes [#60](https://github.com/Precisa-Saude/medbench-brasil/issues/60)
+
 ## [1.9.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.8.0...v1.9.0) (2026-09-27)
 
 ### Features
