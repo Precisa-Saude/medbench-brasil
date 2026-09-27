@@ -7,6 +7,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { loadEdition } from '@precisa-saude/medbench-dataset';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import * as barrel from '../src/index.js';
@@ -91,52 +92,43 @@ describe('rescore', () => {
     expect(() => rescoreFromScored(path)).toThrow(/sem perQuestion/);
   });
 
-  it('rescoreFromRaw lê raw.jsonl e reconstrói via loadEdition', () => {
-    const rawPath = join(dir, 'raw.jsonl');
-    // Gera linhas raw pra algumas questões da edição real. Apenas 3
-    // questões — o teste não precisa da edição inteira, só que o loader
-    // resolva e o scorer escore algo.
-    const lines = [
-      {
-        correct: true,
-        editionId: 'revalida-2025-1',
-        elapsedMs: 10,
-        modelId: 'mock-model',
-        parsed: 'A',
-        questionId: 'revalida-2025-1:q1',
-        rawResponse: 'A',
-        requestParams: {},
-        run: 1,
-      },
-      // Linha corrompida pra exercitar o warn-skip
-      'invalido{json',
-      {
-        correct: false,
-        editionId: 'revalida-2025-1',
-        elapsedMs: 10,
-        modelId: 'mock-model',
-        parsed: 'C',
-        questionId: 'revalida-2025-1:q2',
-        rawResponse: 'C',
-        requestParams: {},
-        run: 1,
-      },
-      // Linha de outra edição — deve ser ignorada
-      {
-        correct: true,
-        editionId: 'revalida-2024-1',
-        elapsedMs: 10,
-        modelId: 'mock-model',
-        parsed: 'A',
-        questionId: 'revalida-2024-1:q1',
-        rawResponse: 'A',
-        requestParams: {},
-        run: 1,
-      },
-    ]
-      .map((l) => (typeof l === 'string' ? l : JSON.stringify(l)))
-      .join('\n');
-    writeFileSync(rawPath, lines, 'utf8');
+  /**
+   * Gera o log completo da edição real: questões elegíveis × runs.
+   *
+   * A versão anterior deste teste usava ids inventados (`revalida-2025-1:q1`)
+   * que não existem na edição — os ids reais são `revalida-2025-1-q01`. Nenhum
+   * registro casava, o scorer recebia zero records e o teste passava porque só
+   * checava `modelId` e `runsPerQuestion`. Era a própria falha da #45
+   * acontecendo dentro do teste que deveria protegê-la.
+   */
+  function logCompleto(runs: number) {
+    const edition = loadEdition('revalida-2025-1');
+    const elegiveis = edition.questions.filter((q) => !q.annulled && !q.hasImage && !q.hasTable);
+    const linhas: string[] = [];
+    for (const q of elegiveis) {
+      for (let run = 1; run <= runs; run++) {
+        linhas.push(
+          JSON.stringify({
+            correct: run === 1,
+            editionId: 'revalida-2025-1',
+            elapsedMs: 10,
+            modelId: 'mock-model',
+            parsed: q.correct,
+            questionId: q.id,
+            rawResponse: q.correct,
+            requestParams: {},
+            run,
+          }),
+        );
+      }
+    }
+    return { elegiveis: elegiveis.length, linhas };
+  }
+
+  it('rescoreFromRaw escora o log completo e não anexa rawCoverage', () => {
+    const rawPath = join(dir, 'completo.jsonl');
+    const { elegiveis, linhas } = logCompleto(1);
+    writeFileSync(rawPath, linhas.join('\n'), 'utf8');
 
     const result = rescoreFromRaw({
       editionId: 'revalida-2025-1',
@@ -147,5 +139,63 @@ describe('rescore', () => {
     });
     expect(result.modelId).toBe('mock-model');
     expect(result.runsPerQuestion).toBe(1);
+    // O denominador agora é verificado: precisa ser a matriz inteira.
+    expect(result.total).toBe(elegiveis);
+    expect(result.rawCoverage).toBeUndefined();
+  });
+
+  it('rescoreFromRaw aborta quando falta registro no log', () => {
+    const rawPath = join(dir, 'truncado.jsonl');
+    const { linhas } = logCompleto(1);
+    writeFileSync(rawPath, linhas.slice(0, -1).join('\n'), 'utf8');
+
+    expect(() =>
+      rescoreFromRaw({
+        editionId: 'revalida-2025-1',
+        modelId: 'mock-model',
+        rawLogPath: rawPath,
+        runsPerQuestion: 1,
+        trainingCutoff: '2024-01-01',
+      }),
+    ).toThrow(/validação de cobertura falhou/);
+  });
+
+  it('rescoreFromRaw com allowPartial escora o subconjunto e registra a cobertura', () => {
+    const rawPath = join(dir, 'parcial.jsonl');
+    const { elegiveis, linhas } = logCompleto(1);
+    // Log truncado + linha corrompida + linha de outra edição: cada motivo
+    // deve aparecer separado no artefato.
+    const corpo = [
+      ...linhas.slice(0, -2),
+      'invalido{json',
+      JSON.stringify({
+        correct: true,
+        editionId: 'revalida-2024-1',
+        elapsedMs: 10,
+        modelId: 'mock-model',
+        parsed: 'A',
+        questionId: 'revalida-2024-1-q01',
+        rawResponse: 'A',
+        requestParams: {},
+        run: 1,
+      }),
+    ];
+    writeFileSync(rawPath, corpo.join('\n'), 'utf8');
+
+    const result = rescoreFromRaw({
+      allowPartial: true,
+      editionId: 'revalida-2025-1',
+      modelId: 'mock-model',
+      rawLogPath: rawPath,
+      runsPerQuestion: 1,
+      trainingCutoff: '2024-01-01',
+    });
+    expect(result.total).toBe(elegiveis - 2);
+    expect(result.rawCoverage).toBeDefined();
+    expect(result.rawCoverage!.expectedRecords).toBe(elegiveis);
+    expect(result.rawCoverage!.observedRecords).toBe(elegiveis - 2);
+    expect(result.rawCoverage!.coverage).toBeLessThan(1);
+    expect(result.rawCoverage!.exclusions.malformedLines).toBe(1);
+    expect(result.rawCoverage!.exclusions.wrongEdition).toBe(1);
   });
 });

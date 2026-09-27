@@ -10,6 +10,14 @@ export { anthropicProvider } from './providers/anthropic.js';
 export { googleProvider } from './providers/google.js';
 export { openAiProvider } from './providers/openai.js';
 export { openAiCompatProvider } from './providers/openai-compat.js';
+export {
+  analyzeRawCoverage,
+  describeRawCoverage,
+  isRawCoverageComplete,
+  type RawCoverage,
+  type RawCoverageExclusions,
+  rawCoverageKey,
+} from './raw-coverage.js';
 export { parseLetter, runEvaluation } from './runner.js';
 export { scoreRun } from './scorer.js';
 export type {

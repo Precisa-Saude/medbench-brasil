@@ -15,6 +15,12 @@ import type {
 } from '@precisa-saude/medbench-dataset';
 import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
 
+import {
+  analyzeRawCoverage,
+  describeRawCoverage,
+  isRawCoverageComplete,
+  rawCoverageKey,
+} from './raw-coverage.js';
 import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, PerQuestionResult, RawResponseRecord } from './types.js';
 
@@ -61,6 +67,12 @@ export function rescoreFromScored(scoredJsonPath: string): EvaluationResult {
  * edição inteira; quando possível prefira `rescoreFromScored`.
  */
 export function rescoreFromRaw(options: {
+  /**
+   * Pontua mesmo com cobertura incompleta, registrando `rawCoverage` no
+   * resultado. Escape hatch para trabalho de recuperação — o padrão é
+   * reprovar, para que perda de dado não passe por resultado melhor (#45).
+   */
+  allowPartial?: boolean;
   editionId: EditionId;
   excludeImages?: boolean;
   excludeTables?: boolean;
@@ -102,11 +114,32 @@ export function rescoreFromRaw(options: {
       .map((q) => [q.id, q]),
   );
 
+  // Valida a matriz questões-elegíveis × runs ANTES de pontuar: sem isso um
+  // log truncado produz métricas de aparência normal sobre o que sobrou (#45).
+  const coverage = analyzeRawCoverage({
+    editionId: options.editionId,
+    eligibleQuestionIds: questions.keys(),
+    malformedLines: skipped,
+    records,
+    runsPerQuestion: options.runsPerQuestion,
+  });
+  const complete = isRawCoverageComplete(coverage);
+  if (!complete && options.allowPartial !== true) {
+    throw new Error(describeRawCoverage(coverage, options.rawLogPath));
+  }
+
+  // Deduplica pelo mesmo critério da análise: em modo partial, um par
+  // (questionId, run) repetido não pode entrar duas vezes no denominador.
+  const usados = new Set<string>();
   const runRecords: RunRecord[] = [];
   for (const rec of records) {
     if (rec.editionId !== options.editionId) continue;
     const question = questions.get(rec.questionId);
     if (!question) continue;
+    if (!Number.isInteger(rec.run) || rec.run < 1 || rec.run > options.runsPerQuestion) continue;
+    const key = rawCoverageKey(rec.questionId, rec.run);
+    if (usados.has(key)) continue;
+    usados.add(key);
     runRecords.push({
       contamination,
       correct: rec.correct,
@@ -115,7 +148,10 @@ export function rescoreFromRaw(options: {
     });
   }
 
-  return scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  const result = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  // Presença de `rawCoverage` no artefato = algo não fechou. Cobertura
+  // completa não grava o campo, mantendo os artefatos estáveis byte a byte.
+  return complete ? result : { ...result, rawCoverage: coverage };
 }
 
 /**
