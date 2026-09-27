@@ -116,7 +116,22 @@ function inverseNormal(p: number): number {
 
 const SD = 0.11;
 
-export const EDITIONS: Record<string, EditionMetadata> = {
+/**
+ * Metadados que o SITE pode declarar. Os quatro campos oficiais/derivados
+ * ficam de fora de propósito: `cutoffScore` e `passRate` vêm do dataset, e a
+ * média humana é derivada deles em `getEditionMetadata`.
+ *
+ * O `Omit` é a trava que faltava na #66. Antes o corte era declarável nos dois
+ * lugares e eles divergiram — o dataset ficou com o default 0.6 enquanto aqui
+ * estava o valor real. Agora declarar corte ou taxa numa entrada curada é
+ * erro de compilação, então a divergência não pode voltar por este caminho.
+ */
+export type CuratedEditionMetadata = Omit<
+  EditionMetadata,
+  'cutoffScore' | 'estimatedHumanMean' | 'estimatedHumanSd' | 'passRate'
+>;
+
+export const EDITIONS: Record<string, CuratedEditionMetadata> = {
   // ENAMED 2025 — primeira edição, resultado divulgado em 12-dez-2025.
   // Nota de corte de proficiência: 60 pts na escala TRI (equivale a 57,87%
   // de itens corretos após exclusão de 10 itens por motivos administrativos/
@@ -251,8 +266,12 @@ export function getEditionMetadata(id: string): EditionMetadata {
       ? estimateHumanMean(cutoffScore, passRate, SD)
       : undefined;
 
+  // Precedência explícita: o editorial não tem como declarar estes quatro
+  // campos (ver `CuratedEditionMetadata`), então não há sobrescrita implícita
+  // — o spread só traz rótulo, data, fontes e referências extras.
+  const editorial: CuratedEditionMetadata = curated ?? { id, label: id, publishedAt: '' };
   return {
-    ...(curated ?? { id, label: id, publishedAt: '' }),
+    ...editorial,
     cutoffScore,
     estimatedHumanMean,
     estimatedHumanSd: estimatedHumanMean !== undefined ? SD : undefined,
