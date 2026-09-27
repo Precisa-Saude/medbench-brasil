@@ -82,8 +82,8 @@ async function cmdExtract(args: Record<string, string>) {
   const gabaritoPath = join(rawDir, answerKey.filename);
 
   console.log(`extraindo texto de ${edition} (gabarito ${answerKey.status})…`);
-  const provaBuf = readFileSync(provaPath);
-  const gabaritoBuf = readFileSync(gabaritoPath);
+  const provaBuf = readRawPdf(provaPath, edition);
+  const gabaritoBuf = readRawPdf(gabaritoPath, edition);
   const [prova, gabarito] = await Promise.all([
     extractPdfText(provaBuf),
     extractPdfText(gabaritoBuf),
@@ -123,6 +123,25 @@ async function cmdExtract(args: Record<string, string>) {
   };
   writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`);
   console.log(`gravado em ${outPath}`);
+}
+
+/**
+ * Lê um PDF bruto da edição com erro acionável.
+ *
+ * `download` e `extract` são passos separados, então rodar `extract` antes do
+ * download é um erro de uso plausível — e o ENOENT cru não diz o que fazer.
+ * O gabarito já ganha mensagem explícita do `resolveAnswerKey`; isto fecha a
+ * assimetria para a prova.
+ */
+function readRawPdf(path: string, edition: string): Buffer {
+  try {
+    return readFileSync(path);
+  } catch (cause) {
+    throw new Error(
+      `não foi possível ler ${path} — rode "medbench-ingest download --edition ${edition} --prova <url> --gabarito <url>" antes do extract`,
+      { cause },
+    );
+  }
 }
 
 function safeReadJson(path: string): Record<string, unknown> | null {
