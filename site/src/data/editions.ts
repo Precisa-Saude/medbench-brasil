@@ -29,10 +29,13 @@ export interface EditionSource {
 }
 
 export interface EditionMetadata {
-  /** Nota de corte oficial, escala 0–1. */
-  cutoffScore: number;
-  /** Média humana estimada, escala 0–1. */
-  estimatedHumanMean: number;
+  /**
+   * Nota de corte oficial, escala 0–1. Ausente quando a INEP ainda não
+   * publicou — o gráfico e o cabeçalho omitem a linha em vez de chutar.
+   */
+  cutoffScore?: number;
+  /** Média humana estimada, escala 0–1. Depende de corte + taxa. */
+  estimatedHumanMean?: number;
   /** Desvio-padrão assumido no retrocálculo. */
   estimatedHumanSd: number;
   /**
@@ -43,8 +46,8 @@ export interface EditionMetadata {
   extraReferences?: EditionReference[];
   id: string;
   label: string;
-  /** Taxa de aprovação oficial, escala 0–1. */
-  passRate: number;
+  /** Taxa de aprovação oficial, escala 0–1. Ausente até sair o resultado. */
+  passRate?: number;
   /** Ano-semestre para ordenação no eixo do gráfico. */
   publishedAt: string;
   /**
@@ -244,14 +247,14 @@ export const EDITIONS: Record<string, EditionMetadata> = {
 };
 
 export function getEditionMetadata(id: string): EditionMetadata {
+  // Edição sem entrada curada (ex.: recém-ingerida, antes do edital de
+  // resultado) não ganha corte/taxa/média inventados — os consumidores já
+  // tratam ausência omitindo a linha correspondente.
   return (
     EDITIONS[id] ?? {
-      cutoffScore: 0.6,
-      estimatedHumanMean: 0.55,
       estimatedHumanSd: SD,
       id,
       label: id,
-      passRate: 0.18,
       publishedAt: '',
     }
   );

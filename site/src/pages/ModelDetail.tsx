@@ -50,9 +50,12 @@ export default function ModelDetail() {
       const ts = ed ? Date.parse(ed.publishedAt) : NaN;
       return {
         edition: ed?.label ?? eid,
-        estimatedHumanMean: ed ? ed.estimatedHumanMean * 100 : undefined,
+        // Corte e média humana só entram quando a INEP já publicou — série
+        // ausente é melhor que ponto inventado no gráfico de evolução.
+        estimatedHumanMean:
+          ed?.estimatedHumanMean !== undefined ? ed.estimatedHumanMean * 100 : undefined,
         modelScore: b.accuracy * 100,
-        passingScore: ed ? ed.cutoffScore * 100 : undefined,
+        passingScore: ed?.cutoffScore !== undefined ? ed.cutoffScore * 100 : undefined,
         sortKey: Number.isNaN(ts) ? Number.POSITIVE_INFINITY : ts,
       };
     })

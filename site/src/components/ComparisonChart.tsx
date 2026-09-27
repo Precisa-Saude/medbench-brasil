@@ -115,19 +115,27 @@ export default function ComparisonChart({
       ? JENKS_COLORS[0]
       : JENKS_COLORS[JENKS_K - 1 - jenksClass(accuracy, breaks)];
 
-  const cutoffPct = edition.cutoffScore * 100;
-  const humanPct = edition.estimatedHumanMean * 100;
+  // Corte e média humana podem não existir (edição ingerida antes do edital
+  // de resultado). Nesse caso os pills correspondentes simplesmente não são
+  // montados — melhor faltar a referência do que desenhar uma linha falsa.
+  const cutoffPct = edition.cutoffScore !== undefined ? edition.cutoffScore * 100 : null;
+  const humanPct =
+    edition.estimatedHumanMean !== undefined ? edition.estimatedHumanMean * 100 : null;
 
   // Monta os pills de referência. Quando há `extraReferences` (ex.: ENAMED
   // com taxas por rede), "Candidatos" fica oculto pra evitar redundância.
   const rawLabels = [
-    {
-      label: 'Corte',
-      leftPercent: cutoffPct,
-      priority: 1,
-      tooltip: 'Nota de corte oficial da INEP para aprovação nesta edição.',
-    },
-    ...(!edition.extraReferences?.length
+    ...(cutoffPct !== null
+      ? [
+          {
+            label: 'Corte',
+            leftPercent: cutoffPct,
+            priority: 1,
+            tooltip: 'Nota de corte oficial da INEP para aprovação nesta edição.',
+          },
+        ]
+      : []),
+    ...(!edition.extraReferences?.length && humanPct !== null && edition.passRate !== undefined
       ? [
           {
             label: 'Candidatos',
@@ -231,8 +239,10 @@ export default function ComparisonChart({
                         50,
                         75,
                         100,
-                        Math.round(cutoffPct),
-                        ...(edition.extraReferences?.length ? [] : [Math.round(humanPct)]),
+                        ...(cutoffPct !== null ? [Math.round(cutoffPct)] : []),
+                        ...(edition.extraReferences?.length || humanPct === null
+                          ? []
+                          : [Math.round(humanPct)]),
                         ...(edition.extraReferences ?? []).map((r) => Math.round(r.score * 100)),
                       ]),
                     ).sort((a, b) => a - b)}
@@ -290,14 +300,16 @@ export default function ComparisonChart({
                       position="insideRight"
                     />
                   </Bar>
-                  <ReferenceLine
-                    ifOverflow="extendDomain"
-                    stroke="#ffffff"
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    x={cutoffPct}
-                  />
-                  {!edition.extraReferences?.length && (
+                  {cutoffPct !== null && (
+                    <ReferenceLine
+                      ifOverflow="extendDomain"
+                      stroke="#ffffff"
+                      strokeDasharray="4 4"
+                      strokeWidth={1.5}
+                      x={cutoffPct}
+                    />
+                  )}
+                  {!edition.extraReferences?.length && humanPct !== null && (
                     <ReferenceLine
                       ifOverflow="extendDomain"
                       stroke="#ffffff"

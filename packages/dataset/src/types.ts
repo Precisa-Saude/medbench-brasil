@@ -73,9 +73,19 @@ export interface Edition {
    * edições anteriores à ENAMED 2026 foram ingeridas com gabarito pós-recurso.
    */
   answerKeyStatus?: AnswerKeyStatus;
-  cutoffScore: number;
+  /**
+   * Nota de corte oficial, escala 0–1. Opcional: só existe depois que a INEP
+   * publica o edital de resultado. Ausente significa "não sabemos" — nunca
+   * um valor plausível chutado, que viraria base de gráfico e citação.
+   */
+  cutoffScore?: number;
   id: EditionId;
-  passRate: number;
+  /**
+   * Taxa de aprovação oficial, escala 0–1. Opcional pelo mesmo motivo do
+   * `cutoffScore`, e com atraso maior: é resultado da aplicação, não do
+   * edital. Na ENAMED 2026 só sai em 04/12/2026.
+   */
+  passRate?: number;
   publishedAt: string;
   questions: Question[];
   source: string;
