@@ -1,3 +1,9 @@
+## [2.0.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.0.0...v2.0.1) (2026-09-27)
+
+### Bug Fixes
+
+* **dataset:** unifica a fonte do corte oficial e preenche as quatro edições ([#67](https://github.com/Precisa-Saude/medbench-brasil/issues/67)) ([70af45d](https://github.com/Precisa-Saude/medbench-brasil/commit/70af45d322124590553b70cdf86f7e0f448ff170)), closes [#65](https://github.com/Precisa-Saude/medbench-brasil/issues/65) [#65](https://github.com/Precisa-Saude/medbench-brasil/issues/65) [#66](https://github.com/Precisa-Saude/medbench-brasil/issues/66)
+
 ## [2.0.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v1.9.0...v2.0.0) (2026-09-27)
 
 ### ⚠ BREAKING CHANGES
