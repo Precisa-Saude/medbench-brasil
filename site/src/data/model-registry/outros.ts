@@ -59,4 +59,18 @@ export const OUTROS_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2026-02-01',
     trainingCutoffSource: 'https://docs.x.ai/docs/models',
   },
+  'x-ai/grok-4.7': {
+    description:
+      'Flagship da xAI (setembro/2026), sucessor do Grok 4.6, voltado a código, tarefas agênticas e trabalho de conhecimento, com 500k de contexto.',
+    homepage: 'https://docs.x.ai/developers/grok-4-7',
+    label: 'Grok 4.7',
+    modelId: 'x-ai/grok-4.7',
+    provider: 'xAI · OpenRouter',
+    releaseDate: '2026-09-21',
+    tier: 'proprietaria',
+    // "The knowledge cut-off date of Grok 4.7 is May 2026" — docs da xAI.
+    // Corte anterior a 13/09/2026, então a ENAMED 2026 é medição limpa.
+    trainingCutoff: '2026-05-01',
+    trainingCutoffSource: 'https://docs.x.ai/developers/grok-4-7',
+  },
 };
