@@ -187,6 +187,7 @@ function runRescore(args: Record<string, string>) {
       process.exit(1);
     }
     const result = rescoreFromRaw({
+      allowPartial: args['allow-partial'] === 'true',
       editionId: editionFilter as EditionId,
       modelId: modelFilter,
       rawLogPath,

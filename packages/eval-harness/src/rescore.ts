@@ -15,6 +15,12 @@ import type {
 } from '@precisa-saude/medbench-dataset';
 import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
 
+import {
+  describeRawCoverage,
+  hasRawExclusions,
+  isRawCoverageComplete,
+  partitionRawRecords,
+} from './raw-coverage.js';
 import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, PerQuestionResult, RawResponseRecord } from './types.js';
 
@@ -61,6 +67,12 @@ export function rescoreFromScored(scoredJsonPath: string): EvaluationResult {
  * edição inteira; quando possível prefira `rescoreFromScored`.
  */
 export function rescoreFromRaw(options: {
+  /**
+   * Pontua mesmo com cobertura incompleta, registrando `rawCoverage` no
+   * resultado. Escape hatch para trabalho de recuperação — o padrão é
+   * reprovar, para que perda de dado não passe por resultado melhor (#45).
+   */
+  allowPartial?: boolean;
   editionId: EditionId;
   excludeImages?: boolean;
   excludeTables?: boolean;
@@ -102,20 +114,56 @@ export function rescoreFromRaw(options: {
       .map((q) => [q.id, q]),
   );
 
-  const runRecords: RunRecord[] = [];
-  for (const rec of records) {
-    if (rec.editionId !== options.editionId) continue;
-    const question = questions.get(rec.questionId);
-    if (!question) continue;
-    runRecords.push({
-      contamination,
-      correct: rec.correct,
-      parsed: rec.parsed,
-      question,
-    });
+  // Valida a matriz questões-elegíveis × runs ANTES de pontuar: sem isso um
+  // log truncado produz métricas de aparência normal sobre o que sobrou (#45).
+  // `accepted` vem da MESMA passada que calculou a cobertura, então
+  // `runRecords.length` é sempre igual a `coverage.observedRecords`.
+  const { accepted, coverage } = partitionRawRecords({
+    editionId: options.editionId,
+    eligibleQuestionIds: questions.keys(),
+    malformedLines: skipped,
+    records,
+    runsPerQuestion: options.runsPerQuestion,
+  });
+  const complete = isRawCoverageComplete(coverage);
+  if (!complete && options.allowPartial !== true) {
+    throw new Error(describeRawCoverage(coverage, options.rawLogPath));
+  }
+  if (complete && hasRawExclusions(coverage)) {
+    // A matriz fechou, então não reprova — mas registro descartado não pode
+    // desaparecer sem deixar rastro: artefato completo não grava `rawCoverage`.
+    const naoZeradas = Object.entries(coverage.exclusions)
+      .filter(([, n]) => n > 0)
+      .map(([motivo, n]) => `${motivo}=${n}`)
+      .join(', ');
+    // eslint-disable-next-line no-console
+    console.warn(
+      `rescoreFromRaw: cobertura completa em ${options.rawLogPath}, com exclusões — ${naoZeradas}`,
+    );
   }
 
-  return scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  const runRecords: RunRecord[] = accepted.map((rec) => {
+    // `accepted` só contém registro cujo `questionId` passou por
+    // `eligible.has(...)`, e `eligible` é construído de `questions.keys()`
+    // logo acima — então o `get` não pode falhar. Falha aqui significa que a
+    // invariante se rompeu; erro alto e explícito em vez de `!` silencioso.
+    //
+    // Deliberadamente NÃO é `continue`: pular o registro faria
+    // `runRecords.length` cair abaixo de `coverage.observedRecords`, quebrando
+    // em silêncio a invariante que o partition único existe para garantir.
+    const question = questions.get(rec.questionId);
+    if (!question) {
+      throw new Error(
+        `invariante rompida: ${rec.questionId} está em accepted mas não no conjunto elegível de ${options.editionId}`,
+      );
+    }
+    return { contamination, correct: rec.correct, parsed: rec.parsed, question };
+  });
+
+  const result = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  // Presença de `rawCoverage` no artefato = algo não fechou. Cobertura
+  // completa não grava o campo, mantendo os artefatos estáveis byte a byte.
+  return complete ? result : { ...result, rawCoverage: coverage };
 }
 
 /**

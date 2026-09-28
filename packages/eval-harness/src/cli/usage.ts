@@ -47,6 +47,13 @@ Opções de rescore:
   --from-raw                  Reconstrói a partir de raw.jsonl em vez do
                               scored existente. Exige --edition, --model e
                               opcionalmente --cutoff/--runs.
+                              Valida a matriz questões-elegíveis × runs e
+                              ABORTA se faltar registro, houver duplicata ou
+                              run fora da faixa.
+  --allow-partial             (com --from-raw) pontua mesmo com cobertura
+                              incompleta e grava rawCoverage no artefato.
+                              Só para recuperação — o padrão reprova, para
+                              perda de dado não virar resultado melhor.
 
 Opções de report:
   --edition <id>              (obrigatório)

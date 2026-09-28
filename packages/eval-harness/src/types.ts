@@ -1,5 +1,7 @@
 import type { Question, QuestionOption } from '@precisa-saude/medbench-dataset';
 
+import type { RawCoverage } from './raw-coverage.js';
+
 export interface Provider {
   /** Identificador estável no leaderboard (ex.: 'claude-sonnet-4-6'). */
   id: string;
@@ -115,6 +117,13 @@ export interface EvaluationResult {
    */
   perQuestion?: PerQuestionResult[];
   perSpecialty: Record<string, { accuracy: number; n: number }>;
+  /**
+   * Cobertura do `raw.jsonl` que gerou este artefato. Só é gravado quando a
+   * cobertura NÃO fechou e o score foi feito com `--allow-partial` — a
+   * presença do campo é, por si, o sinal de que o denominador é reduzido.
+   * Ausente em artefato completo e em artefato v0. Ver #45.
+   */
+  rawCoverage?: RawCoverage;
   runsPerQuestion: number;
   total: number;
 }
