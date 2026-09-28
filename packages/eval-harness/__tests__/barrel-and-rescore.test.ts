@@ -122,6 +122,10 @@ describe('rescore', () => {
         );
       }
     }
+    // Guard contra fixture vazia: se a edição mudar e nenhuma questão sobrar
+    // elegível, a matriz viraria 0×runs e os testes passariam sem testar nada
+    // — o modo de falha que esta PR existe para impedir.
+    expect(elegiveis.length).toBeGreaterThan(0);
     return { elegiveis: elegiveis.length, linhas };
   }
 
@@ -197,5 +201,28 @@ describe('rescore', () => {
     expect(result.rawCoverage!.coverage).toBeLessThan(1);
     expect(result.rawCoverage!.exclusions.malformedLines).toBe(1);
     expect(result.rawCoverage!.exclusions.wrongEdition).toBe(1);
+    // Invariante: o que foi pontuado é exatamente o que a cobertura reporta.
+    expect(result.total).toBe(result.rawCoverage!.observedRecords);
+  });
+
+  it('duplicata não infla o denominador em modo allowPartial', () => {
+    const rawPath = join(dir, 'duplicado.jsonl');
+    const { elegiveis, linhas } = logCompleto(1);
+    // Log completo + 5 registros repetidos: o par (questionId, run) repetido
+    // não pode entrar duas vezes no denominador.
+    writeFileSync(rawPath, [...linhas, ...linhas.slice(0, 5)].join('\n'), 'utf8');
+
+    const result = rescoreFromRaw({
+      allowPartial: true,
+      editionId: 'revalida-2025-1',
+      modelId: 'mock-model',
+      rawLogPath: rawPath,
+      runsPerQuestion: 1,
+      trainingCutoff: '2024-01-01',
+    });
+    expect(result.rawCoverage!.exclusions.duplicateRecords).toBe(5);
+    expect(result.rawCoverage!.observedRecords).toBe(elegiveis);
+    expect(result.total).toBe(elegiveis);
+    expect(result.total).toBe(result.rawCoverage!.observedRecords);
   });
 });

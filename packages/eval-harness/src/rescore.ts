@@ -16,10 +16,10 @@ import type {
 import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
 
 import {
-  analyzeRawCoverage,
   describeRawCoverage,
+  hasRawExclusions,
   isRawCoverageComplete,
-  rawCoverageKey,
+  partitionRawRecords,
 } from './raw-coverage.js';
 import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, PerQuestionResult, RawResponseRecord } from './types.js';
@@ -116,7 +116,9 @@ export function rescoreFromRaw(options: {
 
   // Valida a matriz questões-elegíveis × runs ANTES de pontuar: sem isso um
   // log truncado produz métricas de aparência normal sobre o que sobrou (#45).
-  const coverage = analyzeRawCoverage({
+  // `accepted` vem da MESMA passada que calculou a cobertura, então
+  // `runRecords.length` é sempre igual a `coverage.observedRecords`.
+  const { accepted, coverage } = partitionRawRecords({
     editionId: options.editionId,
     eligibleQuestionIds: questions.keys(),
     malformedLines: skipped,
@@ -127,26 +129,21 @@ export function rescoreFromRaw(options: {
   if (!complete && options.allowPartial !== true) {
     throw new Error(describeRawCoverage(coverage, options.rawLogPath));
   }
-
-  // Deduplica pelo mesmo critério da análise: em modo partial, um par
-  // (questionId, run) repetido não pode entrar duas vezes no denominador.
-  const usados = new Set<string>();
-  const runRecords: RunRecord[] = [];
-  for (const rec of records) {
-    if (rec.editionId !== options.editionId) continue;
-    const question = questions.get(rec.questionId);
-    if (!question) continue;
-    if (!Number.isInteger(rec.run) || rec.run < 1 || rec.run > options.runsPerQuestion) continue;
-    const key = rawCoverageKey(rec.questionId, rec.run);
-    if (usados.has(key)) continue;
-    usados.add(key);
-    runRecords.push({
-      contamination,
-      correct: rec.correct,
-      parsed: rec.parsed,
-      question,
-    });
+  if (complete && hasRawExclusions(coverage)) {
+    // A matriz fechou, então não reprova — mas registro descartado não pode
+    // desaparecer sem deixar rastro: artefato completo não grava `rawCoverage`.
+    // eslint-disable-next-line no-console
+    console.warn(
+      `rescoreFromRaw: cobertura completa em ${options.rawLogPath}, com exclusões — ${JSON.stringify(coverage.exclusions)}`,
+    );
   }
+
+  const runRecords: RunRecord[] = accepted.map((rec) => ({
+    contamination,
+    correct: rec.correct,
+    parsed: rec.parsed,
+    question: questions.get(rec.questionId)!,
+  }));
 
   const result = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
   // Presença de `rawCoverage` no artefato = algo não fechou. Cobertura

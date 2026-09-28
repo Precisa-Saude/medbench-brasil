@@ -54,13 +54,28 @@ export function rawCoverageKey(questionId: string, run: number): string {
  * Compara o conteúdo de um raw log com a matriz esperada
  * questões-elegíveis × runs.
  */
-export function analyzeRawCoverage(input: {
+export interface RawRecordRef {
+  editionId: string;
+  questionId: string;
+  run: number;
+}
+
+/**
+ * Particiona os registros UMA vez e devolve a cobertura junto dos registros
+ * aceitos, na ordem original.
+ *
+ * O `rescoreFromRaw` consome `accepted` direto em vez de refiltrar. Antes os
+ * dois lados aplicavam os mesmos filtros em paralelo: o resultado batia, mas
+ * era uma duplicação que podia divergir numa edição futura do código, fazendo
+ * o `observedRecords` reportado deixar de descrever o que foi pontuado.
+ */
+export function partitionRawRecords<T extends RawRecordRef>(input: {
   editionId: string;
   eligibleQuestionIds: Iterable<string>;
   malformedLines: number;
-  records: { editionId: string; questionId: string; run: number }[];
+  records: T[];
   runsPerQuestion: number;
-}): RawCoverage {
+}): { accepted: T[]; coverage: RawCoverage } {
   const eligible = new Set(input.eligibleQuestionIds);
   const exclusions: RawCoverageExclusions = {
     duplicateRecords: 0,
@@ -72,6 +87,7 @@ export function analyzeRawCoverage(input: {
 
   const seen = new Set<string>();
   const duplicated: string[] = [];
+  const accepted: T[] = [];
   for (const rec of input.records) {
     if (rec.editionId !== input.editionId) {
       exclusions.wrongEdition += 1;
@@ -92,6 +108,7 @@ export function analyzeRawCoverage(input: {
       continue;
     }
     seen.add(key);
+    accepted.push(rec);
   }
 
   // Amostra para mensagem; a contagem exata é `expected - observed`.
@@ -107,13 +124,32 @@ export function analyzeRawCoverage(input: {
   const expectedRecords = eligible.size * input.runsPerQuestion;
   const observedRecords = seen.size;
   return {
-    coverage: expectedRecords === 0 ? 0 : observedRecords / expectedRecords,
-    duplicated,
-    exclusions,
-    expectedRecords,
-    missing,
-    observedRecords,
+    accepted,
+    coverage: {
+      coverage: expectedRecords === 0 ? 0 : observedRecords / expectedRecords,
+      duplicated,
+      exclusions,
+      expectedRecords,
+      missing,
+      observedRecords,
+    },
   };
+}
+
+/** Só a cobertura, para quem não precisa dos registros aceitos. */
+export function analyzeRawCoverage(input: {
+  editionId: string;
+  eligibleQuestionIds: Iterable<string>;
+  malformedLines: number;
+  records: RawRecordRef[];
+  runsPerQuestion: number;
+}): RawCoverage {
+  return partitionRawRecords(input).coverage;
+}
+
+/** Há exclusão registrada, mesmo que a matriz tenha fechado? */
+export function hasRawExclusions(cov: RawCoverage): boolean {
+  return Object.values(cov.exclusions).some((n) => n > 0);
 }
 
 /**
@@ -121,9 +157,19 @@ export function analyzeRawCoverage(input: {
  *
  * Reprova só o que falsifica o denominador: registro ausente (perda de dado),
  * duplicado (superponderação) e `run` fora da faixa (quase sempre `--runs`
- * divergente do log). Linha corrompida, registro de outra edição e questão
- * não-elegível são contados e reportados, mas não reprovam — ver
- * `RawCoverageExclusions.unknownQuestion`.
+ * divergente do log).
+ *
+ * Linha corrompida, registro de outra edição e questão não-elegível são
+ * contados e reportados, mas NÃO reprovam. O critério é se a exclusão muda o
+ * denominador: registro a mais que foi descartado não muda — a matriz
+ * esperada continua coberta pelos registros válidos. E reprovar por questão
+ * não-elegível bloquearia justamente o fluxo que esta validação protege, o
+ * reprocesso de 04/12/2026, quando o gabarito definitivo anula itens (ver
+ * `RawCoverageExclusions.unknownQuestion`).
+ *
+ * Para a exclusão não desaparecer sem rastro num log que passou, o
+ * `rescoreFromRaw` emite `console.warn` quando `hasRawExclusions` é true e a
+ * cobertura fechou.
  */
 export function isRawCoverageComplete(cov: RawCoverage): boolean {
   return (

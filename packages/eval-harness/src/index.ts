@@ -13,10 +13,13 @@ export { openAiCompatProvider } from './providers/openai-compat.js';
 export {
   analyzeRawCoverage,
   describeRawCoverage,
+  hasRawExclusions,
   isRawCoverageComplete,
+  partitionRawRecords,
   type RawCoverage,
   type RawCoverageExclusions,
   rawCoverageKey,
+  type RawRecordRef,
 } from './raw-coverage.js';
 export { parseLetter, runEvaluation } from './runner.js';
 export { scoreRun } from './scorer.js';
