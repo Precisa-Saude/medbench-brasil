@@ -30,6 +30,20 @@ export const ANTHROPIC_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2026-01-01',
     trainingCutoffSource: OVERVIEW,
   },
+  'claude-fable-5-1': {
+    description:
+      'Sucessor do Fable 5 (setembro/2026) no mesmo preço, com leitura de cache a um quarto do custo e foco em raciocínio exigente e trabalho agêntico de horizonte longo.',
+    homepage: 'https://platform.claude.com/docs/en/models/fable-5-1/overview',
+    label: 'Claude Fable 5.1',
+    modelId: 'claude-fable-5-1',
+    provider: 'Anthropic',
+    releaseDate: '2026-09-01',
+    tier: 'proprietaria',
+    // "Training data cutoff | Jun 2026" — página do modelo, seção Capabilities.
+    // Corte anterior a 13/09/2026, então a ENAMED 2026 é medição limpa.
+    trainingCutoff: '2026-06-01',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/models/fable-5-1/overview',
+  },
   'claude-opus-4-5': {
     description:
       'Modelo flagship da Anthropic da geração Claude 4, lançado em meados de 2025 com foco em raciocínio e uso agêntico.',
@@ -94,6 +108,21 @@ export const ANTHROPIC_MODELS: Record<string, ModelMetadata> = {
     // "Claude Opus 5 ... Training data cutoff May 2026" — Models overview.
     trainingCutoff: '2026-05-01',
     trainingCutoffSource: OVERVIEW,
+  },
+  'claude-opus-5-5': {
+    description:
+      'Sucessor do Opus 5 (setembro/2026) para código agêntico de longa duração e trabalho de conhecimento, a $4/$20 por MTok.',
+    homepage: 'https://platform.claude.com/docs/en/models/opus-5-5/overview',
+    label: 'Claude Opus 5.5',
+    modelId: 'claude-opus-5-5',
+    provider: 'Anthropic',
+    releaseDate: '2026-09-22',
+    tier: 'proprietaria',
+    // "Training data cutoff | Jun 2026" — página do modelo, seção Capabilities.
+    // O lançamento (22/09) é posterior à prova da ENAMED 2026 (13/09), mas o
+    // que importa para contaminação é o corte de treino, anterior a ela.
+    trainingCutoff: '2026-06-01',
+    trainingCutoffSource: 'https://platform.claude.com/docs/en/models/opus-5-5/overview',
   },
   'claude-sonnet-5': {
     description:
