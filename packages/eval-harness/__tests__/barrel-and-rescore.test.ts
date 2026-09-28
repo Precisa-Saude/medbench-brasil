@@ -205,6 +205,37 @@ describe('rescore', () => {
     expect(result.total).toBe(result.rawCoverage!.observedRecords);
   });
 
+  it('questão não-elegível não reprova e mantém total === observedRecords', () => {
+    // Caminho de 04/12/2026: o definitivo anula itens, então o log de setembro
+    // passa a conter questões fora do conjunto elegível. Modo estrito, sem
+    // allowPartial — tem de passar.
+    const rawPath = join(dir, 'anulada.jsonl');
+    const { elegiveis, linhas } = logCompleto(1);
+    const extra = JSON.stringify({
+      correct: true,
+      editionId: 'revalida-2025-1',
+      elapsedMs: 10,
+      modelId: 'mock-model',
+      parsed: 'A',
+      questionId: 'revalida-2025-1-q99-anulada',
+      rawResponse: 'A',
+      requestParams: {},
+      run: 1,
+    });
+    writeFileSync(rawPath, [...linhas, extra].join('\n'), 'utf8');
+
+    const result = rescoreFromRaw({
+      editionId: 'revalida-2025-1',
+      modelId: 'mock-model',
+      rawLogPath: rawPath,
+      runsPerQuestion: 1,
+      trainingCutoff: '2024-01-01',
+    });
+    expect(result.total).toBe(elegiveis);
+    // cobertura fechou → artefato completo, sem o campo
+    expect(result.rawCoverage).toBeUndefined();
+  });
+
   it('duplicata não infla o denominador em modo allowPartial', () => {
     const rawPath = join(dir, 'duplicado.jsonl');
     const { elegiveis, linhas } = logCompleto(1);

@@ -132,18 +132,33 @@ export function rescoreFromRaw(options: {
   if (complete && hasRawExclusions(coverage)) {
     // A matriz fechou, então não reprova — mas registro descartado não pode
     // desaparecer sem deixar rastro: artefato completo não grava `rawCoverage`.
+    const naoZeradas = Object.entries(coverage.exclusions)
+      .filter(([, n]) => n > 0)
+      .map(([motivo, n]) => `${motivo}=${n}`)
+      .join(', ');
     // eslint-disable-next-line no-console
     console.warn(
-      `rescoreFromRaw: cobertura completa em ${options.rawLogPath}, com exclusões — ${JSON.stringify(coverage.exclusions)}`,
+      `rescoreFromRaw: cobertura completa em ${options.rawLogPath}, com exclusões — ${naoZeradas}`,
     );
   }
 
-  const runRecords: RunRecord[] = accepted.map((rec) => ({
-    contamination,
-    correct: rec.correct,
-    parsed: rec.parsed,
-    question: questions.get(rec.questionId)!,
-  }));
+  const runRecords: RunRecord[] = accepted.map((rec) => {
+    // `accepted` só contém registro cujo `questionId` passou por
+    // `eligible.has(...)`, e `eligible` é construído de `questions.keys()`
+    // logo acima — então o `get` não pode falhar. Falha aqui significa que a
+    // invariante se rompeu; erro alto e explícito em vez de `!` silencioso.
+    //
+    // Deliberadamente NÃO é `continue`: pular o registro faria
+    // `runRecords.length` cair abaixo de `coverage.observedRecords`, quebrando
+    // em silêncio a invariante que o partition único existe para garantir.
+    const question = questions.get(rec.questionId);
+    if (!question) {
+      throw new Error(
+        `invariante rompida: ${rec.questionId} está em accepted mas não no conjunto elegível de ${options.editionId}`,
+      );
+    }
+    return { contamination, correct: rec.correct, parsed: rec.parsed, question };
+  });
 
   const result = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
   // Presença de `rawCoverage` no artefato = algo não fechou. Cobertura
