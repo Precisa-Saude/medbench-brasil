@@ -36,7 +36,11 @@ export const GOOGLE_MODELS: Record<string, ModelMetadata> = {
     homepage: 'https://deepmind.google/technologies/gemini/',
     label: 'Gemini 3.1 Pro',
     modelId: 'google/gemini-3.1-pro-preview',
-    provider: 'Google',
+    // Servido via OpenRouter, não pela API nativa do Google — os raws de
+    // enamed-2025 mostram requestParams no formato OpenAI-compat
+    // (max_tokens/messages), não no nativo (contents/parts). Mesma convenção
+    // 'Fornecedor · Rota' das entradas Qwen e xAI.
+    provider: 'Google · OpenRouter',
     releaseDate: '2026-02-19',
     tier: 'proprietaria',
     // "Knowledge cutoff: January 2025" — Gemini API docs. Google não
