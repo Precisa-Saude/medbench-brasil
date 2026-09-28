@@ -1,3 +1,9 @@
+## [2.1.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.0.1...v2.1.0) (2026-09-28)
+
+### Features
+
+* **harness:** valida cobertura do raw.jsonl antes de re-scorar ([#69](https://github.com/Precisa-Saude/medbench-brasil/issues/69)) ([d45f94e](https://github.com/Precisa-Saude/medbench-brasil/commit/d45f94ea60ac42c87b5f35656dfe916f127b1239)), closes [#45](https://github.com/Precisa-Saude/medbench-brasil/issues/45) [#45](https://github.com/Precisa-Saude/medbench-brasil/issues/45)
+
 ## [2.0.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.0.0...v2.0.1) (2026-09-27)
 
 ### Bug Fixes
