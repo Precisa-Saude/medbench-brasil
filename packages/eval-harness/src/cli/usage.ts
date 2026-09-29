@@ -27,7 +27,12 @@ Opções de eval/smoke (exigem --backend e --model):
                               1024 em providers diretos)
   --timeout-ms N              Override do timeout HTTP por requisição
                               (padrão 300000 em ollama/mlx)
-  --request-model <id>        (mlx) Nome de modelo enviado no body do request.
+  --reasoning-effort <nível>  (openrouter) Envia reasoning_effort no body
+                              (low/medium/high/...). Sem a flag, nada é
+                              enviado e vale o default do fornecedor. Usar
+                              para igualar o effort fixado na rota direta
+                              Anthropic — ver docs/methodology.md.
+  --request-model <id>        (mlx, openrouter) Nome de modelo enviado no body do request.
                               Útil quando o servidor MLX serve base + LoRA: o
                               --model identifica o checkpoint composto nos
                               resultados, enquanto --request-model usa o base

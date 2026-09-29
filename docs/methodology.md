@@ -27,6 +27,14 @@ O valor efetivo vai para o `requestParams` de cada registro, de modo que é poss
 
 Alterar esse nível exige ADR, como qualquer outro parâmetro do protocolo canônico. Ver [#73](https://github.com/Precisa-Saude/medbench-brasil/issues/73).
 
+#### Uma exceção de rota, registrada: Opus 5.5 na ENAMED 2026
+
+O Claude Opus 5.5 é o único modelo Anthropic desta edição medido **via OpenRouter**, e não pela rota direta. Os outros oito foram medidos direto. A causa é prosaica: os créditos da conta Anthropic acabaram no meio da remedição com esforço fixado, e a rodada terminou pela OpenRouter em vez de ficar com o número antigo, medido em `medium`.
+
+Pela OpenRouter o controle chega como `reasoning_effort` (estilo OpenAI), não como `output_config.effort`. Que o parâmetro de fato alcança o controle do fornecedor foi verificado na mão antes da rodada: no mesmo prompt, `low` devolveu 0 tokens de raciocínio e `high` devolveu 13 — ou seja não é aceito e ignorado. `max_tokens` (8192) e `temperature` (0) são idênticos nas duas rotas para este modelo.
+
+O que **não** se pode concluir: que a diferença entre a medição antiga (87,8%, esforço `medium`, rota direta) e a nova (89,4%, esforço `high`, OpenRouter) se deva ao esforço. Duas variáveis mudaram junto, e os intervalos de confiança das duas medições se sobrepõem amplamente — a diferença de 1,6 pp não é distinguível de ruído nesta prova. O registro existe para que ninguém leia o par como um experimento controlado de esforço.
+
 ## Parsing da resposta
 
 - Extraímos a primeira letra (A, B, C, D) do output bruto com regex case-insensitive, tolerando ruído

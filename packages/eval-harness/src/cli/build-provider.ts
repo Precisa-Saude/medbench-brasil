@@ -100,6 +100,15 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
         label,
         model,
         provider: 'OpenRouter',
+        // Só entra no body quando passado explicitamente (--reasoning-effort).
+        // Ver o comentário em openai-compat.ts: ligar por default reescreveria
+        // o protocolo dos modelos já medidos por esta rota.
+        reasoningEffort: args['reasoning-effort'],
+        // Mesmo motivo do mlx: `--model` é o id canônico gravado nos
+        // resultados e `--request-model` é o nome que a rota conhece. Sem
+        // isso, medir um modelo já avaliado por outra rota criaria linha
+        // duplicada no leaderboard em vez de substituir a medição.
+        requestModel: args['request-model'],
         trainingCutoff: cutoff,
       });
     }
