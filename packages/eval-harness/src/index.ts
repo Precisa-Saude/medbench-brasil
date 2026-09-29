@@ -23,6 +23,13 @@ export {
 } from './raw-coverage.js';
 export { parseLetter, runEvaluation } from './runner.js';
 export { scoreRun } from './scorer.js';
+export {
+  isTransportError,
+  smokeDiagnosis,
+  smokeExitCode,
+  type SmokeVerdict,
+  smokeVerdict,
+} from './smoke-diagnosis.js';
 export type {
   EvaluationResult,
   PerQuestionResult,
