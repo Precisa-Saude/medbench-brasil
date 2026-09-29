@@ -134,12 +134,26 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
+          # O diff vem do git local, nunca de `gh pr diff`: a API do GitHub
+          # recusa diff acima de 20.000 linhas com HTTP 406 e derruba o step
+          # antes de chegar na truncagem por bytes lá embaixo. PR de
+          # resultados passa disso com folga — cada artefato de modelo tem
+          # ~2.500 linhas, e uma edição inteira traz dezenas deles.
+          #
+          # `results/**` e os `.raw.jsonl` ficam fora do diff enviado para
+          # revisão: são artefatos gerados pelo harness, não código
+          # revisável. Mandá-los só gasta contexto do revisor com dado que
+          # ele não tem como avaliar, e são justamente o que estoura o teto.
           if [ "$REVIEW_ROUND" = "2" ]; then
             FIRST=$(gh pr view "$PR_NUMBER" --json commits -q '.commits[0].oid')
-            git diff "$FIRST"..HEAD > pr.diff
+            RANGE="$FIRST..HEAD"
           else
-            gh pr diff "$PR_NUMBER" > pr.diff
+            BASE_SHA=$(gh pr view "$PR_NUMBER" --json baseRefOid -q .baseRefOid)
+            RANGE="$BASE_SHA...HEAD"
           fi
+          git diff "$RANGE" -- . \
+            ':(exclude)results/**' \
+            ':(exclude)**/*.raw.jsonl' > pr.diff
 
           gh pr view "$PR_NUMBER" --json files -q '.files[].path' > changed_files.txt
 
