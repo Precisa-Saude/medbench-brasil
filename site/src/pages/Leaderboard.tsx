@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -65,12 +66,10 @@ export default function Leaderboard() {
           </p>
           <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
         </div>
+        <LeaderboardTable contaminationScope={scope} models={MODELS} />
         {preliminares.length > 0 && (
-          <p
-            className="mx-auto max-w-2xl rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 font-sans text-sm leading-relaxed"
-            role="note"
-          >
-            <strong>Escores provisórios.</strong>{' '}
+          <p className="max-w-3xl text-xs leading-relaxed text-foreground/60" role="note">
+            <strong className="font-semibold">Escores provisórios.</strong>{' '}
             {preliminares.map((id) => EDITIONS[id]?.label ?? id).join(', ')}{' '}
             {preliminares.length === 1 ? 'foi corrigida' : 'foram corrigidas'} com o gabarito{' '}
             <em>preliminar</em> da INEP, anterior à análise de recursos. O ranking agrega todas as
@@ -78,7 +77,6 @@ export default function Leaderboard() {
             definitivo for publicado.
           </p>
         )}
-        <LeaderboardTable contaminationScope={scope} models={MODELS} />
         <p className="max-w-3xl text-sm leading-relaxed text-foreground/70">
           Edições publicadas antes do corte de treino do modelo são marcadas como{' '}
           <em>contaminadas</em>. A coluna <strong>Δ</strong> mostra a diferença entre a precisão em
@@ -91,11 +89,22 @@ export default function Leaderboard() {
           </Link>
           .
         </p>
-        <details className="mx-auto mt-6 max-w-2xl rounded-md border border-border bg-muted/30 px-5 py-4">
-          <summary className={`cursor-pointer ${TYPE.h3}`}>
-            Por que um modelo mais novo às vezes aparece abaixo de um mais antigo?
+        {/* Mesmo desenho do FAQ da /laudos no platform: cartão com borda que
+            reage ao hover, gatilho de 24px de padding e chevron que gira ao
+            abrir. Usa <details> em vez do Accordion do Radix para não somar
+            dependência só por isto — o comportamento nativo já é acessível,
+            o que se perde é a animação de altura. */}
+        <details className="group mx-auto mt-6 max-w-2xl overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-primary/50">
+          <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-4 transition-colors [&::-webkit-details-marker]:hidden group-[:not([open])]:hover:bg-muted/50">
+            <span className={`pr-4 text-left text-foreground ${TYPE.cardTitle}`}>
+              Por que um modelo mais novo às vezes aparece abaixo de um mais antigo?
+            </span>
+            <ChevronDown
+              aria-hidden="true"
+              className="h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180"
+            />
           </summary>
-          <div className={`mt-3 space-y-3 ${TYPE.meta}`}>
+          <div className={`space-y-3 px-6 pb-4 text-foreground/70 ${TYPE.cardBody}`}>
             <p>
               É comum supor que cada geração supera a anterior em tudo. Não é o que acontece — e
               este ranking mostra vários casos do contrário. Alguns motivos:
