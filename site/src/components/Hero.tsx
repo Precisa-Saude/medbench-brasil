@@ -51,7 +51,7 @@ export function Hero() {
           className="relative mx-auto grid items-center gap-x-4 gap-y-12 px-4 pt-16 pb-12 md:px-0 lg:min-h-[calc(100vh-4rem-5rem)] lg:pt-20"
           style={gridStyle}
         >
-          <div className="col-span-full md:col-span-12 md:col-start-2 lg:col-span-6 lg:pr-8 3xl:col-start-3">
+          <div className="col-span-full md:col-span-12 md:col-start-2 lg:col-span-6 lg:col-start-2 lg:pr-8 3xl:col-start-3">
             <p className={`mb-5 ${TYPE.kicker}`}>medbench-brasil</p>
             <h1 className={`max-w-[14ch] ${TYPE.h1}`}>
               Raio-X dos LLMs <em className="brand-highlight">em medicina brasileira</em>
