@@ -56,7 +56,7 @@ export default function Leaderboard() {
 
       <GridSection className="space-y-8" id="ranking" tone="muted">
         <div className="flex flex-col items-start gap-4">
-          <h2 className={TYPE.h2}>Ranking</h2>
+          <h2 className={TYPE.sectionTitle}>Ranking</h2>
           <p className="max-w-2xl text-lg leading-relaxed text-foreground/75">
             A visão recomendada é <strong>Apenas limpas</strong> — são os únicos escores em edições
             que o modelo não pode ter visto no treino.
@@ -79,7 +79,7 @@ export default function Leaderboard() {
       </GridSection>
 
       <GridSection className="space-y-8" id="comparar">
-        <h2 className={TYPE.h2}>Comparar modelos</h2>
+        <h2 className={TYPE.sectionTitle}>Comparar modelos</h2>
         {/* Espelha o toggle do ranking — sem isso, o chart parece
             "faltar modelos" em 2024/1 porque está em "Apenas limpas"
             e só 2 modelos tinham cutoff anterior à edição. */}
@@ -95,7 +95,7 @@ export default function Leaderboard() {
 
       <GridSection className="space-y-8" id="especialidades" tone="muted">
         <div className="flex flex-col items-start gap-4">
-          <h2 className={TYPE.h2}>Onde cada modelo acerta</h2>
+          <h2 className={TYPE.sectionTitle}>Onde cada modelo acerta</h2>
           <p className="max-w-2xl text-lg leading-relaxed text-foreground/75">
             Precisão por área médica em todas as edições.
           </p>

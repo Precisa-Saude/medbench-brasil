@@ -34,7 +34,7 @@ export default function EditionDetail() {
 
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-16">
         <header>
           <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
@@ -84,11 +84,9 @@ export default function EditionDetail() {
           <section className="rounded-lg border bg-card p-6 font-sans">
             <div className="flex items-baseline justify-between gap-4 flex-wrap">
               <div>
-                <div className="text-sm uppercase tracking-wide text-muted-foreground">
-                  Classe de LLMs — Conceito Enade
-                </div>
+                <div className={TYPE.label}>Classe de LLMs — Conceito Enade</div>
                 <div className="mt-1 flex items-baseline gap-3">
-                  <div className="text-4xl font-medium tracking-tight">Nível {enadeLevel}</div>
+                  <div className={`mt-2 ${TYPE.stat}`}>Nível {enadeLevel}</div>
                   <div className="text-muted-foreground text-sm">
                     {approved}/{modelsWithResult.length} modelos acima do corte (
                     {(approvedRate * 100).toFixed(0)}%)
@@ -132,8 +130,8 @@ export default function EditionDetail() {
 function Card({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
-      <div className="text-sm text-muted-foreground">{label}</div>
-      <div className="mt-2 text-3xl font-medium tracking-tight tabular-nums">{value}</div>
+      <div className={TYPE.meta}>{label}</div>
+      <div className={`mt-2 ${TYPE.stat}`}>{value}</div>
     </div>
   );
 }

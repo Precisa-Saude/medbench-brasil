@@ -43,6 +43,14 @@
     @apply border-border;
   }
 
+  /* Rolagem suave nas âncoras do sumário, desligada com movimento reduzido
+     (seção 7 do guia). */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
   html {
     scroll-padding-top: 5rem;
     scrollbar-gutter: stable;
@@ -53,6 +61,12 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans);
+  }
+
+  /* Um só peso de destaque na Margem: 600, o mesmo dos subtítulos. O 700
+     padrão do navegador criava um terceiro negrito quase do mesmo tamanho. */
+  :is(strong, b) {
+    font-weight: 600;
   }
 
   :is(a, button, [role='tab'], summary):focus-visible {
@@ -68,6 +82,13 @@
 
   .font-pausa {
     font-family: var(--font-serif);
+  }
+
+  /* Texto corrido das páginas de documento: linhas de até ~70 caracteres,
+     como pede a seção 4 do guia. Tabelas, gráficos e código seguem com a
+     largura das colunas úteis. */
+  .doc-prose :where(p, li, dl) {
+    max-width: 70ch;
   }
 
   /* Grifo menta sob a ênfase do título, como na /laudos. */

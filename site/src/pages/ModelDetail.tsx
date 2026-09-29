@@ -67,7 +67,7 @@ export default function ModelDetail() {
 
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-16">
         <header>
           <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
@@ -247,8 +247,8 @@ function toRawArtifact(model: ReturnType<typeof findModel>): unknown {
 function Card({ hint, label, value }: { hint?: string; label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
-      <div className="text-sm text-muted-foreground">{label}</div>
-      <div className="mt-2 text-3xl font-medium tracking-tight tabular-nums">{value}</div>
+      <div className={TYPE.meta}>{label}</div>
+      <div className={`mt-2 ${TYPE.stat}`}>{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );

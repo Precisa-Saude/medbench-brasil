@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import type { ModelResult } from '../data/results';
+import { TYPE } from '../lib/typography';
 import ContaminationToggle, { type ContaminationScope } from './ContaminationToggle';
 
 interface Biggest {
@@ -44,7 +45,7 @@ export default function ContaminationPanel({
     <section className="space-y-3 rounded-lg border bg-card p-5 font-sans">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="max-w-2xl">
-          <h3 className="font-sans font-semibold">Contaminação de treino</h3>
+          <h3 className={TYPE.h3}>Contaminação de treino</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Um modelo pode ter visto a prova durante o treino (edição publicada antes do corte de
             treino do modelo) ou não. A coluna <strong>Δ</strong> na tabela abaixo mostra a

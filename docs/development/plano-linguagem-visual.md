@@ -28,6 +28,13 @@ Referência normativa: `platform/docs/design/linguagem-visual.md` (v0.1,
 - **Seções.** Títulos alinhados à esquerda, divisória de 1px entre seções,
   alternância entre fundo neutro e `muted`. Fundos geométricos só no hero: nas
   seções de tabela e gráfico eles competiriam com os dados.
+- **Hierarquia das páginas internas.** Um estilo por nível (título de página,
+  seção, subseção, abertura, corpo, meta, rótulo, dado), definido em
+  `lib/typography.ts`. O título de seção grande (44 px) fica só na home.
+- **Sumário fixo.** Metodologia, Reprodução e Dataset usam `DocLayout`: a
+  partir de 1280 px o sumário vira um cartão fixo à direita que marca a seção
+  atual; abaixo disso fica no fluxo. Rolagem suave nas âncoras, desligada com
+  movimento reduzido.
 - **Sem sobretítulos inventados.** O sobretítulo aparece só onde já existe
   texto que cumpre esse papel (nome do produto no hero).
 

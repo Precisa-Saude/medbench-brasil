@@ -13,6 +13,7 @@ import {
 
 import { type ModelTier, TIER_COLOR, TIER_LABEL } from '../data/models';
 import type { ModelResult } from '../data/results';
+import { TYPE } from '../lib/typography';
 import { ExclusionClause } from './ExclusionClause';
 
 // Fallbacks para tiers novos que ainda não tenham cor/label editorial:
@@ -82,7 +83,7 @@ export default function CutoffGapScatter({ models }: { models: ModelResult[] }) 
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-semibold">Corte de treino × memorização</h3>
+        <h3 className={TYPE.h3}>Corte de treino × memorização</h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {(Object.keys(byTier) as ModelTier[]).map((tier) => (
             <div key={tier} className="flex items-center gap-1.5">

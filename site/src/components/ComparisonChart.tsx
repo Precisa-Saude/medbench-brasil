@@ -24,6 +24,7 @@ import {
 import { getEditionMetadata } from '../data/editions';
 import type { ModelResult } from '../data/results';
 import { jenksBreaks, jenksClass } from '../lib/jenks';
+import { TYPE } from '../lib/typography';
 import FilterBar from './ComparisonChart.FilterBar';
 import FloatingLabel from './ComparisonChart.FloatingLabel';
 import {
@@ -174,7 +175,7 @@ export default function ComparisonChart({
         ) : (
           <>
             <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="font-sans font-semibold">
+              <h3 className={TYPE.h3}>
                 <Link
                   className="text-ps-violet underline decoration-ps-violet/30 underline-offset-4 transition-colors hover:decoration-ps-violet"
                   to={`/editions/${editionId}`}
@@ -333,9 +334,7 @@ export default function ComparisonChart({
             </div>
             {edition.sources && edition.sources.length > 0 && (
               <div className="mt-4">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Fontes
-                </div>
+                <div className={`mb-2 ${TYPE.label}`}>Fontes</div>
                 <ul className="space-y-1.5 text-sm leading-relaxed text-muted-foreground">
                   {edition.sources.map((s) => (
                     <li key={s.url}>

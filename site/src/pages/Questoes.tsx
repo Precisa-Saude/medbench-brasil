@@ -6,7 +6,7 @@ import { TYPE } from '../lib/typography';
 export default function Questoes() {
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-16">
         <header>
           <h1 className={TYPE.pageTitle}>Questões</h1>
           <p className={`mt-6 max-w-3xl ${TYPE.lead}`}>
