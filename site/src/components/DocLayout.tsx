@@ -16,6 +16,7 @@ function useActiveSection(items: readonly TocItem[]): string {
   useEffect(() => {
     const update = () => {
       // No fim da página a última seção não chega ao topo; marcá-la direto.
+      // A folga de 2 px absorve o arredondamento subpixel de scrollY.
       const atBottom =
         window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       if (atBottom) {
@@ -29,8 +30,14 @@ function useActiveSection(items: readonly TocItem[]): string {
       setActive(current?.id ?? '');
     };
     update();
+    // Redimensionar muda a altura do documento sem disparar `scroll`; sem
+    // este ouvinte o destaque ficaria na seção anterior até a próxima rolagem.
     window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
+    window.addEventListener('resize', update, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
   }, [items]);
   return active;
 }

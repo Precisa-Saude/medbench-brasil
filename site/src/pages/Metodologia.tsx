@@ -9,6 +9,17 @@ import { MODELS } from '../data/results';
 import { TYPE } from '../lib/typography';
 import MetodologiaSources from './Metodologia.Sources';
 
+const TOC: readonly TocItem[] = [
+  { id: 'exames', label: 'Exames avaliados' },
+  { id: 'protocolo', label: 'Protocolo de avaliação' },
+  { id: 'prompt', label: 'System prompt literal' },
+  { id: 'variancia', label: 'Por que rodamos três vezes' },
+  { id: 'contaminacao', label: 'Contaminação de treino' },
+  { id: 'benchmarks-relacionados', label: 'Benchmarks relacionados' },
+  { id: 'linha-de-base', label: 'Linha de base humana e o sentido da nota de corte' },
+  { id: 'fontes', label: 'Fontes' },
+];
+
 export default function Metodologia() {
   return (
     <DocLayout toc={TOC}>
@@ -263,17 +274,6 @@ export default function Metodologia() {
     </DocLayout>
   );
 }
-
-const TOC: readonly TocItem[] = [
-  { id: 'exames', label: 'Exames avaliados' },
-  { id: 'protocolo', label: 'Protocolo de avaliação' },
-  { id: 'prompt', label: 'System prompt literal' },
-  { id: 'variancia', label: 'Por que rodamos três vezes' },
-  { id: 'contaminacao', label: 'Contaminação de treino' },
-  { id: 'benchmarks-relacionados', label: 'Benchmarks relacionados' },
-  { id: 'linha-de-base', label: 'Linha de base humana e o sentido da nota de corte' },
-  { id: 'fontes', label: 'Fontes' },
-];
 
 function TermTag({ children, term }: { children: React.ReactNode; term: string }) {
   return (
