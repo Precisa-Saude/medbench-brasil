@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.2.0...v2.2.1) (2026-09-29)
+
+### Bug Fixes
+
+* **config:** protege o review.yml do sync de templates ([#75](https://github.com/Precisa-Saude/medbench-brasil/issues/75)) ([21ac5fd](https://github.com/Precisa-Saude/medbench-brasil/commit/21ac5fd39643450097e550c9594ba642e67d3952)), closes [#74](https://github.com/Precisa-Saude/medbench-brasil/issues/74) [#58](https://github.com/Precisa-Saude/medbench-brasil/issues/58)
+* **site:** alinha o expansível ao FAQ do platform e discreteza o aviso ([#76](https://github.com/Precisa-Saude/medbench-brasil/issues/76)) ([78c9151](https://github.com/Precisa-Saude/medbench-brasil/commit/78c9151b4586099ff3f939aac9a7b783f360555d))
+
 ## [2.2.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.1.0...v2.2.0) (2026-09-29)
 
 ### Features
