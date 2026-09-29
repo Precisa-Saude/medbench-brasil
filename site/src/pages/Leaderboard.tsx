@@ -92,7 +92,7 @@ export default function Leaderboard() {
         {/* Mesmo desenho do FAQ da /laudos no platform: cartão com borda que
             reage ao hover, gatilho de 24px de padding e chevron que gira ao
             abrir. Usa <details> em vez do Accordion do Radix para não somar
-            dependência só por isto — o comportamento nativo já é acessível,
+            dependência só por isto. O comportamento nativo já é acessível;
             o que se perde é a animação de altura. */}
         <details className="group mx-auto mt-6 max-w-2xl overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-primary/50">
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-4 transition-colors [&::-webkit-details-marker]:hidden group-[:not([open])]:hover:bg-muted/50">
@@ -106,36 +106,36 @@ export default function Leaderboard() {
           </summary>
           <div className={`space-y-3 px-6 pb-4 text-foreground/70 ${TYPE.cardBody}`}>
             <p>
-              É comum supor que cada geração supera a anterior em tudo. Não é o que acontece — e
-              este ranking mostra vários casos do contrário. Alguns motivos:
+              É comum supor que cada geração supera a anterior em tudo. Este ranking mostra vários
+              casos do contrário. Alguns motivos:
             </p>
             <p>
               <strong>Cada modelo é otimizado para alguma coisa.</strong> Boa parte dos lançamentos
               recentes é ajustada para código, uso de ferramentas e tarefas de agente que rodam por
-              horas. Nada disso é o que uma prova de múltipla escolha em português mede. Ganhar
-              nessas frentes pode custar desempenho em conhecimento clínico em pt-BR.
+              horas. Uma prova de múltipla escolha em português não mede nada disso. Ganhar nessas
+              frentes pode custar desempenho em conhecimento clínico em pt-BR.
             </p>
             <p>
               <strong>A diferença pode não ser real.</strong> Cada escore vem com um intervalo de
               confiança de 95%. Quando os intervalos de dois modelos se sobrepõem, a ordem entre
-              eles não é distinguível dos dados — a prova tem 85 questões pontuáveis, o que dá
-              resolução de poucos pontos percentuais, não de décimos.
+              eles não é distinguível dos dados. A prova tem 85 questões pontuáveis, o que dá
+              resolução de poucos pontos percentuais.
             </p>
             <p>
               <strong>Modelo antigo pode ter visto a prova.</strong> Escore em edição anterior ao
-              corte de treino do modelo entra como <em>contaminado</em>: pode refletir memorização,
-              não raciocínio. Por isso a visão recomendada é <strong>Apenas limpas</strong>.
+              corte de treino do modelo entra como <em>contaminado</em>, porque pode estar
+              refletindo memorização. Por isso a visão recomendada é <strong>Apenas limpas</strong>.
             </p>
             <p>
               <strong>Configuração também pesa.</strong> Alguns fornecedores expõem controles de
               quanto o modelo "pensa" antes de responder, e o padrão varia de um modelo para outro
-              dentro da mesma família. Fixamos esse nível e registramos em cada medição, justamente
-              para que a comparação seja entre modelos e não entre configurações.
+              dentro da mesma família. Fixamos esse nível em <code>high</code> e gravamos o valor em
+              cada medição, para que a comparação não misture configurações.
             </p>
             <p>
-              Nada disso quer dizer que o ranking está errado. Quer dizer que ele mede uma coisa
-              específica: acertar questões de prova médica brasileira, sem ferramentas e sem
-              consulta. É uma fatia estreita do que esses modelos fazem.
+              O ranking mede acertar questões de prova médica brasileira, sem ferramentas e sem
+              consulta. Um modelo pode render melhor em outras tarefas e mesmo assim aparecer abaixo
+              nesta tabela.
             </p>
           </div>
         </details>

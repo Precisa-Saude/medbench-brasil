@@ -206,8 +206,8 @@ export default function LeaderboardTable({
                     </TooltipTrigger>
                     <TooltipContent>
                       Modelo de decisão: recebe a questão como pergunta tipada e devolve a
-                      alternativa com vetor de probabilidades, sem gerar texto. Protocolo diferente
-                      do restante da tabela — ver metodologia.
+                      alternativa com vetor de probabilidades, sem gerar texto. O protocolo é
+                      diferente do restante da tabela; ver metodologia.
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -230,7 +230,7 @@ export default function LeaderboardTable({
                   </TooltipTrigger>
                   <TooltipContent>
                     {coverage(model).length > 0
-                      ? `${coverage(model).join(' · ')} — ${model.total} execuções somadas`
+                      ? `${coverage(model).join(' · ')} (${model.total} execuções somadas)`
                       : `${model.total} execuções; edições não registradas no artefato`}
                   </TooltipContent>
                 </Tooltip>

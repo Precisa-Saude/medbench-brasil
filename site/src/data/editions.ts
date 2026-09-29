@@ -182,7 +182,7 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
   // Pesos por tipo de instituição (para as linhas extras):
   //   Privada (for-profit 15409 × 57,2% + non-profit 12960 × 70,1%)/28369 ≈ 63,1%
   //   Pública (federal 6502 × 83,1% + estadual 2402 × 86,6%)/8904 ≈ 84,0%
-  // ENAMED 2026 — prova aplicada em 13-set-2026. Corte e taxa de aprovação
+  // ENAMED 2026, prova aplicada em 13-set-2026. Corte e taxa de aprovação
   // ainda não publicados pela INEP, então a entrada não declara `sources`:
   // as fontes existem para justificar corte, taxa e referências extras, e
   // nenhum desses valores existe ainda. Citar a página institucional da
