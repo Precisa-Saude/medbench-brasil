@@ -29,8 +29,9 @@ export default {
         'ps-neutral': 'var(--background)',
       },
       fontFamily: {
-        sans: ['Roboto', 'system-ui', 'sans-serif'],
-        serif: ['Roboto Serif', 'Georgia', 'serif'],
+        sans: ['Margem', 'system-ui', 'sans-serif'],
+        serif: ['Pausa', 'Georgia', 'serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       borderRadius: {
         lg: 'var(--radius)',

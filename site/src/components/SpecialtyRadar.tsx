@@ -32,7 +32,7 @@ export default function SpecialtyRadar({
             return (
               <text
                 fill="var(--muted-foreground)"
-                fontFamily="Roboto, system-ui, sans-serif"
+                fontFamily="Margem, system-ui, sans-serif"
                 fontSize={12}
                 textAnchor={textAnchor}
                 x={x}
@@ -52,7 +52,7 @@ export default function SpecialtyRadar({
             return (
               <text
                 fill="var(--muted-foreground)"
-                fontFamily="Roboto, system-ui, sans-serif"
+                fontFamily="Margem, system-ui, sans-serif"
                 fontSize={10}
                 textAnchor="middle"
                 x={x}

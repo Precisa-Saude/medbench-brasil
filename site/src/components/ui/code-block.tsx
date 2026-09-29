@@ -17,12 +17,12 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-xl border border-ps-violet-dark/10 bg-[#282a36]',
+        'overflow-hidden rounded-[0.625rem] border border-ps-violet/40 bg-[#463C6D]',
         className,
       )}
     >
       <pre
-        className="overflow-auto p-6 font-mono text-sm leading-relaxed text-white/80"
+        className="overflow-auto p-5 pb-6 font-mono text-sm leading-[1.65] text-[#f5f3fa]"
         style={maxHeight ? { maxHeight } : undefined}
       >
         <code>{renderTokens(children, language)}</code>
@@ -37,18 +37,21 @@ function renderTokens(source: string, language: Language): React.ReactNode {
   return source;
 }
 
-// Dracula-adjacent palette; contrasta bem sobre #282a36.
+// Tons da marca sobre o roxo escuro #463C6D, o mesmo fundo do código da
+// /laudos. Todos passam de 4,5:1, inclusive o comentário em branco a 65%
+// (5,3:1; a 55% daria 4,25:1). A lavanda pura (#8E8BD8) daria 2,6:1 e foi
+// clareada.
 const COLORS = {
-  bracket: 'text-white/60',
-  command: 'text-[#50fa7b]',
-  comment: 'text-white/40 italic',
-  flag: 'text-[#ff79c6]',
-  key: 'text-[#8be9fd]',
-  literal: 'text-[#bd93f9]',
-  number: 'text-[#ffb86c]',
-  operator: 'text-[#ff79c6]',
-  string: 'text-[#f1fa8c]',
-  variable: 'text-[#bd93f9]',
+  bracket: 'text-white/70',
+  command: 'text-[#9EF2E2]',
+  comment: 'text-white/65 italic',
+  flag: 'text-[#C8C6F2]',
+  key: 'text-[#9EF2E2]',
+  literal: 'text-[#C8C6F2]',
+  number: 'text-[#E7B459]',
+  operator: 'text-[#C8C6F2]',
+  string: 'text-[#E5D7CA]',
+  variable: 'text-[#C8C6F2]',
 };
 
 function span(key: number, cls: string, text: string): React.ReactNode {

@@ -25,13 +25,16 @@ export function SlidingToggle<T extends string>({
 
   return (
     <div
-      className={cn('relative inline-grid rounded-full bg-muted p-1 font-sans', className)}
+      className={cn(
+        'relative inline-grid rounded-full bg-card p-1 font-sans ring-1 ring-border',
+        className,
+      )}
       style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}
     >
       {activeIndex >= 0 && (
         <div
           aria-hidden
-          className="absolute top-1 bottom-1 rounded-full bg-primary transition-all duration-300 ease-out"
+          className="absolute top-1 bottom-1 rounded-full bg-primary transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{
             left: `calc(4px + ${activeIndex} * ((100% - 8px) / ${count}))`,
             width: `calc((100% - 8px) / ${count})`,
@@ -44,7 +47,7 @@ export function SlidingToggle<T extends string>({
           <button
             key={item.value}
             className={cn(
-              'relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-center text-sm font-medium transition-colors duration-200 focus-visible:outline-none',
+              'relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-center text-sm font-medium transition-colors duration-200',
               isActive ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
             type="button"

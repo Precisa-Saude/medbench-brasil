@@ -1,40 +1,46 @@
-import { PageContainer } from '../components/PageContainer';
+import { DocLayout, InlineToc, type TocItem } from '../components/DocLayout';
 import { CodeBlock } from '../components/ui/code-block';
+import { TYPE } from '../lib/typography';
+
+const TOC: readonly TocItem[] = [
+  { id: 'instalacao', label: 'Instalação' },
+  { id: 'schema', label: 'Schema' },
+  { id: 'licenca', label: 'Licença dos dados' },
+];
 
 export default function Dataset() {
   return (
-    <PageContainer>
-      <div className="space-y-10">
-        <header>
-          <h1 className="font-sans text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Dataset
-          </h1>
-          <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            O dataset completo está disponível no repositório como pacote npm publicado.
-          </p>
-        </header>
+    <DocLayout toc={TOC}>
+      <header>
+        <h1 className={TYPE.pageTitle}>Dataset</h1>
+        <p className={`mt-6 max-w-3xl ${TYPE.lead}`}>
+          O dataset completo está disponível no repositório como pacote npm publicado.
+        </p>
+      </header>
 
-        <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Instalação</h2>
-          <div className="mt-3">
-            <CodeBlock language="bash">npm install @precisa-saude/medbench-dataset</CodeBlock>
-          </div>
-        </section>
+      <InlineToc items={TOC} />
 
-        <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Schema</h2>
-          <p>
-            Cada edição é um objeto JSON seguindo o tipo <code>Edition</code> exportado pelo pacote.
-            Consulte a documentação completa no{' '}
-            <a
-              className="underline text-ps-violet"
-              href="https://github.com/Precisa-Saude/medbench-brasil/blob/main/docs/dataset-schema.md"
-            >
-              repositório
-            </a>
-            .
-          </p>
-          <CodeBlock language="json">{`{
+      <section id="instalacao">
+        <h2 className={TYPE.h2}>Instalação</h2>
+        <div className="mt-3">
+          <CodeBlock language="bash">npm install @precisa-saude/medbench-dataset</CodeBlock>
+        </div>
+      </section>
+
+      <section className="space-y-3" id="schema">
+        <h2 className={TYPE.h2}>Schema</h2>
+        <p>
+          Cada edição é um objeto JSON seguindo o tipo <code>Edition</code> exportado pelo pacote.
+          Consulte a documentação completa no{' '}
+          <a
+            className="underline text-ps-violet"
+            href="https://github.com/Precisa-Saude/medbench-brasil/blob/main/docs/dataset-schema.md"
+          >
+            repositório
+          </a>
+          .
+        </p>
+        <CodeBlock language="json">{`{
   "id": "revalida-2025-1",
   "year": 2025,
   "publishedAt": "2025-04-14",
@@ -62,41 +68,38 @@ export default function Dataset() {
     }
   ]
 }`}</CodeBlock>
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">Campos-chave</h3>
-          <dl className="space-y-3 text-sm">
-            <FieldRow term="correct">
-              Letra do gabarito oficial. Uma de <FieldTag>&quot;A&quot;</FieldTag>{' '}
-              <FieldTag>&quot;B&quot;</FieldTag> <FieldTag>&quot;C&quot;</FieldTag>{' '}
-              <FieldTag>&quot;D&quot;</FieldTag>.
-            </FieldRow>
-            <FieldRow term="specialty">
-              Array de especialidades médicas. Uma questão pode cobrir mais de uma área.
-            </FieldRow>
-            <FieldRow term="hasImage / hasTable">
-              Marcam questões que dependem de imagem ou tabela — o scorer pode filtrá-las via{' '}
-              <FieldTag>--excludeImages</FieldTag> / <FieldTag>--excludeTables</FieldTag>.
-            </FieldRow>
-            <FieldRow term="annulled">
-              Questões anuladas após recurso. Sempre excluídas da avaliação.
-            </FieldRow>
-            <FieldRow term="cutoffScore / passRate">
-              Nota de corte oficial e taxa de aprovação, usadas para estimar a média humana.
-            </FieldRow>
-          </dl>
-        </section>
+        <h3 className={`mt-8 ${TYPE.h3}`}>Campos-chave</h3>
+        <dl className="space-y-3 text-sm">
+          <FieldRow term="correct">
+            Letra do gabarito oficial. Uma de <FieldTag>&quot;A&quot;</FieldTag>{' '}
+            <FieldTag>&quot;B&quot;</FieldTag> <FieldTag>&quot;C&quot;</FieldTag>{' '}
+            <FieldTag>&quot;D&quot;</FieldTag>.
+          </FieldRow>
+          <FieldRow term="specialty">
+            Array de especialidades médicas. Uma questão pode cobrir mais de uma área.
+          </FieldRow>
+          <FieldRow term="hasImage / hasTable">
+            Marcam questões que dependem de imagem ou tabela — o scorer pode filtrá-las via{' '}
+            <FieldTag>--excludeImages</FieldTag> / <FieldTag>--excludeTables</FieldTag>.
+          </FieldRow>
+          <FieldRow term="annulled">
+            Questões anuladas após recurso. Sempre excluídas da avaliação.
+          </FieldRow>
+          <FieldRow term="cutoffScore / passRate">
+            Nota de corte oficial e taxa de aprovação, usadas para estimar a média humana.
+          </FieldRow>
+        </dl>
+      </section>
 
-        <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Licença dos dados
-          </h2>
-          <p>
-            Os conteúdos das provas são de autoria do INEP e estão disponíveis publicamente. Este
-            repositório contribui com a estrutura, classificação por especialidade e anotações de
-            contaminação — licenciados sob Apache-2.0.
-          </p>
-        </section>
-      </div>
-    </PageContainer>
+      <section id="licenca">
+        <h2 className={TYPE.h2}>Licença dos dados</h2>
+        <p>
+          Os conteúdos das provas são de autoria do INEP e estão disponíveis publicamente. Este
+          repositório contribui com a estrutura, classificação por especialidade e anotações de
+          contaminação — licenciados sob Apache-2.0.
+        </p>
+      </section>
+    </DocLayout>
   );
 }
 

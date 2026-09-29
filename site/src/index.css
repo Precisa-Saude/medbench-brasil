@@ -5,9 +5,50 @@
 
 @custom-variant 3xl (@media (min-width: 1440px));
 
+/* Margem e Pausa, as fontes da marca, servidas pela landing da Precisa com
+   CORS aberto. Os arquivos são licenciados e não entram neste repositório,
+   que é público; ver docs/development/plano-linguagem-visual.md. */
+@font-face {
+  font-family: 'Margem';
+  src: url('https://www.precisa-saude.com.br/fonts/MargemVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pausa';
+  src: url('https://www.precisa-saude.com.br/fonts/PausaVariable-Roman.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pausa';
+  src: url('https://www.precisa-saude.com.br/fonts/PausaVariable-Italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 @layer base {
+  :root {
+    --font-sans: 'Margem', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-serif: 'Pausa', Georgia, serif;
+    --font-mono:
+      ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  }
+
   * {
     @apply border-border;
+  }
+
+  /* Rolagem suave nas âncoras do sumário, desligada com movimento reduzido
+     (seção 7 do guia). */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   html {
@@ -15,28 +56,45 @@
     scrollbar-gutter: stable;
   }
 
+  /* Margem no corpo, nos dados e na interface; Pausa leve só nos títulos
+     editoriais, pelas classes de `lib/typography.ts`. */
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Roboto Serif', Georgia, serif;
+    font-family: var(--font-sans);
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: 'Roboto', system-ui, sans-serif;
+  /* Um só peso de destaque na Margem: 600, o mesmo dos subtítulos. O 700
+     padrão do navegador criava um terceiro negrito quase do mesmo tamanho. */
+  :is(strong, b) {
+    font-weight: 600;
+  }
+
+  :is(a, button, [role='tab'], summary):focus-visible {
+    outline: 3px solid var(--ps-violet);
+    outline-offset: 3px;
   }
 }
 
 @layer utilities {
   .font-margem {
-    font-family: 'Roboto', system-ui, sans-serif;
+    font-family: var(--font-sans);
   }
 
   .font-pausa {
-    font-family: 'Roboto Serif', Georgia, serif;
+    font-family: var(--font-serif);
+  }
+
+  /* Texto corrido das páginas de documento: linhas de até ~70 caracteres,
+     como pede a seção 4 do guia. Tabelas, gráficos e código seguem com a
+     largura das colunas úteis. */
+  .doc-prose :where(p, li, dl) {
+    max-width: 70ch;
+  }
+
+  /* Grifo menta sob a ênfase do título, como na /laudos. */
+  .brand-highlight {
+    font-style: normal;
+    background: linear-gradient(transparent 82%, var(--ps-mint) 82%);
   }
 
   /* Scrollbar fino, tonalidade da marca — aplicado automaticamente em qualquer
@@ -63,5 +121,31 @@
 
   *::-webkit-scrollbar-thumb:hover {
     background-color: var(--muted-foreground);
+  }
+}
+
+/* Fundo abstrato das seções: círculo, bloco de canto arredondado, contorno,
+   linhas de movimento, matriz de pontos e acento coral. Proporções e limites
+   de `platform/docs/design/linguagem-visual.md`, seção 5. */
+.brand-backdrop {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: min(100%, 52rem);
+  inset: auto 0 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 1023px) {
+  .brand-backdrop {
+    width: max(100%, 48rem);
+    height: auto;
+    aspect-ratio: 1440 / 700;
+    top: 6rem;
+    bottom: auto;
+    left: auto;
+    right: -2rem;
+    opacity: 0.4;
   }
 }

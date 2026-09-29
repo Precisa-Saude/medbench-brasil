@@ -5,6 +5,7 @@ import { PageContainer } from '../components/PageContainer';
 import { getEdition } from '../data/dataset';
 import { getEditionMetadata } from '../data/editions';
 import { MODELS } from '../data/results';
+import { TYPE } from '../lib/typography';
 
 /**
  * Mapeamento 1–5 do Conceito Enade (Portaria INEP nº 478/2025, replicado por
@@ -33,15 +34,13 @@ export default function EditionDetail() {
 
   return (
     <PageContainer>
-      <div className="space-y-10">
+      <div className="space-y-16">
         <header>
           <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
           </Link>
-          <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight sm:text-4xl">
-            {meta.label}
-          </h1>
-          <p className="mt-4 font-serif text-lg leading-relaxed text-muted-foreground">
+          <h1 className={`mt-2 ${TYPE.pageTitle}`}>{meta.label}</h1>
+          <p className={`mt-4 max-w-3xl ${TYPE.lead}`}>
             {[
               ['Nota de corte', meta.cutoffScore],
               ['Taxa de aprovação', meta.passRate],
@@ -85,11 +84,9 @@ export default function EditionDetail() {
           <section className="rounded-lg border bg-card p-6 font-sans">
             <div className="flex items-baseline justify-between gap-4 flex-wrap">
               <div>
-                <div className="text-sm uppercase tracking-wide text-muted-foreground">
-                  Classe de LLMs — Conceito Enade
-                </div>
+                <div className={TYPE.label}>Classe de LLMs — Conceito Enade</div>
                 <div className="mt-1 flex items-baseline gap-3">
-                  <div className="text-4xl font-bold">Nível {enadeLevel}</div>
+                  <div className={`mt-2 ${TYPE.stat}`}>Nível {enadeLevel}</div>
                   <div className="text-muted-foreground text-sm">
                     {approved}/{modelsWithResult.length} modelos acima do corte (
                     {(approvedRate * 100).toFixed(0)}%)
@@ -111,14 +108,12 @@ export default function EditionDetail() {
         )}
 
         <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-4">
-            Ranking nesta edição
-          </h2>
+          <h2 className={`mb-6 ${TYPE.h2}`}>Ranking nesta edição</h2>
           <ComparisonChart editionId={id} models={modelsWithResult} />
         </section>
 
         <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">Fonte</h2>
+          <h2 className={`mb-4 ${TYPE.h2}`}>Fonte</h2>
           <p className="text-sm text-muted-foreground">
             Provas e gabaritos pós-recurso obtidos diretamente do portal INEP. Consulte{' '}
             <Link className="underline text-ps-violet" to="/metodologia">
@@ -135,8 +130,8 @@ export default function EditionDetail() {
 function Card({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
-      <div className="text-sm text-muted-foreground">{label}</div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
+      <div className={TYPE.meta}>{label}</div>
+      <div className={`mt-2 ${TYPE.stat}`}>{value}</div>
     </div>
   );
 }

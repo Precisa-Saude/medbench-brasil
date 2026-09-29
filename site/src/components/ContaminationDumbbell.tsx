@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { ModelResult } from '../data/results';
+import { TYPE } from '../lib/typography';
 import { ExclusionClause } from './ExclusionClause';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
@@ -65,7 +66,7 @@ export default function ContaminationDumbbell({ models }: { models: ModelResult[
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-semibold">Limpas vs contaminadas</h3>
+        <h3 className={TYPE.h3}>Limpas vs contaminadas</h3>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <span
