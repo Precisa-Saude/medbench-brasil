@@ -15,7 +15,8 @@ export type Backend =
   | 'together'
   | 'openrouter'
   | 'jev'
-  | 'kev';
+  | 'kev'
+  | 'laya';
 
 /**
  * Traduz os argumentos do CLI em uma instância de `Provider`. Backends
@@ -128,6 +129,21 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
         model,
         path: '/v1/systemone',
         provider: 'Kev · local',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'laya': {
+      // Release oficial do Laya (Convai) atrás de um shim HTTP local que só
+      // adapta transporte: o pacote é biblioteca Python e o harness fala
+      // System One. Mesmo formato de pergunta tipada e de resposta, então o
+      // provider é o mesmo. Router desabilitado no shim — o checkpoint
+      // multilingual é carregado explicitamente (PRE-458).
+      return systemOneProvider({
+        baseUrl: args.baseUrl ?? 'http://localhost:8010',
+        label,
+        model,
+        path: '/v1/systemone',
+        provider: 'Convai · local',
         trainingCutoff: cutoff,
       });
     }

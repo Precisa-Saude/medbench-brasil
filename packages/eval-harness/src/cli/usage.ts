@@ -14,8 +14,8 @@ Comandos:
 
 Opções de eval/smoke (exigem --backend e --model):
   --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter
-              |jev|kev>
-              jev e kev são modelos de decisão (API System One): devolvem a
+              |jev|kev|laya>
+              jev, kev e laya são modelos de decisão (API System One): devolvem a
               alternativa e o vetor de probabilidades, sem gerar texto.
               Ver ADR 0004.
   --model <id>

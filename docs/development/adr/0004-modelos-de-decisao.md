@@ -157,6 +157,52 @@ As entradas ganham flag de modelo de decisão no registry. Aparecem na mesma
 tabela do leaderboard, sinalizadas, para que o leitor não conclua que foram
 medidas sob o mesmo protocolo dos modelos generativos.
 
+Entrar no leaderboard, porém, não é automático: o artefato em `results/` só
+vira linha na tabela quando ganha entrada em `site/src/data/model-registry/`.
+A separação é deliberada — medir e publicar são decisões distintas, e a
+seção 10 registra o primeiro caso em que elas divergiram.
+
+### 10. Laya entra como controle, não como linha do leaderboard
+
+O Laya foi medido na ENAMED 2026 e **não** recebe entrada no registry. A
+medição fica no repositório; a linha no leaderboard, não.
+
+O que foi medido: precisão 24,7% (63/255), IC95 19,8–30,3%, Macro-F1 19,4%.
+O acaso em quatro alternativas é 25% e está dentro do intervalo.
+
+A medição é limpa, e isso foi verificado antes da decisão. Os 255 vetores de
+probabilidade somam 1,0, o argmax bate com a alternativa registrada, não
+houve erro de transporte e nenhuma questão truncou: a entrada real — enunciado
+mais pergunta mais alternativas — chega no máximo a 391 tokens, contra o teto
+de 1024 do checkpoint, então `max_len=8192` não mudaria nada. O número
+descreve o modelo, não a configuração.
+
+Mesmo assim não vira linha, por três motivos:
+
+- **Não há alegação do fornecedor a verificar.** O model card posiciona o
+  Laya para roteamento, guardrails, moderação e classificação — os exemplos
+  próprios são triagem de ticket e detecção de pedido de reembolso. Em
+  nenhum momento a Convai afirma conhecimento médico ou raciocínio de prova.
+  Resultado nulo vale publicação quando contradiz uma alegação; aqui não há
+  o que contradizer.
+- **O piso já era conhecido por aritmética.** Saber 25% de antemão e medir
+  24,7% depois não muda o que o leitor sabe.
+- **A linha seria lida como o que ela não é.** 24,7% ao lado de 94% sugere
+  "o Laya é ruim", quando o medido é "um classificador de roteamento de 322M
+  não sabe medicina" — coisa que ninguém disputava.
+
+O valor da medição é outro, e esse fica: **o Laya é o controle de protocolo
+do ADR.** Mesmo harness, mesmo contrato System One, mesma prova, mesma
+pergunta tipada — um modelo de decisão pontua no acaso e outro (Kev-4B) faz
+72,9%. Isso descarta a hipótese de que o protocolo, e não o modelo, produz o
+resultado do Kev. É a evidência que sustenta a seção 1 deste ADR, e ela só
+existe porque a rodada do Laya foi feita.
+
+A decisão se inverte se a Convai — ou alguém com audiência — passar a
+afirmar capacidade clínica ou de conhecimento para o Laya. Nesse caso existe
+alegação a verificar, a publicação passa a ser devida e o dado já está
+medido.
+
 ## Consequências
 
 - O roster passa a comparar duas famílias de protocolo na mesma tabela. A
@@ -164,9 +210,9 @@ medidas sob o mesmo protocolo dos modelos generativos.
 - O vetor de probabilidades habilita análise de calibração que os modelos
   generativos não permitem — nenhum provider generativo do roster expõe
   logprobs por alternativa sob este protocolo.
-- Espera-se precisão próxima do acaso para o Laya, que o próprio model card
-  descreve como base para especializar, não motor zero-shot. O número é
-  publicado como piso zero-shot, não como falha de execução.
+- A precisão próxima do acaso do Laya se confirmou (24,7%, IC95 19,8–30,3%).
+  Não é falha de execução nem piso publicável: é o controle que separa o
+  efeito do protocolo do efeito do modelo, como registra a seção 10.
 - `parseLetter` não participa deste caminho: não há texto para parsear. Os
   modos de falha de parsing que afetam modelos generativos não se aplicam.
 
