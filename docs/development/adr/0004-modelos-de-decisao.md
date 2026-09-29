@@ -87,9 +87,16 @@ registra a troca. É a mesma falha de reprodutibilidade descrita na
 [#71](https://github.com/Precisa-Saude/medbench-brasil/issues/71), onde um id
 estável era servido por upstream e quantização variáveis.
 
-A resposta do endpoint devolve o snapshot resolvido no campo `model`, então a
-identidade real fica registrada em cada chamada mesmo que o pedido use alias —
-o que serve de conferência, não de substituto para fixar.
+A resposta do endpoint devolve um campo `model`, mas ele **só serve de
+conferência no Jev**: o OpenRouter resolve o alias e responde com o snapshot
+datado (`~typesafe/jev-latest` → `typesafe/jev-1.13-20260917`).
+
+No Kev é diferente — o servidor **ecoa de volta a string que você mandou**, sem
+validar. Verificado enviando `jaredpalmer/kev-4b`, `kev-4b` e `kev-latest` para
+o mesmo servidor: os três foram aceitos e devolvidos como vieram. A identidade
+real do Kev vem do argumento `--run` na subida do servidor, não da resposta, e
+por isso precisa ser registrada por fora — o campo `model` do artefato é um
+rótulo que nós escolhemos, não uma confirmação do que rodou.
 
 ### 5. Formato verificado na API
 
