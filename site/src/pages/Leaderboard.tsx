@@ -8,6 +8,7 @@ import { Hero } from '../components/Hero';
 import LeaderboardTable from '../components/LeaderboardTable';
 import SpecialtyHeatmap from '../components/SpecialtyHeatmap';
 import { SlidingToggle } from '../components/ui/sliding-toggle';
+import { editionsWithPreliminaryKey } from '../data/dataset';
 import { EDITIONS } from '../data/editions';
 import { allEditionIds, MODELS } from '../data/results';
 import { TYPE } from '../lib/typography';
@@ -24,6 +25,7 @@ const SCOPE_ITEMS = [
 
 export default function Leaderboard() {
   const [scope, setScope] = useState<ContaminationScope>('clean');
+  const preliminares = useMemo(() => editionsWithPreliminaryKey(), []);
   const editionIds = useMemo(() => {
     const ids = allEditionIds();
     return ids.length > 0 ? ids : Object.keys(EDITIONS);
@@ -63,6 +65,19 @@ export default function Leaderboard() {
           </p>
           <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
         </div>
+        {preliminares.length > 0 && (
+          <p
+            className="mx-auto max-w-2xl rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 font-sans text-sm leading-relaxed"
+            role="note"
+          >
+            <strong>Escores provisórios.</strong>{' '}
+            {preliminares.map((id) => EDITIONS[id]?.label ?? id).join(', ')}{' '}
+            {preliminares.length === 1 ? 'foi corrigida' : 'foram corrigidas'} com o gabarito{' '}
+            <em>preliminar</em> da INEP, anterior à análise de recursos. O ranking agrega todas as
+            edições, então esses números entram aqui e serão reprocessados quando o gabarito
+            definitivo for publicado.
+          </p>
+        )}
         <LeaderboardTable contaminationScope={scope} models={MODELS} />
         <p className="max-w-3xl text-sm leading-relaxed text-foreground/70">
           Edições publicadas antes do corte de treino do modelo são marcadas como{' '}
