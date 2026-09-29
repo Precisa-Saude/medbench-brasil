@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { EDITIONS } from '../data/editions';
 import { TIER_LABEL } from '../data/models';
 import type { ModelResult } from '../data/results';
 import type { ContaminationScope } from './ContaminationToggle';
@@ -8,7 +9,7 @@ import { Pagination } from './ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
-type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cutoff' | 'pass';
+type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cobertura' | 'cutoff' | 'pass';
 
 function pickAccuracy(m: ModelResult, scope: ContaminationScope): number | null {
   if (scope === 'clean') return m.cleanAccuracy;
@@ -19,6 +20,20 @@ function pickAccuracy(m: ModelResult, scope: ContaminationScope): number | null 
 function delta(m: ModelResult): number | null {
   if (m.cleanAccuracy === null || m.contaminatedAccuracy === null) return null;
   return m.contaminatedAccuracy - m.cleanAccuracy;
+}
+
+/**
+ * Edições em que o modelo tem resultado, com rótulo legível quando existe.
+ *
+ * Existe porque a precisão da tabela é `acertos / execuções` somando TODAS as
+ * edições que o modelo tem, e a cobertura é irregular: alguns modelos rodaram
+ * cinco provas, outros só uma. Sem isso, 87,8% de uma prova aparece ao lado de
+ * 87,4% de cinco como se fossem a mesma medida.
+ */
+function coverage(m: ModelResult): string[] {
+  return Object.keys(m.accuracyByEdition)
+    .sort()
+    .map((id) => EDITIONS[id]?.label ?? id);
 }
 
 /**
@@ -88,6 +103,8 @@ export default function LeaderboardTable({
           return row.d ?? -Infinity;
         case 'ci':
           return row.model.ci95[1] - row.model.ci95[0];
+        case 'cobertura':
+          return row.model.total;
         case 'cutoff':
           return row.model.trainingCutoff ? Date.parse(row.model.trainingCutoff) : -Infinity;
         case 'pass':
@@ -117,6 +134,14 @@ export default function LeaderboardTable({
               label="IC 95%"
               sort={sort}
               tooltip="Faixa plausível da precisão real (Wilson 95%). Faixas sobrepostas = empate estatístico."
+              onClick={toggleSort}
+            />
+            <SortableHead
+              align="right"
+              k="cobertura"
+              label="Cobertura"
+              sort={sort}
+              tooltip="Em quantas provas o modelo rodou, e o total de execuções somadas. A precisão junta todas as edições que o modelo tem, então cobertura diferente significa base de comparação diferente."
               onClick={toggleSort}
             />
             <SortableHead
@@ -192,6 +217,23 @@ export default function LeaderboardTable({
               <TableCell className="text-right font-mono">{(acc * 100).toFixed(1)}%</TableCell>
               <TableCell className="text-right font-mono text-muted-foreground">
                 {(model.ci95[0] * 100).toFixed(1)}–{(model.ci95[1] * 100).toFixed(1)}
+              </TableCell>
+              <TableCell className="text-right">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help font-mono text-muted-foreground">
+                      {coverage(model).length > 0 ? `${coverage(model).length}×` : '—'}
+                      {/* Separador explícito: sem ele o texto copiado (e o
+                          leitor de tela) juntam contagem e n em "2×n=501". */}
+                      <span className="text-xs opacity-70"> · n={model.total}</span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {coverage(model).length > 0
+                      ? `${coverage(model).join(' · ')} — ${model.total} execuções somadas`
+                      : `${model.total} execuções; edições não registradas no artefato`}
+                  </TooltipContent>
+                </Tooltip>
               </TableCell>
               <TableCell className="text-right font-mono text-muted-foreground">
                 {model.cleanAccuracy !== null ? `${(model.cleanAccuracy * 100).toFixed(1)}%` : '—'}
