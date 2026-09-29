@@ -38,12 +38,13 @@ function renderTokens(source: string, language: Language): React.ReactNode {
 }
 
 // Tons da marca sobre o roxo escuro #463C6D, o mesmo fundo do código da
-// /laudos. Todos passam de 4,5:1; a lavanda pura (#8E8BD8) daria 2,6:1 e foi
+// /laudos. Todos passam de 4,5:1, inclusive o comentário em branco a 65%
+// (5,3:1; a 55% daria 4,25:1). A lavanda pura (#8E8BD8) daria 2,6:1 e foi
 // clareada.
 const COLORS = {
   bracket: 'text-white/70',
   command: 'text-[#9EF2E2]',
-  comment: 'text-white/55 italic',
+  comment: 'text-white/65 italic',
   flag: 'text-[#C8C6F2]',
   key: 'text-[#9EF2E2]',
   literal: 'text-[#C8C6F2]',

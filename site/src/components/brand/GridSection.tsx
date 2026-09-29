@@ -30,10 +30,7 @@ export interface GridSectionProps {
  */
 export function GridSection({ children, className, id, tone = 'neutro' }: GridSectionProps) {
   return (
-    <section
-      className={cn('relative scroll-mt-20 border-b py-16 md:py-24', TONE_CLASS[tone])}
-      id={id}
-    >
+    <section className={cn('relative border-b py-16 md:py-24', TONE_CLASS[tone])} id={id}>
       <div className="mx-auto grid gap-4 px-4 md:px-0" style={gridStyle}>
         <div className={cn(MAIN_COLUMNS, className)}>{children}</div>
       </div>
