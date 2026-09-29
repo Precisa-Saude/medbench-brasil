@@ -68,7 +68,7 @@ export default function Leaderboard() {
         </div>
         <LeaderboardTable contaminationScope={scope} models={MODELS} />
         {preliminares.length > 0 && (
-          <p className="max-w-3xl text-xs leading-relaxed text-foreground/60" role="note">
+          <p className="max-w-3xl text-sm leading-relaxed text-foreground/60" role="note">
             <strong className="font-semibold">Escores provisórios.</strong>{' '}
             {preliminares.map((id) => EDITIONS[id]?.label ?? id).join(', ')}{' '}
             {preliminares.length === 1 ? 'foi corrigida' : 'foram corrigidas'} com o gabarito{' '}
