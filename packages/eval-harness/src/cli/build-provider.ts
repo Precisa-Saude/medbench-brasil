@@ -2,6 +2,7 @@ import { anthropicProvider } from '../providers/anthropic.js';
 import { googleProvider } from '../providers/google.js';
 import { openAiProvider } from '../providers/openai.js';
 import { openAiCompatProvider } from '../providers/openai-compat.js';
+import { systemOneProvider } from '../providers/systemone.js';
 import type { Provider } from '../types.js';
 
 export type Backend =
@@ -12,7 +13,9 @@ export type Backend =
   | 'mlx'
   | 'maritaca'
   | 'together'
-  | 'openrouter';
+  | 'openrouter'
+  | 'jev'
+  | 'kev';
 
 /**
  * Traduz os argumentos do CLI em uma instância de `Provider`. Backends
@@ -96,6 +99,35 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
         label,
         model,
         provider: 'OpenRouter',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'jev': {
+      // Jev roda no OpenRouter, mas NÃO em /chat/completions: modelos de
+      // decisão são recusados lá com erro apontando para /api/alpha/decisions.
+      const apiKey = args.apiKey ?? process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error('OPENROUTER_API_KEY ausente — defina no ambiente antes de rodar.');
+      }
+      return systemOneProvider({
+        apiKey,
+        baseUrl: args.baseUrl ?? 'https://openrouter.ai',
+        label,
+        model,
+        path: '/api/alpha/decisions',
+        provider: 'TypeSafe · OpenRouter',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'kev': {
+      // Servidor local do repo jaredpalmer/kev, que implementa a mesma API.
+      // Sem chave: é localhost.
+      return systemOneProvider({
+        baseUrl: args.baseUrl ?? 'http://localhost:8009',
+        label,
+        model,
+        path: '/v1/systemone',
+        provider: 'Kev · local',
         trainingCutoff: cutoff,
       });
     }

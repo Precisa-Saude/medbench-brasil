@@ -10,6 +10,7 @@ export { anthropicProvider } from './providers/anthropic.js';
 export { googleProvider } from './providers/google.js';
 export { openAiProvider } from './providers/openai.js';
 export { openAiCompatProvider } from './providers/openai-compat.js';
+export { systemOneProvider } from './providers/systemone.js';
 export {
   analyzeRawCoverage,
   describeRawCoverage,

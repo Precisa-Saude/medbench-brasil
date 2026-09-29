@@ -13,7 +13,11 @@ Comandos:
             erros de consenso) a partir dos scored JSONs existentes.
 
 Opções de eval/smoke (exigem --backend e --model):
-  --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter>
+  --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter
+              |jev|kev>
+              jev e kev são modelos de decisão (API System One): devolvem a
+              alternativa e o vetor de probabilidades, sem gerar texto.
+              Ver ADR 0004.
   --model <id>
   --edition revalida-2025-1   (padrão)
   --label "Nome legível"

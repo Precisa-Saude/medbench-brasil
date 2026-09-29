@@ -5,6 +5,7 @@ import { anthropicProvider } from '../src/providers/anthropic.js';
 import { googleProvider } from '../src/providers/google.js';
 import { openAiProvider } from '../src/providers/openai.js';
 import { openAiCompatProvider } from '../src/providers/openai-compat.js';
+import { systemOneProvider } from '../src/providers/systemone.js';
 
 const QUESTION: Question = {
   annulled: false,
@@ -341,5 +342,105 @@ describe('openAiCompatProvider', () => {
     await provider.run(INPUT);
 
     expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:11434/v1/chat/completions');
+  });
+});
+
+describe('systemOneProvider', () => {
+  const RESPOSTA_OK = {
+    answers: {
+      resposta: {
+        choice: 'C',
+        confidence: 0.9895,
+        probabilities: { A: 0.0014, B: 0.0038, C: 0.9921, D: 0.0028 },
+        type: 'choice',
+      },
+    },
+    model: 'typesafe/jev-1.13-20260917',
+    usage: { cost: 1.4448e-5, input_tokens: 344 },
+  };
+
+  function provider(over: Partial<Parameters<typeof systemOneProvider>[0]> = {}) {
+    return systemOneProvider({
+      baseUrl: 'https://openrouter.ai',
+      model: 'typesafe/jev-1.13-20260917',
+      path: '/api/alpha/decisions',
+      provider: 'TypeSafe · OpenRouter',
+      ...over,
+    });
+  }
+
+  it('monta o corpo no formato System One verificado', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    // Alternativas vão em `criteria`, não em `options`: mandar `options` passa
+    // na validação de schema e falha no upstream ("must have at least one
+    // choice"). Ver ADR 0004 §5.
+    expect(res.requestParams).toMatchObject({
+      questions: {
+        resposta: {
+          criteria: { A: 'a', B: 'b', C: 'c', D: 'd' },
+          instructions: 'sys',
+          type: 'choice',
+        },
+      },
+      state: 'stem',
+    });
+  });
+
+  it('usa o system prompt literal como instruções', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const q = (res.requestParams as { questions: Record<string, { instructions: string }> })
+      .questions;
+    expect(q.resposta!.instructions).toBe(INPUT.systemPrompt);
+  });
+
+  it('registra temperature e max_tokens como não aplicáveis, não ausentes', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    expect(res.requestParams).toMatchObject({ max_tokens: 'n/a', temperature: 'n/a' });
+  });
+
+  it('devolve a escolha sem passar por parseLetter', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    expect(res.parsedAnswer).toBe('C');
+  });
+
+  it('persiste o vetor de probabilidades e o snapshot resolvido', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+    // Sem o vetor não há como recalcular calibração nem refazer o score.
+    expect(raw.probabilities).toEqual({ A: 0.0014, B: 0.0038, C: 0.9921, D: 0.0028 });
+    expect(raw.confidence).toBe(0.9895);
+    // Identidade real por trás de um alias móvel (ADR 0004 §4).
+    expect(raw.resolvedModel).toBe('typesafe/jev-1.13-20260917');
+    expect(raw.truncated).toBe(false);
+  });
+
+  it('usa o caminho configurado — Kev e Jev diferem só nisso', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    await provider({ baseUrl: 'http://localhost:8009', path: '/v1/systemone' }).run(INPUT);
+    const chamada = (globalThis.fetch as unknown as { mock: { calls: string[][] } }).mock.calls[0]!;
+    expect(chamada[0]).toBe('http://localhost:8009/v1/systemone');
+  });
+
+  it('devolve null quando a escolha não é A–D', async () => {
+    mockFetchResponse({
+      body: { answers: { resposta: { choice: 'Z', probabilities: {} } } },
+    });
+    const res = await provider().run(INPUT);
+    expect(res.parsedAnswer).toBeNull();
+  });
+
+  it('falha alto quando a resposta não traz a pergunta esperada', async () => {
+    mockFetchResponse({ body: { answers: {} } });
+    await expect(provider().run(INPUT)).rejects.toThrow(/sem a pergunta "resposta"/);
+  });
+
+  it('propaga erro HTTP do provider', async () => {
+    mockFetchResponse({ ok: false, status: 400, text: 'must have at least one choice' });
+    await expect(provider().run(INPUT)).rejects.toThrow(/erro 400/);
   });
 });
