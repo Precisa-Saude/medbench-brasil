@@ -30,6 +30,12 @@ import { computeEnadeConcept } from './enade.js';
 import { SYSTEM_PROMPT } from './prompt.js';
 import { rescoreFromRaw, rescoreFromScored } from './rescore.js';
 import { parseLetter, runEvaluation } from './runner.js';
+import {
+  isTransportError,
+  smokeDiagnosis,
+  smokeExitCode,
+  smokeVerdict,
+} from './smoke-diagnosis.js';
 import type { EvaluationResult, RawResponseRecord } from './types.js';
 
 function renderUserPrompt(q: {
@@ -65,7 +71,12 @@ async function runSmoke(args: Record<string, string>) {
   );
 
   let ok = 0;
-  const failures: Array<{ parsed: string | null; qid: string; tail: string }> = [];
+  const failures: Array<{
+    parsed: string | null;
+    qid: string;
+    tail: string;
+    transport: boolean;
+  }> = [];
   for (const q of samples) {
     try {
       const res = await provider.run({
@@ -77,30 +88,39 @@ async function runSmoke(args: Record<string, string>) {
       const correct = parsed === q.correct;
       if (correct) ok += 1;
       else
-        failures.push({ parsed, qid: q.id, tail: res.rawResponse.slice(-180).replace(/\n/g, ' ') });
+        failures.push({
+          parsed,
+          qid: q.id,
+          tail: res.rawResponse.slice(-180).replace(/\n/g, ' '),
+          transport: false,
+        });
       console.log(`  ${q.id}: parsed=${parsed ?? '?'} vs ${q.correct} ${correct ? 'OK' : 'MISS'}`);
     } catch (err) {
-      failures.push({
-        parsed: null,
-        qid: q.id,
-        tail: err instanceof Error ? err.message.slice(0, 180) : String(err),
-      });
-      console.log(`  ${q.id}: ERRO — ${err instanceof Error ? err.message.slice(0, 120) : err}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      const transport = isTransportError(msg);
+      failures.push({ parsed: null, qid: q.id, tail: msg.slice(0, 180), transport });
+      console.log(`  ${q.id}: ${transport ? 'ERRO DE REDE' : 'ERRO'} — ${msg.slice(0, 120)}`);
     }
   }
 
   const rate = ok / samples.length;
-  const verdict = rate >= threshold ? 'PASS' : 'FAIL';
-  console.log(`\n${verdict} — ${ok}/${samples.length} (${(rate * 100).toFixed(1)}%)`);
+  const transportErrors = failures.filter((f) => f.transport).length;
+  const verdict = smokeVerdict({
+    ok,
+    threshold,
+    total: samples.length,
+    transportErrors,
+  });
+  const sufixo = transportErrors > 0 ? `, ${transportErrors} erro(s) de rede` : '';
+  console.log(`\n${verdict} — ${ok}/${samples.length} (${(rate * 100).toFixed(1)}%)${sufixo}`);
 
-  if (verdict === 'FAIL') {
-    console.log(
-      '\nModelo provavelmente emite resposta em formato que o parser não reconhece, OU o modelo é genuinamente ruim em pt-BR médico. Revise os exemplos falhos:',
-    );
+  if (verdict !== 'PASS') {
+    console.log(smokeDiagnosis(verdict, transportErrors));
     for (const f of failures) {
-      console.log(`  ${f.qid} → parsed=${f.parsed ?? '?'} | ...${f.tail}`);
+      const tag = f.transport ? '[rede] ' : '';
+      console.log(`  ${tag}${f.qid} → parsed=${f.parsed ?? '?'} | ...${f.tail}`);
     }
-    process.exit(1);
+    process.exit(smokeExitCode(verdict));
   }
 }
 

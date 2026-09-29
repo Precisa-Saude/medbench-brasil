@@ -20,6 +20,18 @@ export const QWEN_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
   },
+  'hugo/protocolos-clinicos-br-rl-4gen-14b': {
+    description:
+      'Variante com reinforcement learning sobre o Qwen 2.5 14B em Protocolos Clínicos e Diretrizes Terapêuticas (PCDTs) do SUS. Mesmo trabalho do checkpoint CPT-4gen: Abonizio et al., arXiv:2605.01077.',
+    homepage: 'https://arxiv.org/abs/2605.01077',
+    label: 'Qwen 2.5 14B RL-4gen (clinical-protocols-br)',
+    modelId: 'hugo/protocolos-clinicos-br-rl-4gen-14b',
+    provider: 'Abonizio et al. · MLX local',
+    releaseDate: '2026-05-01',
+    tier: 'open-weight',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   // Runs locais via MLX para o estudo de transferência PCDT→prova oficial INEP
   // (cpt-4gen e, em seguida, rl-4gen são checkpoints de Abonizio et al.,
   // arXiv:2605.01077, "Teaching LLMs Brazilian Healthcare: Injecting Knowledge

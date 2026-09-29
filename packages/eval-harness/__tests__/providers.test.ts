@@ -5,6 +5,7 @@ import { anthropicProvider } from '../src/providers/anthropic.js';
 import { googleProvider } from '../src/providers/google.js';
 import { openAiProvider } from '../src/providers/openai.js';
 import { openAiCompatProvider } from '../src/providers/openai-compat.js';
+import { systemOneProvider } from '../src/providers/systemone.js';
 
 const QUESTION: Question = {
   annulled: false,
@@ -341,5 +342,156 @@ describe('openAiCompatProvider', () => {
     await provider.run(INPUT);
 
     expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:11434/v1/chat/completions');
+  });
+});
+
+describe('systemOneProvider', () => {
+  const RESPOSTA_OK = {
+    answers: {
+      resposta: {
+        choice: 'C',
+        confidence: 0.9895,
+        probabilities: { A: 0.0014, B: 0.0038, C: 0.9921, D: 0.0028 },
+        type: 'choice',
+      },
+    },
+    model: 'typesafe/jev-1.13-20260917',
+    usage: { cost: 1.4448e-5, input_tokens: 344 },
+  };
+
+  function provider(over: Partial<Parameters<typeof systemOneProvider>[0]> = {}) {
+    return systemOneProvider({
+      baseUrl: 'https://openrouter.ai',
+      model: 'typesafe/jev-1.13-20260917',
+      path: '/api/alpha/decisions',
+      provider: 'TypeSafe · OpenRouter',
+      ...over,
+    });
+  }
+
+  it('monta o corpo no formato System One verificado', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    // Alternativas vão em `criteria`, não em `options`: mandar `options` passa
+    // na validação de schema e falha no upstream ("must have at least one
+    // choice"). Ver ADR 0004 §5.
+    expect(res.requestParams).toMatchObject({
+      questions: {
+        resposta: {
+          criteria: { A: 'a', B: 'b', C: 'c', D: 'd' },
+          instructions: 'sys',
+          type: 'choice',
+        },
+      },
+      state: 'stem',
+    });
+  });
+
+  it('usa o system prompt literal como instruções', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const q = (res.requestParams as { questions: Record<string, { instructions: string }> })
+      .questions;
+    expect(q.resposta!.instructions).toBe(INPUT.systemPrompt);
+  });
+
+  it('registra temperature e max_tokens como não aplicáveis, não ausentes', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    expect(res.requestParams).toMatchObject({ max_tokens: 'n/a', temperature: 'n/a' });
+  });
+
+  it('devolve a escolha sem passar por parseLetter', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    expect(res.parsedAnswer).toBe('C');
+  });
+
+  it('persiste o vetor de probabilidades e o snapshot resolvido', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+    // Sem o vetor não há como recalcular calibração nem refazer o score.
+    expect(raw.probabilities).toEqual({ A: 0.0014, B: 0.0038, C: 0.9921, D: 0.0028 });
+    expect(raw.confidence).toBe(0.9895);
+    // Identidade real por trás de um alias móvel (ADR 0004 §4).
+    expect(raw.resolvedModel).toBe('typesafe/jev-1.13-20260917');
+  });
+
+  it('deixa truncated null quando o provider não informa', async () => {
+    // `false` aqui seria afirmar que não truncou sem ninguém ter medido.
+    // "não registramos" e "não se aplica" são coisas diferentes (ADR 0004 §6).
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+    expect(raw.truncated).toBeNull();
+  });
+
+  it('propaga truncated quando o provider informa', async () => {
+    for (const valor of [true, false]) {
+      mockFetchResponse({ body: { ...RESPOSTA_OK, truncated: valor } });
+      const res = await provider().run(INPUT);
+      const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+      expect(raw.truncated).toBe(valor);
+    }
+  });
+
+  it('usa o caminho configurado — Kev e Jev diferem só nisso', async () => {
+    mockFetchResponse({ body: RESPOSTA_OK });
+    await provider({ baseUrl: 'http://localhost:8009', path: '/v1/systemone' }).run(INPUT);
+    const chamada = (globalThis.fetch as unknown as { mock: { calls: string[][] } }).mock.calls[0]!;
+    expect(chamada[0]).toBe('http://localhost:8009/v1/systemone');
+  });
+
+  it('devolve null quando a escolha não é A–D', async () => {
+    mockFetchResponse({
+      body: { answers: { resposta: { choice: 'Z', probabilities: {} } } },
+    });
+    const res = await provider().run(INPUT);
+    expect(res.parsedAnswer).toBeNull();
+  });
+
+  it('falha alto quando a resposta não traz a pergunta esperada', async () => {
+    mockFetchResponse({ body: { answers: {} } });
+    await expect(provider().run(INPUT)).rejects.toThrow(/sem a pergunta "resposta"/);
+  });
+
+  it('propaga erro HTTP do provider', async () => {
+    mockFetchResponse({ ok: false, status: 400, text: 'must have at least one choice' });
+    await expect(provider().run(INPUT)).rejects.toThrow(/erro 400/);
+  });
+});
+
+describe('anthropicProvider — effort fixado (#73)', () => {
+  function corpo() {
+    const chamada = (
+      globalThis.fetch as unknown as { mock: { calls: [string, { body: string }][] } }
+    ).mock.calls[0]!;
+    return JSON.parse(chamada[1].body) as Record<string, unknown>;
+  }
+
+  it.each(['claude-opus-5-5', 'claude-opus-5', 'claude-fable-5-1', 'claude-sonnet-5'])(
+    'envia output_config.effort=high em %s',
+    async (model) => {
+      mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+      await anthropicProvider({ apiKey: 'k', model }).run(INPUT);
+      // O Opus 5.5 tem default `medium`; os demais, `high`. Sem fixar, dois
+      // modelos da mesma família eram medidos com esforço diferente.
+      expect(corpo().output_config).toEqual({ effort: 'high' });
+    },
+  );
+
+  it('não envia effort para modelo que não aceita o parâmetro', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    // Haiku 4.5 não está na lista supportedModels da Anthropic; mandar o
+    // parâmetro devolveria 400.
+    await anthropicProvider({ apiKey: 'k', model: 'claude-haiku-4-5-20251001' }).run(INPUT);
+    expect(corpo()).not.toHaveProperty('output_config');
+  });
+
+  it('grava o effort no requestParams para auditoria', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    const res = await anthropicProvider({ apiKey: 'k', model: 'claude-opus-5-5' }).run(INPUT);
+    expect(res.requestParams).toMatchObject({ output_config: { effort: 'high' } });
   });
 });

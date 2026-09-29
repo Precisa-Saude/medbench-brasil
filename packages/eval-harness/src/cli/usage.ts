@@ -13,7 +13,11 @@ Comandos:
             erros de consenso) a partir dos scored JSONs existentes.
 
 Opções de eval/smoke (exigem --backend e --model):
-  --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter>
+  --backend <anthropic|openai|google|ollama|mlx|maritaca|together|openrouter
+              |jev|kev|laya>
+              jev, kev e laya são modelos de decisão (API System One): devolvem a
+              alternativa e o vetor de probabilidades, sem gerar texto.
+              Ver ADR 0004.
   --model <id>
   --edition revalida-2025-1   (padrão)
   --label "Nome legível"
@@ -23,7 +27,12 @@ Opções de eval/smoke (exigem --backend e --model):
                               1024 em providers diretos)
   --timeout-ms N              Override do timeout HTTP por requisição
                               (padrão 300000 em ollama/mlx)
-  --request-model <id>        (mlx) Nome de modelo enviado no body do request.
+  --reasoning-effort <nível>  (openrouter) Envia reasoning_effort no body
+                              (low/medium/high/...). Sem a flag, nada é
+                              enviado e vale o default do fornecedor. Usar
+                              para igualar o effort fixado na rota direta
+                              Anthropic — ver docs/methodology.md.
+  --request-model <id>        (mlx, openrouter) Nome de modelo enviado no body do request.
                               Útil quando o servidor MLX serve base + LoRA: o
                               --model identifica o checkpoint composto nos
                               resultados, enquanto --request-model usa o base

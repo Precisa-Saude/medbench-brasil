@@ -162,8 +162,30 @@ for (const [path, raw] of Object.entries(artifacts)) {
   byModel.set(enriched.modelId, list);
 }
 
+/**
+ * Modelos que foram medidos mas **não** entram no leaderboard, com o motivo.
+ *
+ * A exclusão precisa ser explícita aqui: ter ou não entrada em
+ * `model-registry/` não decide nada, porque `getModelMetadata` devolve um
+ * fallback (`provider: 'desconhecido'`) para modelo sem metadado. Sem esta
+ * lista, todo artefato em `results/` vira linha automaticamente.
+ *
+ * Medir e publicar são decisões distintas. O artefato fica no repositório em
+ * qualquer caso — o que esta lista controla é a tabela pública.
+ */
+export const FORA_DO_LEADERBOARD: Record<string, string> = {
+  // Controle de protocolo do ADR 0004, seção 10: pontua no acaso (24,7%,
+  // IC95 19,8–30,3%) e serve para separar o efeito do protocolo do efeito do
+  // modelo na comparação com o Kev-4B. A Convai posiciona o checkpoint para
+  // roteamento, guardrails e moderação, nunca para conhecimento médico, então
+  // não há alegação do fornecedor a verificar e a linha seria lida como o que
+  // ela não é.
+  'convaiinnovations/laya-multilingual': 'Controle de protocolo — ADR 0004, seção 10.',
+};
+
 export const MODELS: ModelResult[] = [...byModel.values()]
   .map((group) => normalise(combineArtifacts(group)))
+  .filter((m) => !(m.modelId in FORA_DO_LEADERBOARD))
   .sort((a, b) => b.accuracy - a.accuracy);
 
 export function findModel(modelId: string): ModelResult | undefined {

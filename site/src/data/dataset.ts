@@ -35,3 +35,19 @@ export function allQuestions(): Question[] {
     a.editionId === b.editionId ? a.number - b.number : a.editionId.localeCompare(b.editionId),
   );
 }
+
+/**
+ * Edições corrigidas com gabarito preliminar da INEP, anterior à análise de
+ * recursos. Os escores dessas edições são provisórios e serão reprocessados
+ * quando o gabarito definitivo sair.
+ *
+ * Exposto aqui (e não só na página da edição) porque o ranking agrega todas
+ * as edições: quem lê a tabela precisa saber que parte do número vem de
+ * gabarito que ainda pode mudar.
+ */
+export function editionsWithPreliminaryKey(): string[] {
+  return Object.values(EDITIONS_DATA)
+    .filter((e) => e.answerKeyStatus === 'preliminar')
+    .map((e) => e.id)
+    .sort();
+}

@@ -132,14 +132,6 @@ export type CuratedEditionMetadata = Omit<
 >;
 
 export const EDITIONS: Record<string, CuratedEditionMetadata> = {
-  // ENAMED 2025 — primeira edição, resultado divulgado em 12-dez-2025.
-  // Nota de corte de proficiência: 60 pts na escala TRI (equivale a 57,87%
-  // de itens corretos após exclusão de 10 itens por motivos administrativos/
-  // psicométricos). Mantemos 0.60 no gráfico por simplicidade visual.
-  // Taxa de proficiência: 75% geral (89.024 avaliados).
-  // Pesos por tipo de instituição (para as linhas extras):
-  //   Privada (for-profit 15409 × 57,2% + non-profit 12960 × 70,1%)/28369 ≈ 63,1%
-  //   Pública (federal 6502 × 83,1% + estadual 2402 × 86,6%)/8904 ≈ 84,0%
   'enamed-2025': {
     extraReferences: [
       {
@@ -181,6 +173,29 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
         url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/enamed/divulgadas-avaliacao-dos-cursos-de-medicina-e-medidas-de-supervisao',
       },
     ],
+  },
+  // ENAMED 2025 — primeira edição, resultado divulgado em 12-dez-2025.
+  // Nota de corte de proficiência: 60 pts na escala TRI (equivale a 57,87%
+  // de itens corretos após exclusão de 10 itens por motivos administrativos/
+  // psicométricos). Mantemos 0.60 no gráfico por simplicidade visual.
+  // Taxa de proficiência: 75% geral (89.024 avaliados).
+  // Pesos por tipo de instituição (para as linhas extras):
+  //   Privada (for-profit 15409 × 57,2% + non-profit 12960 × 70,1%)/28369 ≈ 63,1%
+  //   Pública (federal 6502 × 83,1% + estadual 2402 × 86,6%)/8904 ≈ 84,0%
+  // ENAMED 2026 — prova aplicada em 13-set-2026. Corte e taxa de aprovação
+  // ainda não publicados pela INEP, então a entrada não declara `sources`:
+  // as fontes existem para justificar corte, taxa e referências extras, e
+  // nenhum desses valores existe ainda. Citar a página institucional da
+  // INEP só para ter uma linha de referência seria fonte genérica, o que o
+  // AGENTS.md proíbe.
+  //
+  // Gabarito ainda preliminar (`answerKeyStatus` no dataset): os escores
+  // desta edição são provisórios e o aviso aparece tanto no leaderboard
+  // quanto na página da edição.
+  'enamed-2026': {
+    id: 'enamed-2026',
+    label: 'ENAMED 2026',
+    publishedAt: '2026-09-13',
   },
   // Revalida 2024/1 — nota de corte 91,96/150 = 61,3%; aprovação 25,35%
   // (2.549 / 10.048 presentes na 1ª etapa).

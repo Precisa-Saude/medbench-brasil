@@ -8,6 +8,18 @@ interface OpenAICompatOptions extends ProviderBaseOptions {
   /** Nome do fornecedor para display — ex.: 'Ollama', 'vLLM'. */
   provider: string;
   /**
+   * `reasoning_effort` enviado no body (low/medium/high/xhigh/max). Fica
+   * opcional e explícito em vez de default: o campo muda o protocolo de
+   * medição, e ligá-lo para todo modelo OpenAI-compatible reescreveria em
+   * silêncio como os modelos já medidos por esta rota foram avaliados.
+   *
+   * Verificado contra `anthropic/claude-opus-5.5` na OpenRouter: com `low` a
+   * resposta veio com 0 reasoning tokens, com `high` com 13 no mesmo prompt,
+   * ou seja o parâmetro chega ao controle de effort do fornecedor e não é
+   * aceito e ignorado.
+   */
+  reasoningEffort?: string;
+  /**
    * Nome de modelo enviado no body do request (campo `model`). Quando ausente,
    * usa `model`. Útil para servidores MLX rodando base + LoRA adapter, onde o
    * id reportado nos resultados é o checkpoint composto mas o servidor só
@@ -31,6 +43,7 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   const temperature = opts.temperature ?? 0;
   const timeoutMs = opts.timeoutMs ?? 300_000;
   const requestModel = opts.requestModel ?? opts.model;
+  const reasoningEffort = opts.reasoningEffort;
 
   return {
     id: opts.model,
@@ -44,6 +57,7 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
           { content: input.userPrompt, role: 'user' },
         ],
         model: requestModel,
+        ...(reasoningEffort === undefined ? {} : { reasoning_effort: reasoningEffort }),
         temperature,
       } as const;
 

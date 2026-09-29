@@ -2,6 +2,7 @@ import { anthropicProvider } from '../providers/anthropic.js';
 import { googleProvider } from '../providers/google.js';
 import { openAiProvider } from '../providers/openai.js';
 import { openAiCompatProvider } from '../providers/openai-compat.js';
+import { systemOneProvider } from '../providers/systemone.js';
 import type { Provider } from '../types.js';
 
 export type Backend =
@@ -12,7 +13,10 @@ export type Backend =
   | 'mlx'
   | 'maritaca'
   | 'together'
-  | 'openrouter';
+  | 'openrouter'
+  | 'jev'
+  | 'kev'
+  | 'laya';
 
 /**
  * Traduz os argumentos do CLI em uma instância de `Provider`. Backends
@@ -96,6 +100,59 @@ export function buildProvider(backend: Backend, args: Record<string, string>): P
         label,
         model,
         provider: 'OpenRouter',
+        // Só entra no body quando passado explicitamente (--reasoning-effort).
+        // Ver o comentário em openai-compat.ts: ligar por default reescreveria
+        // o protocolo dos modelos já medidos por esta rota.
+        reasoningEffort: args['reasoning-effort'],
+        // Mesmo motivo do mlx: `--model` é o id canônico gravado nos
+        // resultados e `--request-model` é o nome que a rota conhece. Sem
+        // isso, medir um modelo já avaliado por outra rota criaria linha
+        // duplicada no leaderboard em vez de substituir a medição.
+        requestModel: args['request-model'],
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'jev': {
+      // Jev roda no OpenRouter, mas NÃO em /chat/completions: modelos de
+      // decisão são recusados lá com erro apontando para /api/alpha/decisions.
+      const apiKey = args.apiKey ?? process.env.OPENROUTER_API_KEY;
+      if (!apiKey) {
+        throw new Error('OPENROUTER_API_KEY ausente — defina no ambiente antes de rodar.');
+      }
+      return systemOneProvider({
+        apiKey,
+        baseUrl: args.baseUrl ?? 'https://openrouter.ai',
+        label,
+        model,
+        path: '/api/alpha/decisions',
+        provider: 'TypeSafe · OpenRouter',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'kev': {
+      // Servidor local do repo jaredpalmer/kev, que implementa a mesma API.
+      // Sem chave: é localhost.
+      return systemOneProvider({
+        baseUrl: args.baseUrl ?? 'http://localhost:8009',
+        label,
+        model,
+        path: '/v1/systemone',
+        provider: 'Kev · local',
+        trainingCutoff: cutoff,
+      });
+    }
+    case 'laya': {
+      // Release oficial do Laya (Convai) atrás de um shim HTTP local que só
+      // adapta transporte: o pacote é biblioteca Python e o harness fala
+      // System One. Mesmo formato de pergunta tipada e de resposta, então o
+      // provider é o mesmo. Router desabilitado no shim — o checkpoint
+      // multilingual é carregado explicitamente (PRE-458).
+      return systemOneProvider({
+        baseUrl: args.baseUrl ?? 'http://localhost:8010',
+        label,
+        model,
+        path: '/v1/systemone',
+        provider: 'Convai · local',
         trainingCutoff: cutoff,
       });
     }

@@ -12,6 +12,14 @@ interface ModelMetadataBase {
   description?: string;
   /** URL da página oficial do modelo no site do fornecedor. */
   homepage?: string;
+  /**
+   * Modelo de decisão (API System One): recebe estado mais pergunta tipada e
+   * devolve alternativa com vetor de probabilidades, sem gerar texto. Medido
+   * sob protocolo diferente do resto do roster — ver ADR 0004. A flag existe
+   * para sinalizar isso na tabela; sem ela o leitor compararia precisões
+   * obtidas por caminhos distintos como se fossem equivalentes.
+   */
+  isDecisionModel?: boolean;
   label: string;
   modelId: string;
   provider: string;
