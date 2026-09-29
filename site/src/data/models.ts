@@ -16,6 +16,7 @@
  */
 
 import { ANTHROPIC_MODELS } from './model-registry/anthropic.js';
+import { DECISION_MODELS } from './model-registry/decisao.js';
 import { GOOGLE_MODELS } from './model-registry/google.js';
 import { OPEN_WEIGHT_MODELS } from './model-registry/open-weights.js';
 import { OPENAI_MODELS } from './model-registry/openai.js';
@@ -33,6 +34,7 @@ export type { ModelMetadata, ModelTier } from './model-registry/types.js';
 // entrada, incluindo a citação verbatim quando disponível.
 export const MODELS_METADATA: Record<string, ModelMetadata> = {
   ...ANTHROPIC_MODELS,
+  ...DECISION_MODELS,
   ...GOOGLE_MODELS,
   ...OPENAI_MODELS,
   ...OPEN_WEIGHT_MODELS,

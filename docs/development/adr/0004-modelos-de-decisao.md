@@ -157,15 +157,20 @@ As entradas ganham flag de modelo de decisão no registry. Aparecem na mesma
 tabela do leaderboard, sinalizadas, para que o leitor não conclua que foram
 medidas sob o mesmo protocolo dos modelos generativos.
 
-Entrar no leaderboard, porém, não é automático: o artefato em `results/` só
-vira linha na tabela quando ganha entrada em `site/src/data/model-registry/`.
-A separação é deliberada — medir e publicar são decisões distintas, e a
-seção 10 registra o primeiro caso em que elas divergiram.
+Medir e publicar são decisões distintas, e a seção 10 registra o primeiro
+caso em que elas divergiram. A separação precisa ser explícita no código:
+**não basta deixar o modelo fora do registry.** `getModelMetadata` devolve um
+fallback (`provider: 'desconhecido'`) para modelo sem metadado, então todo
+artefato em `results/` vira linha da tabela por padrão. Para excluir de
+verdade, o `modelId` entra em `FORA_DO_LEADERBOARD` (em
+`site/src/data/results.ts`) com o motivo, e um teste garante que a exclusão
+não se perca numa refatoração.
 
 ### 10. Laya entra como controle, não como linha do leaderboard
 
-O Laya foi medido na ENAMED 2026 e **não** recebe entrada no registry. A
-medição fica no repositório; a linha no leaderboard, não.
+O Laya foi medido na ENAMED 2026 e **não** entra no leaderboard: sem entrada
+no registry e listado em `FORA_DO_LEADERBOARD`. A medição fica no
+repositório; a linha na tabela, não.
 
 O que foi medido: precisão 24,7% (63/255), IC95 19,8–30,3%, Macro-F1 19,4%.
 O acaso em quatro alternativas é 25% e está dentro do intervalo.

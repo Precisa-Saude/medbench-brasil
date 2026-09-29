@@ -172,6 +172,20 @@ export default function LeaderboardTable({
                 >
                   {model.label}
                 </Link>
+                {model.isDecisionModel === true && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="ml-2 cursor-help rounded border border-ps-violet/40 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-ps-violet">
+                        decisão
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Modelo de decisão: recebe a questão como pergunta tipada e devolve a
+                      alternativa com vetor de probabilidades, sem gerar texto. Protocolo diferente
+                      do restante da tabela — ver metodologia.
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </TableCell>
               <TableCell className="text-muted-foreground">{model.provider}</TableCell>
               <TableCell className="text-muted-foreground">{TIER_LABEL[model.tier]}</TableCell>
