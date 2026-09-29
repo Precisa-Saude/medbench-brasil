@@ -17,6 +17,23 @@ describe('isTransportError', () => {
     },
   );
 
+  // Erros reais desta edição: a requisição chegou ao fornecedor, mas nunca
+  // chegou a uma inferência. Culpar o modelo por isso é o bug que o módulo
+  // existe para evitar.
+  // Erros reais desta edição: a requisição chegou ao fornecedor, mas nunca
+  // chegou a uma inferência. Culpar o modelo por isso é o bug que o módulo
+  // existe para evitar.
+  it.each([
+    'OpenRouter API erro 402: {"error":{"message":"in_flight_budget_exhausted"}}',
+    'Anthropic API erro 400: credit balance is too low',
+    'OpenRouter API erro 429: rate limit exceeded',
+    'OpenAI API erro 503: Service Unavailable',
+    'Google API erro 500: internal',
+    'Convai · local API erro 401: unauthorized',
+  ])('classifica %s como falha de ambiente', (msg) => {
+    expect(isTransportError(msg)).toBe(true);
+  });
+
   it('reconhece o timeout do próprio harness', () => {
     expect(
       isTransportError(
@@ -25,12 +42,17 @@ describe('isTransportError', () => {
     ).toBe(true);
   });
 
-  it('não confunde erro de API com erro de rede', () => {
-    // 402/404/deprecated são respostas do provider: a rede funcionou.
-    expect(isTransportError('OpenRouter API erro 402: in_flight_budget_exhausted')).toBe(false);
+  it('mantém fora o que é erro nosso de configuração', () => {
+    // A fronteira não é "a rede funcionou?", e sim "dá para culpar o modelo?".
+    // 404 de modelo aposentado e 400 de requisição malformada são condições
+    // permanentes e nossas: INCONCLUSIVE ("tente de novo") seria conselho
+    // errado, então seguem falhando alto.
     expect(isTransportError('Maritaca AI API erro 404: the model sabia-3 is deprecated')).toBe(
       false,
     );
+    expect(
+      isTransportError('Anthropic API erro 400: messages: text content blocks must be non-empty'),
+    ).toBe(false);
   });
 });
 
@@ -71,7 +93,7 @@ describe('smokeDiagnosis', () => {
   it('não culpa o modelo quando a causa é rede', () => {
     const msg = smokeDiagnosis('INCONCLUSIVE', 8);
     expect(msg).toContain('INCONCLUSIVO');
-    expect(msg).toContain('8 falha(s) de transporte');
+    expect(msg).toContain('8 falha(s) de ambiente');
     expect(msg).not.toContain('ruim em pt-BR');
   });
 
