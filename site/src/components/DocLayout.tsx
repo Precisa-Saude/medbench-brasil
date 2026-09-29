@@ -10,6 +10,14 @@ export interface TocItem {
   label: string;
 }
 
+/**
+ * Linha, em px a partir do topo da viewport, que uma seção precisa cruzar
+ * para contar como atual: o cabeçalho fixo (`h-16`, 64 px) mais a folga do
+ * sumário (`top-24` = 96 px, igual à soma). Se a altura do cabeçalho mudar,
+ * mudar aqui, no `top-24` abaixo e no `scroll-padding-top` do index.css.
+ */
+const ACTIVE_LINE_PX = 96;
+
 /** Id da última seção cujo topo já passou da faixa do cabeçalho fixo. */
 function useActiveSection(items: readonly TocItem[]): string {
   const [active, setActive] = useState('');
@@ -23,10 +31,13 @@ function useActiveSection(items: readonly TocItem[]): string {
         setActive(items[items.length - 1]?.id ?? '');
         return;
       }
-      // 96 px: cabeçalho de 64 px mais a folga do `top-24` do sumário.
       const current = [...items]
         .reverse()
-        .find((item) => (document.getElementById(item.id)?.getBoundingClientRect().top ?? 1) <= 96);
+        .find(
+          (item) =>
+            (document.getElementById(item.id)?.getBoundingClientRect().top ?? Infinity) <=
+            ACTIVE_LINE_PX,
+        );
       setActive(current?.id ?? '');
     };
     update();
