@@ -13,6 +13,7 @@ const TOC: readonly TocItem[] = [
   { id: 'exames', label: 'Exames avaliados' },
   { id: 'protocolo', label: 'Protocolo de avaliação' },
   { id: 'prompt', label: 'System prompt literal' },
+  { id: 'modelos-de-decisao', label: 'Modelos de decisão' },
   { id: 'variancia', label: 'Por que rodamos três vezes' },
   { id: 'contaminacao', label: 'Contaminação de treino' },
   { id: 'benchmarks-relacionados', label: 'Benchmarks relacionados' },
@@ -84,6 +85,54 @@ export default function Metodologia() {
         <div className="mt-3">
           <CodeBlock>{SYSTEM_PROMPT}</CodeBlock>
         </div>
+      </section>
+
+      <section id="modelos-de-decisao">
+        <h2 className={TYPE.h2}>Modelos de decisão</h2>
+        <p className="mt-3 max-w-3xl text-foreground">
+          Alguns modelos da tabela não geram texto. Recebem um estado e uma pergunta tipada, e
+          devolvem a alternativa escolhida junto de um vetor de probabilidades sobre A, B, C e D,
+          num único passe. Aparecem no leaderboard com o selo <strong>decisão</strong>, porque o
+          caminho de medição é diferente e comparar os números sem saber disso induz a erro.
+        </p>
+        <p className="mt-3 max-w-3xl text-foreground">O que muda em relação aos demais:</p>
+        <ul className="mt-3 list-inside list-disc space-y-1 text-foreground">
+          <li>
+            Não há parsing de letra. A alternativa vem em campo próprio, então os modos de falha de
+            parsing que afetam modelos generativos não se aplicam.
+          </li>
+          <li>
+            <code>max_tokens</code> e <code>temperature</code> não existem neste protocolo. Ficam
+            registrados como <code>n/a</code> nos artefatos, para separar "não se aplica" de "não
+            registramos".
+          </li>
+          <li>
+            O vetor de probabilidades é gravado por questão, o que permite analisar calibração.
+            Nenhum provider generativo do roster expõe isso.
+          </li>
+        </ul>
+        <p className="mt-3 max-w-3xl text-foreground">O que continua igual:</p>
+        <ul className="mt-3 list-inside list-disc space-y-1 text-foreground">
+          <li>
+            O texto do system prompt vai literal no campo de instruções da pergunta tipada, sem
+            adaptação.
+          </li>
+          <li>As quatro alternativas vão na mesma ordem que o modelo generativo vê.</li>
+          <li>Uma questão por requisição, três execuções por modelo, sem ferramentas.</li>
+        </ul>
+        <p className="mt-3 max-w-3xl text-foreground">
+          A decisão completa, incluindo o formato verificado na API e a regra de fixar a versão do
+          modelo em vez de usar um alias móvel, está registrada no{' '}
+          <a
+            className="font-medium text-primary underline underline-offset-4 hover:decoration-2"
+            href="https://github.com/Precisa-Saude/medbench-brasil/blob/main/docs/development/adr/0004-modelos-de-decisao.md"
+            rel="noreferrer"
+            target="_blank"
+          >
+            ADR 0004
+          </a>
+          .
+        </p>
       </section>
 
       <section id="variancia">

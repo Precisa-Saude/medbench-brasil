@@ -200,14 +200,17 @@ export default function LeaderboardTable({
                 {model.isDecisionModel === true && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="ml-2 cursor-help rounded border border-ps-violet/40 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-ps-violet">
+                      <Link
+                        className="ml-2 rounded border border-ps-violet/40 px-1.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-wide text-ps-violet hover:bg-ps-violet/10"
+                        to="/metodologia#modelos-de-decisao"
+                      >
                         decisão
-                      </span>
+                      </Link>
                     </TooltipTrigger>
                     <TooltipContent>
                       Modelo de decisão: recebe a questão como pergunta tipada e devolve a
                       alternativa com vetor de probabilidades, sem gerar texto. O protocolo é
-                      diferente do restante da tabela; ver metodologia.
+                      diferente do restante da tabela. Clique para ver a seção na metodologia.
                     </TooltipContent>
                   </Tooltip>
                 )}
