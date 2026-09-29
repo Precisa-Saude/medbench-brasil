@@ -444,3 +444,37 @@ describe('systemOneProvider', () => {
     await expect(provider().run(INPUT)).rejects.toThrow(/erro 400/);
   });
 });
+
+describe('anthropicProvider — effort fixado (#73)', () => {
+  function corpo() {
+    const chamada = (
+      globalThis.fetch as unknown as { mock: { calls: [string, { body: string }][] } }
+    ).mock.calls[0]!;
+    return JSON.parse(chamada[1].body) as Record<string, unknown>;
+  }
+
+  it.each(['claude-opus-5-5', 'claude-opus-5', 'claude-fable-5-1', 'claude-sonnet-5'])(
+    'envia output_config.effort=high em %s',
+    async (model) => {
+      mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+      await anthropicProvider({ apiKey: 'k', model }).run(INPUT);
+      // O Opus 5.5 tem default `medium`; os demais, `high`. Sem fixar, dois
+      // modelos da mesma família eram medidos com esforço diferente.
+      expect(corpo().output_config).toEqual({ effort: 'high' });
+    },
+  );
+
+  it('não envia effort para modelo que não aceita o parâmetro', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    // Haiku 4.5 não está na lista supportedModels da Anthropic; mandar o
+    // parâmetro devolveria 400.
+    await anthropicProvider({ apiKey: 'k', model: 'claude-haiku-4-5-20251001' }).run(INPUT);
+    expect(corpo()).not.toHaveProperty('output_config');
+  });
+
+  it('grava o effort no requestParams para auditoria', async () => {
+    mockFetchResponse({ body: { content: [{ text: 'A', type: 'text' }] } });
+    const res = await anthropicProvider({ apiKey: 'k', model: 'claude-opus-5-5' }).run(INPUT);
+    expect(res.requestParams).toMatchObject({ output_config: { effort: 'high' } });
+  });
+});

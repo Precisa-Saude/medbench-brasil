@@ -49,6 +49,27 @@ function anthropicModelQuirks(model: string): {
  * `THINKS_BY_DEFAULT` — é por isso que essas famílias precisam de um
  * `max_tokens` maior.
  */
+/**
+ * Nível de esforço fixo do benchmark. Ver #73 e `docs/methodology.md`.
+ * Alterar exige ADR, como qualquer parâmetro do protocolo canônico.
+ */
+export const EFFORT = 'high';
+
+/**
+ * Modelos que aceitam `output_config.effort`, conforme a lista `supportedModels`
+ * da documentação da Anthropic. Enviar o parâmetro para um modelo que não o
+ * aceita devolve 400, então a checagem é por prefixo de família.
+ *
+ * Gerações anteriores (Opus 4.1 e abaixo, Sonnet 4.5, Haiku) não aceitam.
+ */
+function modelSupportsEffort(model: string): boolean {
+  return (
+    /^claude-(fable|mythos)-5/.test(model) ||
+    /^claude-opus-(4-[5-9]|5)/.test(model) ||
+    /^claude-sonnet-(4-6|5)/.test(model)
+  );
+}
+
 export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
   const { defaultMaxTokens, omitTemperature } = anthropicModelQuirks(opts.model);
@@ -66,10 +87,26 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       if (!apiKey) {
         throw new Error('ANTHROPIC_API_KEY ausente — defina no ambiente antes de rodar o harness.');
       }
+      const supportsEffort = modelSupportsEffort(opts.model);
+      // `effort` fixado em `high` e registrado, nunca deixado no default do
+      // fornecedor (#73).
+      //
+      // Os defaults DIVERGEM entre modelos: a Anthropic documenta `high` em
+      // todos os modelos que aceitam o parâmetro, exceto o Opus 5.5, que usa
+      // `medium` — "a request that omits effort runs one level lower than it
+      // did on Claude Opus 5". Sem fixar, dois modelos da mesma família eram
+      // medidos com esforço diferente, e o ADR 0002 não cobria isso porque o
+      // parâmetro não existia quando foi escrito.
+      //
+      // `high` é o valor escolhido por ser o default de 8 dos 9 modelos do
+      // roster: fixá-lo mantém esses oito com comportamento idêntico ao já
+      // medido ("setting effort to the model's default produces exactly the
+      // same behavior as omitting the parameter"), e muda só o Opus 5.5.
       const requestParams = {
         max_tokens: maxTokens,
         messages: [{ content: input.userPrompt, role: 'user' }],
         model: opts.model,
+        ...(supportsEffort ? { output_config: { effort: EFFORT } } : {}),
         system: input.systemPrompt,
         ...(omitTemperature ? {} : { temperature }),
       } as const;

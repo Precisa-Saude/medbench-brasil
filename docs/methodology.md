@@ -13,6 +13,19 @@ Medir, de forma reproduzível e honesta, o desempenho de modelos de linguagem em
 4. **Três execuções por modelo**. Reportamos média e intervalo de confiança 95% (Wilson score), calculado sobre questões independentes (não replicadas).
 5. **Temperatura 0** e `max_tokens` mínimo necessário para emitir a letra. Todos os parâmetros são registrados em `results/<modelo>/<edição>/run-<n>.jsonl`.
 6. **Modelos locais** (vLLM, Ollama): modo completion puro, sem scaffolding de ferramentas.
+7. **Nível de esforço fixo em `high`** nos modelos que expõem o parâmetro, registrado em cada artefato — nunca deixado no default do fornecedor.
+
+### Por que o esforço é fixado
+
+Alguns fornecedores expõem um controle de quanto o modelo "pensa" antes de responder. Na Anthropic é `output_config.effort`, com cinco níveis (`low`, `medium`, `high`, `xhigh`, `max`).
+
+O problema é que **o default varia entre modelos da mesma família**. A Anthropic documenta `high` como default em todos os modelos que aceitam o parâmetro, exceto o Claude Opus 5.5, que usa `medium` — nas palavras da própria documentação, "a request that omits effort runs one level lower than it did on Claude Opus 5". Uma requisição que simplesmente omite o parâmetro mede modelos diferentes sob esforços diferentes, o que quebra a comparabilidade que o [ADR 0002](development/adr/0002-integridade-do-benchmark.md) existe para garantir.
+
+Fixamos em `high` porque é o default de 8 dos 9 modelos Anthropic do roster. Como a documentação garante que "setting effort to the model's default produces exactly the same behavior as omitting the parameter", fixar `high` deixa esses oito com comportamento idêntico ao que já havia sido medido, e altera apenas o Opus 5.5 — que rodava um nível abaixo dos demais.
+
+O valor efetivo vai para o `requestParams` de cada registro, de modo que é possível auditar depois sob qual esforço um número foi medido. Modelos que não aceitam o parâmetro (gerações anteriores, Haiku) não o recebem, porque enviá-lo devolveria erro 400.
+
+Alterar esse nível exige ADR, como qualquer outro parâmetro do protocolo canônico. Ver [#73](https://github.com/Precisa-Saude/medbench-brasil/issues/73).
 
 ## Parsing da resposta
 
