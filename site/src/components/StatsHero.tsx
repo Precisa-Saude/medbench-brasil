@@ -8,7 +8,7 @@ export default function StatsHero({
       {stats.map((s) => (
         <div key={s.label} className="rounded-lg border bg-card p-4">
           <div className="text-xs tracking-wide text-muted-foreground uppercase">{s.label}</div>
-          <div className="mt-2 text-2xl font-semibold">{s.value}</div>
+          <div className="mt-2 text-3xl font-medium tracking-tight tabular-nums">{s.value}</div>
           {s.hint && <div className="mt-1 text-xs text-muted-foreground">{s.hint}</div>}
         </div>
       ))}

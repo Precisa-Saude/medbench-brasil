@@ -2,16 +2,15 @@ import { Link } from 'react-router-dom';
 
 import { PageContainer } from '../components/PageContainer';
 import { CodeBlock } from '../components/ui/code-block';
+import { TYPE } from '../lib/typography';
 
 export default function Reproducao() {
   return (
     <PageContainer>
       <div className="space-y-10">
         <header>
-          <h1 className="font-sans text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Reprodução
-          </h1>
-          <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          <h1 className={TYPE.pageTitle}>Reprodução</h1>
+          <p className={`mt-6 max-w-3xl ${TYPE.lead}`}>
             Todo o harness é código aberto. Você pode rodar exatamente a mesma avaliação contra
             qualquer modelo — proprietário via API ou open-weight local — usando suas próprias
             chaves. Abaixo, o caminho completo em seis passos.
@@ -19,7 +18,7 @@ export default function Reproducao() {
         </header>
 
         <section className="space-y-4">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Pacotes</h2>
+          <h2 className={TYPE.h2}>Pacotes</h2>
           <p>
             O projeto publica dois pacotes npm independentes — use o que se encaixa no seu fluxo:
           </p>
@@ -69,18 +68,14 @@ export default function Reproducao() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            1. Clone e instale
-          </h2>
+          <h2 className={TYPE.h2}>1. Clone e instale</h2>
           <CodeBlock language="bash">{`git clone https://github.com/Precisa-Saude/medbench-brasil.git
 cd medbench-brasil
 pnpm install`}</CodeBlock>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            2. Configure a chave do fornecedor
-          </h2>
+          <h2 className={TYPE.h2}>2. Configure a chave do fornecedor</h2>
           <p>
             Crie um arquivo <code>.env.local</code> na raiz do repositório com as chaves dos
             backends que pretende usar. O harness carrega esse arquivo automaticamente no startup.
@@ -100,9 +95,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
         </section>
 
         <section className="space-y-4">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            3. Rode a avaliação
-          </h2>
+          <h2 className={TYPE.h2}>3. Rode a avaliação</h2>
           <p className="text-muted-foreground">
             O protocolo é idêntico para todos os backends: zero-shot, sem ferramentas, três
             execuções por questão. Veja a{' '}
@@ -113,7 +106,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </p>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">Anthropic</h3>
+            <h3 className={TYPE.h3}>Anthropic</h3>
             <CodeBlock language="bash">{`pnpm --filter @precisa-saude/medbench-harness exec medbench \\
   --backend anthropic --model claude-opus-4-7 \\
   --edition revalida-2025-1 --runs 3 \\
@@ -121,7 +114,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">OpenAI</h3>
+            <h3 className={TYPE.h3}>OpenAI</h3>
             <CodeBlock language="bash">{`pnpm --filter @precisa-saude/medbench-harness exec medbench \\
   --backend openai --model gpt-5.4 \\
   --edition revalida-2025-1 --runs 3 \\
@@ -129,7 +122,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">Google (Gemini)</h3>
+            <h3 className={TYPE.h3}>Google (Gemini)</h3>
             <CodeBlock language="bash">{`pnpm --filter @precisa-saude/medbench-harness exec medbench \\
   --backend google --model gemini-2.5-pro \\
   --edition revalida-2025-1 --runs 3 \\
@@ -137,7 +130,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">Maritaca AI (Sabiá)</h3>
+            <h3 className={TYPE.h3}>Maritaca AI (Sabiá)</h3>
             <p className="text-muted-foreground">
               Omita <code>--cutoff</code> quando o fornecedor não publica o corte de treino — o
               modelo fica sem classificação de contaminação, em vez de receber uma data inventada.
@@ -149,9 +142,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">
-              OpenRouter (Llama 4, DeepSeek, Qwen, etc.)
-            </h3>
+            <h3 className={TYPE.h3}>OpenRouter (Llama 4, DeepSeek, Qwen, etc.)</h3>
             <p className="text-muted-foreground">
               Gateway unificado para modelos open-weight sem hospedar localmente. Use o{' '}
               <code>modelId</code> no formato do{' '}
@@ -172,7 +163,7 @@ OPENROUTER_API_KEY=sk-or-...    # acesso unificado a modelos open-weight
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-sans text-lg font-semibold tracking-tight">Local via Ollama</h3>
+            <h3 className={TYPE.h3}>Local via Ollama</h3>
             <CodeBlock language="bash">{`# Em outro terminal:
 ollama pull qwen3:latest
 ollama serve
@@ -187,7 +178,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">4. Resultados</h2>
+          <h2 className={TYPE.h2}>4. Resultados</h2>
           <p>
             O harness grava <code>results/&lt;modelId&gt;.json</code> com precisão, IC95 Wilson,
             split por contaminação, breakdown por especialidade e edição, e uma linha por questão
@@ -196,9 +187,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            5. Visualize localmente
-          </h2>
+          <h2 className={TYPE.h2}>5. Visualize localmente</h2>
           <CodeBlock language="bash">{`pnpm --filter @medbench-brasil/site dev
 # Abra http://localhost:4321`}</CodeBlock>
           <p className="text-muted-foreground">
@@ -207,9 +196,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            6. Publique no leaderboard oficial
-          </h2>
+          <h2 className={TYPE.h2}>6. Publique no leaderboard oficial</h2>
           <p>
             Abra um PR com (a) o <code>results/&lt;edição&gt;/&lt;modelId&gt;.json</code> gerado e
             (b) uma entrada em <code>site/src/data/models.ts</code> chaveada pelo{' '}
@@ -240,7 +227,7 @@ pnpm --filter @precisa-saude/medbench-harness exec medbench \\
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Integridade</h2>
+          <h2 className={TYPE.h2}>Integridade</h2>
           <p>
             O harness nunca passa ferramentas, conectores ou histórico. O system prompt é literal e
             público. Três execuções por modelo. Todos os parâmetros de API são registrados. Qualquer

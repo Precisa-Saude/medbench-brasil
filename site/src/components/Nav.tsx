@@ -18,10 +18,10 @@ const GITHUB_URL = 'https://github.com/Precisa-Saude/medbench-brasil';
 
 const logo = (
   <Link
-    className="inline-flex h-full items-center gap-1.5 font-margem text-xl font-bold tracking-tight whitespace-nowrap text-white"
+    className="inline-flex h-full items-center gap-1.5 font-margem text-xl font-semibold tracking-tight whitespace-nowrap text-primary-foreground"
     to="/"
   >
-    <Activity className="h-6 w-6 shrink-0 text-white" />
+    <Activity className="h-6 w-6 shrink-0 text-ps-violet" />
     medbench-brasil
   </Link>
 );
@@ -46,8 +46,8 @@ export function Nav() {
             cn(
               'hidden h-full items-center justify-center border-b-2 font-margem text-base font-medium transition-colors lg:flex',
               isActive
-                ? 'border-white text-white'
-                : 'border-transparent text-white/70 hover:border-white hover:text-white',
+                ? 'border-white text-primary-foreground'
+                : 'border-transparent text-primary-foreground hover:border-white',
             )
           }
           style={{ gridColumn: `${link.col + offset} / span ${link.span}` }}
@@ -61,7 +61,7 @@ export function Nav() {
 
   const actions = (
     <a
-      className="hidden items-center justify-center gap-1.5 self-center rounded-full bg-white/15 px-4 py-2 font-margem text-sm font-medium text-white transition-colors hover:bg-white/25 lg:inline-flex"
+      className="hidden h-10 items-center justify-center gap-1.5 self-center rounded-full border border-white bg-transparent px-3 font-margem text-sm font-medium text-white transition-colors hover:border-ps-mint hover:bg-ps-mint hover:text-primary lg:inline-flex"
       href={GITHUB_URL}
       rel="noopener noreferrer"
       style={{ gridColumn: `${13 + offset} / span 2` }}
@@ -127,7 +127,7 @@ export function Nav() {
   return (
     <Header
       actions={actions}
-      className="border-b border-white/10 bg-ps-violet-dark/95 backdrop-blur-md"
+      className="border-b border-primary-foreground/20 bg-primary"
       containerClassName="mx-auto px-4 md:px-0"
       contentClassName="grid h-16 items-center gap-4"
       iconClassName="text-white"

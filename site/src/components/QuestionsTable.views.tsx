@@ -128,10 +128,8 @@ export function QuestionRow({
                 width: 'calc(12 * var(--col-w) + 11rem)',
               }}
             >
-              <div className="font-serif text-base leading-relaxed whitespace-pre-wrap">
-                {question.stem}
-              </div>
-              <ul className="space-y-1.5 font-serif text-base leading-relaxed">
+              <div className="text-base leading-relaxed whitespace-pre-wrap">{question.stem}</div>
+              <ul className="space-y-1.5 text-base leading-relaxed">
                 {(['A', 'B', 'C', 'D'] as const).map((letter) => (
                   <li
                     key={letter}
@@ -304,10 +302,8 @@ export function MobileQuestionCard({
       </button>
       {expanded && question && (
         <div className="space-y-3 bg-muted/20 px-4 py-4">
-          <div className="font-serif text-sm leading-relaxed whitespace-pre-wrap">
-            {question.stem}
-          </div>
-          <ul className="space-y-1.5 font-serif text-sm leading-relaxed">
+          <div className="text-sm leading-relaxed whitespace-pre-wrap">{question.stem}</div>
+          <ul className="space-y-1.5 text-sm leading-relaxed">
             {(['A', 'B', 'C', 'D'] as const).map((letter) => (
               <li
                 key={letter}

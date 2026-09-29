@@ -6,6 +6,7 @@ import { PageContainer } from '../components/PageContainer';
 import { CodeBlock } from '../components/ui/code-block';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 import { MODELS } from '../data/results';
+import { TYPE } from '../lib/typography';
 import MetodologiaSources from './Metodologia.Sources';
 
 export default function Metodologia() {
@@ -13,10 +14,8 @@ export default function Metodologia() {
     <PageContainer>
       <div className="space-y-10">
         <header>
-          <h1 className="font-sans text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Metodologia
-          </h1>
-          <p className="mt-6 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground sm:text-xl">
+          <h1 className={TYPE.pageTitle}>Metodologia</h1>
+          <p className={`mt-6 max-w-3xl ${TYPE.lead}`}>
             O medbench-brasil existe porque um leaderboard público só é útil se for reproduzível e
             honesto sobre suas limitações. Esta página documenta o protocolo exato usado para cada
             avaliação.
@@ -26,9 +25,7 @@ export default function Metodologia() {
         <TableOfContents />
 
         <section id="exames">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Exames avaliados
-          </h2>
+          <h2 className={TYPE.h2}>Exames avaliados</h2>
           <p className="mt-3">
             Desde outubro de 2025, Revalida e ENAMED são aplicados no mesmo dia, sob a{' '}
             <strong>Matriz de Referência Comum para a Avaliação da Formação Médica</strong>. São
@@ -43,9 +40,7 @@ export default function Metodologia() {
         </section>
 
         <section id="protocolo">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Protocolo de avaliação
-          </h2>
+          <h2 className={TYPE.h2}>Protocolo de avaliação</h2>
           <ul className="mt-3 list-disc list-inside space-y-1 text-foreground">
             <li>
               <TermTag term="Zero-shot">
@@ -75,27 +70,21 @@ export default function Metodologia() {
         </section>
 
         <section id="prompt">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            System prompt literal
-          </h2>
+          <h2 className={TYPE.h2}>System prompt literal</h2>
           <div className="mt-3">
             <CodeBlock>{SYSTEM_PROMPT}</CodeBlock>
           </div>
         </section>
 
         <section id="variancia">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Por que rodamos três vezes
-          </h2>
+          <h2 className={TYPE.h2}>Por que rodamos três vezes</h2>
           <p className="mt-3">
             Cada modelo é avaliado três vezes em cada edição; reportamos média e IC 95%. A mesma
             pergunta feita ao mesmo modelo pode render respostas diferentes entre rodadas, e a nota
             flutua por razões que vale explicitar.
           </p>
 
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-            A execução não é determinística
-          </h3>
+          <h3 className={`mt-8 ${TYPE.h3}`}>A execução não é determinística</h3>
           <p className="mt-3">
             <strong>Aritmética de GPU não é associativa.</strong> Em bf16 ou fp8, kernels reagrupam
             somas e produzem probabilidades ligeiramente distintas entre rodadas. Quando o modelo
@@ -116,7 +105,7 @@ export default function Metodologia() {
             diferentes.
           </p>
 
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+          <h3 className={`mt-8 ${TYPE.h3}`}>
             O nome do modelo é uma rota, não um artefato congelado
           </h3>
           <p className="mt-3">
@@ -139,9 +128,7 @@ export default function Metodologia() {
             hardware, quantização e stack próprios.
           </p>
 
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-            Como interpretar diferenças entre execuções
-          </h3>
+          <h3 className={`mt-8 ${TYPE.h3}`}>Como interpretar diferenças entre execuções</h3>
           <ul className="mt-3 list-disc list-inside space-y-1">
             <li>
               Com 85 questões e precisão típica de 80%, o IC95 (Wilson) tem meia-largura próxima de
@@ -164,9 +151,7 @@ export default function Metodologia() {
         </section>
 
         <section id="contaminacao">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Contaminação de treino
-          </h2>
+          <h2 className={TYPE.h2}>Contaminação de treino</h2>
           <p className="mt-3">
             Toda prova pública anterior ao corte de treino de um modelo é marcada como{' '}
             <em>provavelmente contaminada</em>. Relatamos precisão separadamente para edições limpas
@@ -191,9 +176,7 @@ export default function Metodologia() {
         </section>
 
         <section id="benchmarks-relacionados">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Benchmarks relacionados
-          </h2>
+          <h2 className={TYPE.h2}>Benchmarks relacionados</h2>
           <p className="mt-3">
             O medbench mede conhecimento de prova oficial: questões de múltipla escolha do INEP
             (ENAMED, Revalida, Enare), com gabarito pós-recurso e parsing determinístico de A/B/C/D.
@@ -227,9 +210,7 @@ export default function Metodologia() {
         </section>
 
         <section id="linha-de-base">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">
-            Linha de base humana e o sentido da nota de corte
-          </h2>
+          <h2 className={TYPE.h2}>Linha de base humana e o sentido da nota de corte</h2>
           <p className="mt-3">
             Cada gráfico por edição mostra três linhas: nota de corte oficial do edital INEP, média
             humana estimada (retrocalculada a partir da taxa de aprovação, assumindo distribuição
@@ -241,7 +222,7 @@ export default function Metodologia() {
             2023.2. A média real dos candidatos fica bem abaixo do corte.
           </p>
 
-          <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+          <h3 className={`mt-8 ${TYPE.h3}`}>
             Por que o corte é tão alto (e o que as instituições dizem)
           </h3>
           <p className="mt-3">

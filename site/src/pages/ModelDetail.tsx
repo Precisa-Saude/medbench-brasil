@@ -8,6 +8,7 @@ import { CodeBlock } from '../components/ui/code-block';
 import { EDITIONS, getEditionMetadata } from '../data/editions';
 import { findModel, MODELS } from '../data/results';
 import { specialtyLabel } from '../data/specialties';
+import { TYPE } from '../lib/typography';
 
 export default function ModelDetail() {
   const params = useParams<{ '*': string }>();
@@ -71,9 +72,7 @@ export default function ModelDetail() {
           <Link className="font-sans text-sm text-ps-violet underline" to="/">
             ← leaderboard
           </Link>
-          <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight sm:text-4xl">
-            {model.label}
-          </h1>
+          <h1 className={`mt-2 ${TYPE.pageTitle}`}>{model.label}</h1>
           <p className="mt-2 font-sans text-sm text-muted-foreground">
             {model.provider} · corte de treino:{' '}
             {model.trainingCutoff ? (
@@ -104,9 +103,7 @@ export default function ModelDetail() {
             )}
           </p>
           {model.description && (
-            <p className="mt-4 max-w-3xl font-serif text-lg leading-relaxed text-muted-foreground">
-              {model.description}
-            </p>
+            <p className={`mt-4 max-w-3xl ${TYPE.lead}`}>{model.description}</p>
           )}
         </header>
 
@@ -139,16 +136,12 @@ export default function ModelDetail() {
         </section>
 
         <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-4">
-            Perfil por especialidade
-          </h2>
+          <h2 className={`mb-6 ${TYPE.h2}`}>Perfil por especialidade</h2>
           <SpecialtyRadar data={radarData} />
         </section>
 
         <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
-            Dificuldade por área
-          </h2>
+          <h2 className={`mb-4 ${TYPE.h2}`}>Dificuldade por área</h2>
           <p className="mb-4 font-sans text-sm text-muted-foreground">
             Compara a precisão deste modelo com a média dos demais modelos no pool por área médica.
           </p>
@@ -175,9 +168,7 @@ export default function ModelDetail() {
         )}
 
         <section>
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl mb-2">
-            Precisão por edição
-          </h2>
+          <h2 className={`mb-4 ${TYPE.h2}`}>Precisão por edição</h2>
           {trendData.length >= 2 && (
             <div className="mb-4 rounded-lg border bg-card p-4">
               <TrendChart data={trendData} />
@@ -209,7 +200,7 @@ export default function ModelDetail() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Artefato bruto</h2>
+          <h2 className={TYPE.h2}>Artefato bruto</h2>
           <p className="text-sm text-muted-foreground">
             Abaixo, o JSON agregado consumido pelo site — união das execuções deste modelo em todas
             as edições. Um arquivo por edição fica em{' '}
@@ -257,7 +248,7 @@ function Card({ hint, label, value }: { hint?: string; label: string; value: str
   return (
     <div className="rounded-lg border bg-card p-4 font-sans">
       <div className="text-sm text-muted-foreground">{label}</div>
-      <div className="mt-2 text-2xl font-semibold">{value}</div>
+      <div className="mt-2 text-3xl font-medium tracking-tight tabular-nums">{value}</div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );

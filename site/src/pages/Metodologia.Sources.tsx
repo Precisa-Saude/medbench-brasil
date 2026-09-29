@@ -1,3 +1,5 @@
+import { TYPE } from '../lib/typography';
+
 /**
  * Seção "Fontes" da página Metodologia — referências ABNT NBR 6023:2018.
  *
@@ -39,12 +41,12 @@ function AbntRef({
 export default function MetodologiaSources() {
   return (
     <section id="fontes">
-      <h2 className="font-sans text-xl font-bold tracking-tight sm:text-2xl">Fontes</h2>
+      <h2 className={TYPE.h2}>Fontes</h2>
       <p className="mt-3 text-muted-foreground">
         Referências formatadas conforme ABNT NBR 6023:2018. Data de acesso: 20 abr. 2026.
       </p>
 
-      <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">Provas e gabaritos</h3>
+      <h3 className={`mt-8 ${TYPE.h3}`}>Provas e gabaritos</h3>
       <ul className="mt-3 space-y-3">
         <AbntRef
           author="INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA"
@@ -54,9 +56,7 @@ export default function MetodologiaSources() {
         />
       </ul>
 
-      <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-        Debate institucional sobre a nota de corte do Revalida
-      </h3>
+      <h3 className={`mt-8 ${TYPE.h3}`}>Debate institucional sobre a nota de corte do Revalida</h3>
       <ul className="mt-3 space-y-3">
         <AbntRef
           author="PAGNO, M."
@@ -102,9 +102,7 @@ export default function MetodologiaSources() {
         />
       </ul>
 
-      <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
-        Benchmarks médicos relacionados em pt-BR
-      </h3>
+      <h3 className={`mt-8 ${TYPE.h3}`}>Benchmarks médicos relacionados em pt-BR</h3>
       <ul className="mt-3 space-y-3">
         <AbntRef
           author="ABONIZIO, H.; LOPES, F. R.; LOTUFO, R.; NOGUEIRA, R."
@@ -120,7 +118,7 @@ export default function MetodologiaSources() {
         />
       </ul>
 
-      <h3 className="mt-6 font-sans text-lg font-semibold tracking-tight">
+      <h3 className={`mt-8 ${TYPE.h3}`}>
         Cortes de treino — documentação oficial dos fornecedores
       </h3>
       <p className="mt-3 text-sm text-muted-foreground">
