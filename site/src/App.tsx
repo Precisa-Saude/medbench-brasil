@@ -39,13 +39,34 @@ const SCROLL_INTERVALO = 100;
  * Qualquer rolagem do usuário cancela o ciclo, para não disputar o controle
  * com quem já decidiu ir para outro lugar.
  */
+/**
+ * Decodifica o hash, devolvendo `null` quando ele não é decodificável.
+ *
+ * `decodeURIComponent` lança `URIError` em sequência percent malformada, e um
+ * hash assim chega por URL digitada à mão ou link truncado. Sem o `try`, a
+ * exceção subia do efeito e derrubava a árvore inteira: `/metodologia#%` não
+ * renderizava página nenhuma, só tela vazia.
+ */
+export function decodificaHash(hash: string): string | null {
+  const cru = hash.slice(1);
+  if (!cru) return null;
+  try {
+    return decodeURIComponent(cru);
+  } catch {
+    // Vale tentar o valor cru: um id com `%` literal não decodifica, mas
+    // ainda pode casar com um elemento existente.
+    return cru;
+  }
+}
+
 function ScrollToHash() {
   const { hash, pathname } = useLocation();
 
   useEffect(() => {
     if (!hash) return;
 
-    const alvoId = decodeURIComponent(hash.slice(1));
+    const alvoId = decodificaHash(hash);
+    if (!alvoId) return;
     const inicio = Date.now();
     let timer: number | undefined;
     let anterior = -1;
