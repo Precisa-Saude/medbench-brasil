@@ -6,7 +6,7 @@ import type { ModelMetadata } from './types.js';
  * saem, sem geração de texto e sem `parseLetter`.
  *
  * Agrupados por protocolo, e não por fornecedor como os demais módulos,
- * porque é o protocolo que muda como o número deve ser lido — os dois
+ * porque é o protocolo que muda como o número deve ser lido. Os dois
  * fornecedores aqui têm um modelo cada.
  *
  * O Laya (`convaiinnovations/laya-multilingual`) foi medido nesta edição e
@@ -29,7 +29,7 @@ export const DECISION_MODELS: Record<string, ModelMetadata> = {
     tier: 'open-weight',
     // Corte de treino não publicado. O AGENTS.md proíbe inferir do modelo
     // base (Qwen3.5-4B-Base): o fine-tune posterior pode ter visto dado mais
-    // novo. Fica `unknown` — ver seção 8 do ADR 0004.
+    // novo. Fica `unknown`; ver seção 8 do ADR 0004.
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
   },
@@ -49,7 +49,7 @@ export const DECISION_MODELS: Record<string, ModelMetadata> = {
     releaseDate: '2026-09-17',
     tier: 'proprietaria',
     // Corte de treino não publicado pela Typesafe. Não se infere de data de
-    // release — ver seção 8 do ADR 0004.
+    // release. Ver seção 8 do ADR 0004.
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
   },

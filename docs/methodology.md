@@ -35,6 +35,31 @@ Pela OpenRouter o controle chega como `reasoning_effort` (estilo OpenAI), não c
 
 O que **não** se pode concluir: que a diferença entre a medição antiga (87,8%, esforço `medium`, rota direta) e a nova (89,4%, esforço `high`, OpenRouter) se deva ao esforço. Duas variáveis mudaram junto, e os intervalos de confiança das duas medições se sobrepõem amplamente — a diferença de 1,6 pp não é distinguível de ruído nesta prova. O registro existe para que ninguém leia o par como um experimento controlado de esforço.
 
+## Modelos de decisão
+
+Parte dos modelos do roster não gera texto. Recebem um estado e uma pergunta
+tipada, e devolvem a alternativa escolhida junto de um vetor de probabilidades
+sobre A, B, C e D, num único passe. No leaderboard aparecem com o selo
+**decisão**.
+
+O que muda:
+
+- Não há parsing de letra, porque a alternativa vem em campo próprio. Os modos
+  de falha do `parseLetter` não se aplicam.
+- `max_tokens` e `temperature` não existem neste protocolo e ficam gravados
+  como `n/a`, para separar "não se aplica" de "não registramos".
+- O vetor de probabilidades é persistido por questão, o que permite recalcular
+  calibração depois. Nenhum provider generativo do roster expõe esse dado.
+
+O que continua igual: o texto do system prompt vai literal no campo de
+instruções, as quatro alternativas mantêm a ordem que o modelo generativo vê,
+e valem uma questão por requisição, três execuções e nenhuma ferramenta.
+
+A decisão completa está no [ADR 0004](development/adr/0004-modelos-de-decisao.md),
+incluindo o formato verificado na API, a regra de fixar versão em vez de usar
+alias móvel e o motivo de o Laya ficar fora da tabela, servindo de controle de
+protocolo.
+
 ## Parsing da resposta
 
 - Extraímos a primeira letra (A, B, C, D) do output bruto com regex case-insensitive, tolerando ruído

@@ -180,7 +180,7 @@ export const FORA_DO_LEADERBOARD: Record<string, string> = {
   // roteamento, guardrails e moderação, nunca para conhecimento médico, então
   // não há alegação do fornecedor a verificar e a linha seria lida como o que
   // ela não é.
-  'convaiinnovations/laya-multilingual': 'Controle de protocolo — ADR 0004, seção 10.',
+  'convaiinnovations/laya-multilingual': 'Controle de protocolo (ADR 0004, seção 10).',
 };
 
 export const MODELS: ModelResult[] = [...byModel.values()]
