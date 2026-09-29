@@ -1,3 +1,11 @@
+## [2.2.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.1.0...v2.2.0) (2026-09-29)
+
+### Features
+
+* **results:** ENAMED 2026 completa e modelos de decisão ([#74](https://github.com/Precisa-Saude/medbench-brasil/issues/74)) ([f1de21a](https://github.com/Precisa-Saude/medbench-brasil/commit/f1de21af24de362bb16ad3743d50f64792c6073c))
+* **site:** adiciona Fable 5.1, Opus 5.5 e Grok 4.7 ao registry ([#70](https://github.com/Precisa-Saude/medbench-brasil/issues/70)) ([05ae421](https://github.com/Precisa-Saude/medbench-brasil/commit/05ae421a4988e79561b79ea867aa06bbee485c1d)), closes [#60](https://github.com/Precisa-Saude/medbench-brasil/issues/60)
+* **site:** adota a linguagem visual da /laudos ([#72](https://github.com/Precisa-Saude/medbench-brasil/issues/72)) ([2ba247e](https://github.com/Precisa-Saude/medbench-brasil/commit/2ba247e4a35c64da6711874598854fce38e7955d)), closes [#463C6D](https://github.com/Precisa-Saude/medbench-brasil/issues/463C6D)
+
 ## [2.1.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.0.1...v2.1.0) (2026-09-28)
 
 ### Features
