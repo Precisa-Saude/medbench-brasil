@@ -90,6 +90,7 @@ export function systemOneProvider(opts: SystemOneOptions): Provider {
       const body = (await res.json()) as {
         answers?: Record<string, SystemOneAnswer>;
         model?: string;
+        truncated?: boolean | null;
         usage?: Record<string, unknown>;
       };
       const answer = body.answers?.[QUESTION_KEY];
@@ -114,7 +115,13 @@ export function systemOneProvider(opts: SystemOneOptions): Provider {
         confidence: answer.confidence ?? null,
         probabilities: answer.probabilities ?? null,
         resolvedModel: body.model ?? null,
-        truncated: false,
+        // Vem do provider, e `null` quando ele não informa. Antes era a
+        // constante `false`, o que gravava "não truncou" sem ninguém ter
+        // medido — exatamente a confusão entre "não se aplica" e "não
+        // registramos" que o ADR 0004 §6 existe para evitar. Um teto de
+        // contexto estourado silenciosamente é o tipo de coisa que viraria
+        // conclusão errada sobre o modelo.
+        truncated: body.truncated ?? null,
         usage: body.usage ?? null,
       });
 

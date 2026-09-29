@@ -416,7 +416,24 @@ describe('systemOneProvider', () => {
     expect(raw.confidence).toBe(0.9895);
     // Identidade real por trás de um alias móvel (ADR 0004 §4).
     expect(raw.resolvedModel).toBe('typesafe/jev-1.13-20260917');
-    expect(raw.truncated).toBe(false);
+  });
+
+  it('deixa truncated null quando o provider não informa', async () => {
+    // `false` aqui seria afirmar que não truncou sem ninguém ter medido.
+    // "não registramos" e "não se aplica" são coisas diferentes (ADR 0004 §6).
+    mockFetchResponse({ body: RESPOSTA_OK });
+    const res = await provider().run(INPUT);
+    const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+    expect(raw.truncated).toBeNull();
+  });
+
+  it('propaga truncated quando o provider informa', async () => {
+    for (const valor of [true, false]) {
+      mockFetchResponse({ body: { ...RESPOSTA_OK, truncated: valor } });
+      const res = await provider().run(INPUT);
+      const raw = JSON.parse(res.rawResponse) as Record<string, unknown>;
+      expect(raw.truncated).toBe(valor);
+    }
   });
 
   it('usa o caminho configurado — Kev e Jev diferem só nisso', async () => {
