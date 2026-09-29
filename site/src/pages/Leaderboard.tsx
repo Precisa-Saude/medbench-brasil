@@ -76,6 +76,45 @@ export default function Leaderboard() {
           </Link>
           .
         </p>
+        <details className="mx-auto mt-6 max-w-2xl rounded-md border border-border bg-muted/30 px-5 py-4">
+          <summary className={`cursor-pointer ${TYPE.h3}`}>
+            Por que um modelo mais novo às vezes aparece abaixo de um mais antigo?
+          </summary>
+          <div className={`mt-3 space-y-3 ${TYPE.meta}`}>
+            <p>
+              É comum supor que cada geração supera a anterior em tudo. Não é o que acontece — e
+              este ranking mostra vários casos do contrário. Alguns motivos:
+            </p>
+            <p>
+              <strong>Cada modelo é otimizado para alguma coisa.</strong> Boa parte dos lançamentos
+              recentes é ajustada para código, uso de ferramentas e tarefas de agente que rodam por
+              horas. Nada disso é o que uma prova de múltipla escolha em português mede. Ganhar
+              nessas frentes pode custar desempenho em conhecimento clínico em pt-BR.
+            </p>
+            <p>
+              <strong>A diferença pode não ser real.</strong> Cada escore vem com um intervalo de
+              confiança de 95%. Quando os intervalos de dois modelos se sobrepõem, a ordem entre
+              eles não é distinguível dos dados — a prova tem 85 questões pontuáveis, o que dá
+              resolução de poucos pontos percentuais, não de décimos.
+            </p>
+            <p>
+              <strong>Modelo antigo pode ter visto a prova.</strong> Escore em edição anterior ao
+              corte de treino do modelo entra como <em>contaminado</em>: pode refletir memorização,
+              não raciocínio. Por isso a visão recomendada é <strong>Apenas limpas</strong>.
+            </p>
+            <p>
+              <strong>Configuração também pesa.</strong> Alguns fornecedores expõem controles de
+              quanto o modelo "pensa" antes de responder, e o padrão varia de um modelo para outro
+              dentro da mesma família. Fixamos esse nível e registramos em cada medição, justamente
+              para que a comparação seja entre modelos e não entre configurações.
+            </p>
+            <p>
+              Nada disso quer dizer que o ranking está errado. Quer dizer que ele mede uma coisa
+              específica: acertar questões de prova médica brasileira, sem ferramentas e sem
+              consulta. É uma fatia estreita do que esses modelos fazem.
+            </p>
+          </div>
+        </details>
       </GridSection>
 
       <GridSection className="space-y-8" id="comparar">
