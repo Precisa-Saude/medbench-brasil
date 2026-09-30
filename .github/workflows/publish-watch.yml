@@ -10,15 +10,21 @@ name: Publish watch
 # publicação fora do fluxo (workflow comprometido, token vazado,
 # republicação manual).
 #
-# Cadência diária, não de 15 em 15 min: os seis repos consumidores já tinham
-# migrado para diário por conta própria — o template é que estava atrás, e um
-# `precisa sync` teria regredido todos eles para 96 execuções/dia. Isto é um
-# tripwire de publicação fora do fluxo, não um monitor de tempo real; o minuto
-# quebrado evita o pico de agendamentos no topo da hora.
+# Cadência semanal (segunda), não diária: são 8 repos publicando no npm, e
+# a 1 execução/dia cada isso dava ~240 runs verdes por mês — ruído que se
+# aprende a ignorar e que enterra os runs que importam (ci, refresh, release).
+#
+# Isto é um tripwire de publicação fora do fluxo, não um monitor de tempo
+# real: a janela de detecção passa de 1 para até 7 dias, o que é aceitável
+# porque estes repos publicam raramente e a issue aberta persiste até
+# alguém fechar. Precisando de resposta mais rápida num caso específico,
+# `workflow_dispatch` roda na hora.
+#
+# O minuto quebrado evita o pico de agendamentos no topo da hora.
 
 on:
   schedule:
-    - cron: '17 6 * * *'
+    - cron: '17 6 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -43,7 +49,7 @@ jobs:
         with:
           node-version: 22
 
-      # O job NÃO falha em divergência, de propósito: cron diário vermelho
+      # O job NÃO falha em divergência, de propósito: cron semanal vermelho
       # vira ruído que se aprende a ignorar. O alerta é a issue aberta no
       # passo final, que persiste até alguém fechar e não duplica.
       - name: Compare npm latest vs git tags
