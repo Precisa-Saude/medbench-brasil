@@ -113,10 +113,11 @@ Ver `docs/contamination.md` seção "Canary tests". Não bloqueante para v1; esc
 
 Decisões registradas em `docs/development/adr/`.
 
-- ADR 0001 — Estrutura em monorepo pnpm + turbo
-- ADR 0002 — Integridade do benchmark: protocolo canônico de inferência
-- ADR 0003 — Toolchain de extração de PDF (`@kreuzberg/node` + Tesseract `por+eng` + Claude `tool_use`)
+- ADR 0001: estrutura em monorepo pnpm + turbo
+- ADR 0002: integridade do benchmark, protocolo canônico de inferência
+- ADR 0003: toolchain de extração de PDF (`@kreuzberg/node` + Tesseract `por+eng` + Claude `tool_use`)
+- ADR 0004: modelos de decisão, protocolo equivalente
 
 Decisões pendentes de ADR:
 
-- **ADR 0004** — Uso de LLM para classificação por especialidade (decisão + prompt literal + taxa de concordância com revisão humana), a ser registrada quando a revisão humana por amostragem da Fase 2.3 for concluída
+- **ADR 0005**: uso de LLM para classificação por especialidade (decisão + prompt literal + taxa de concordância com revisão humana), a ser registrada quando a revisão humana por amostragem da Fase 2.3 for concluída. Este item estava reservado como 0004 até a numeração colidir com o ADR de modelos de decisão, que foi escrito e publicado primeiro.
