@@ -33,6 +33,24 @@ export const DECISION_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
   },
+  'jaredpalmer/kev-9b': {
+    description:
+      'Modelo de decisão de 9B parâmetros, adaptador LoRA sobre o Qwen3.5-9B-Base. Mesma família e mesmo protocolo do Kev 4B, com mais que o dobro de parâmetros.',
+    homepage: 'https://huggingface.co/jaredpalmer/kev-9b',
+    isDecisionModel: true,
+    label: 'Kev 9B',
+    modelId: 'jaredpalmer/kev-9b',
+    provider: 'Jared Palmer',
+    // Criação do repositório no Hugging Face (API `createdAt`,
+    // 2026-09-20T22:42:14Z). Mesma regra usada no Kev 4B: sem anúncio com
+    // data própria, registramos a data verificável.
+    releaseDate: '2026-09-20',
+    tier: 'open-weight',
+    // Corte de treino não publicado, e o AGENTS.md proíbe inferir do modelo
+    // base (Qwen3.5-9B-Base). Ver seção 8 do ADR 0004.
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   'typesafe/jev-1.13-20260917': {
     description:
       'Modelo de decisão da Typesafe, servido pelo endpoint de decisões da OpenRouter. Snapshot fixado: o alias `latest` não é usado, para que a medição continue reproduzível.',
