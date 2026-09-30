@@ -38,6 +38,8 @@ export default function FilterBar({
     <div className="flex flex-wrap items-center gap-2">
       {showEditionDropdown && (
         <Select
+          // Sem `items`, o gatilho mostra o id cru (revalida-2025-1) em vez do rótulo.
+          items={editionOptions.map((opt) => ({ label: opt.label, value: opt.id }))}
           value={editionId}
           onValueChange={(v) => {
             if (v !== null) onEditionChange?.(v);
@@ -68,7 +70,7 @@ export default function FilterBar({
                 aria-pressed={active}
                 className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   active
-                    ? 'border-primary/30 bg-primary/10 text-primary'
+                    ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
                 type="button"
