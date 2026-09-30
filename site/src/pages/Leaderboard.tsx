@@ -28,17 +28,19 @@ const SCOPE_ITEMS = [
 export default function Leaderboard() {
   const [scope, setScope] = useState<ContaminationScope>('clean');
   const preliminares = useMemo(() => editionsWithPreliminaryKey(), []);
-  const editionIds = useMemo(() => {
+  // Mais recente no topo; dentro do mesmo ano, ordem alfabética do rótulo.
+  const editionOptions = useMemo(() => {
     const ids = allEditionIds();
-    return ids.length > 0 ? ids : Object.keys(EDITIONS);
+    return (ids.length > 0 ? ids : Object.keys(EDITIONS))
+      .map((id) => ({
+        id,
+        label: EDITIONS[id]?.label ?? id,
+        year: EDITIONS[id]?.publishedAt.slice(0, 4) ?? '',
+      }))
+      .sort((a, b) => b.year.localeCompare(a.year) || a.label.localeCompare(b.label, 'pt-BR'))
+      .map(({ id, label }) => ({ id, label }));
   }, []);
-  const editionOptions = useMemo(
-    () => editionIds.map((id) => ({ id, label: EDITIONS[id]?.label ?? id })),
-    [editionIds],
-  );
-  // `editionIds` já vem ordenado alfabeticamente; o schema `revalida-YYYY-N`
-  // é cronológico, então o último elemento é sempre a edição mais recente.
-  const [edition, setEdition] = useState<string>(() => editionIds[editionIds.length - 1] ?? '');
+  const [edition, setEdition] = useState<string>(() => editionOptions[0]?.id ?? '');
 
   if (MODELS.length === 0) {
     return (

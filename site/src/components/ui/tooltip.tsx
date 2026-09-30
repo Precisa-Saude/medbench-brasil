@@ -58,11 +58,33 @@ const TooltipTrigger = React.forwardRef<
 });
 TooltipTrigger.displayName = 'TooltipTrigger';
 
+/**
+ * Com texto quebrado em várias linhas, a caixa fica na largura máxima mesmo
+ * que as linhas (equilibradas pelo text-balance) sejam mais curtas. Mede a
+ * linha mais larga e fixa a largura nela, para a caixa abraçar o texto. É um
+ * callback ref porque o Portal do Radix só monta o conteúdo depois do
+ * primeiro commit, quando um efeito do componente já rodou com o ref vazio.
+ */
+const hugText = (el: HTMLSpanElement | null) => {
+  if (!el) return;
+  el.style.width = '';
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const rects = [...range.getClientRects()];
+  if (rects.length < 2) return;
+  const left = Math.min(...rects.map((r) => r.left));
+  const right = Math.max(...rects.map((r) => r.right));
+  el.style.width = `${Math.ceil(right - left) + 1}px`;
+};
+
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ children, className, sideOffset = 4, ...props }, ref) => {
   const close = React.useContext(TooltipCloseContext);
+  // Recria o ref quando o texto muda, para medir de novo.
+  const textRef = React.useCallback(hugText, [children]);
+
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
@@ -75,7 +97,9 @@ const TooltipContent = React.forwardRef<
         onPointerDownOutside={() => close?.()}
         {...props}
       >
-        {children}
+        <span ref={textRef} className="block">
+          {children}
+        </span>
         <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-primary fill-primary" />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
