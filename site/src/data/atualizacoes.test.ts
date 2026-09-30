@@ -9,6 +9,19 @@ describe('formataData', () => {
     expect(formataData('2026-12-31')).toBe('31 dez 2026');
   });
 
+  it('não valida validade de calendário, e isso é deliberado', () => {
+    // A função troca o número do mês pelo nome e reordena os campos. Não
+    // constrói `Date` nem confere quantos dias o mês tem, então 29 de
+    // fevereiro passa igual em ano bissexto e em ano comum, e 31 de fevereiro
+    // também passa. Registrado como teste porque é limitação conhecida, não
+    // descuido: a entrada é uma lista curada de onze datas escritas à mão,
+    // conferidas contra o histórico do git, e validar calendário aqui
+    // resolveria um erro que a curadoria já resolve.
+    expect(formataData('2020-02-29')).toBe('29 fev 2020');
+    expect(formataData('2021-02-29')).toBe('29 fev 2021');
+    expect(formataData('2026-02-31')).toBe('31 fev 2026');
+  });
+
   it('devolve a entrada crua quando não consegue formatar', () => {
     // Nenhum destes deve lançar: a função entra no caminho de exibição, e
     // derrubar a abertura por causa de uma data mal digitada seria pior do
