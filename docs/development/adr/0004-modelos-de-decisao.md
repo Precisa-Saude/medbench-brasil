@@ -1,4 +1,4 @@
-# ADR 0004 — Modelos de decisão: protocolo equivalente
+# ADR 0004: modelos de decisão, protocolo equivalente
 
 **Data**: 2026-09-29
 **Status**: Proposto
@@ -26,7 +26,7 @@ cumpridas ao pé da letra por um modelo de decisão:
 - **Regra 1** (system prompt literal e fixo): não há campo de system prompt.
   A instrução vive dentro da definição da pergunta tipada.
 - **Regra 6** (modelos locais em modo completion puro): não existe modo
-  completion — o modelo não gera tokens.
+  completion, porque o modelo não gera tokens.
 
 As regras 2, 3, 4 e 5 continuam aplicáveis sem alteração.
 
@@ -46,7 +46,7 @@ As regras 2, 3, 4 e 5 continuam aplicáveis sem alteração.
 | Resposta do modelo                     | `argmax` do vetor de probabilidades                                             |
 
 O enunciado vai como `state` sem reformatação. As quatro alternativas vão como
-as opções da pergunta `choice`, na ordem A, B, C, D — a mesma ordem que o
+as opções da pergunta `choice`, na ordem A, B, C, D, a mesma ordem que o
 modelo generativo vê, para que posição não vire variável entre protocolos.
 
 A string de instrução tem o mesmo papel do system prompt: é fixa, é a mesma
@@ -55,10 +55,10 @@ Alterá-la exige novo ADR, exatamente como alterar o system prompt.
 
 ### 2. Regras que permanecem
 
-- **Regra 2** — uma questão por requisição, sem histórico entre questões.
-- **Regra 3** — zero tools, RAG ou scaffolding.
-- **Regra 4** — três execuções independentes por modelo.
-- **Regra 5** — todos os parâmetros registrados em `results/`.
+- **Regra 2**: uma questão por requisição, sem histórico entre questões.
+- **Regra 3**: zero tools, RAG ou scaffolding.
+- **Regra 4**: três execuções independentes por modelo.
+- **Regra 5**: todos os parâmetros registrados em `results/`.
 
 ### 3. Determinismo
 
@@ -68,7 +68,7 @@ reportado como **determinístico**, e não com um IC 95% artificial de largura
 zero apresentado como se fosse medida de variabilidade.
 
 Isso não relaxa a regra 4: as três execuções continuam sendo feitas, porque é
-o que detecta não-determinismo quando ele existe — e a #71 mostrou que
+o que detecta não-determinismo quando ele existe. A #71 mostrou que
 `temperature: 0` não garante reprodutibilidade quando o serving é quantizado.
 
 ### 4. Versão fixada, nunca alias
@@ -91,11 +91,11 @@ A resposta do endpoint devolve um campo `model`, mas ele **só serve de
 conferência no Jev**: o OpenRouter resolve o alias e responde com o snapshot
 datado (`~typesafe/jev-latest` → `typesafe/jev-1.13-20260917`).
 
-No Kev é diferente — o servidor **ecoa de volta a string que você mandou**, sem
+No Kev é diferente. O servidor **ecoa de volta a string que você mandou**, sem
 validar. Verificado enviando `jaredpalmer/kev-4b`, `kev-4b` e `kev-latest` para
 o mesmo servidor: os três foram aceitos e devolvidos como vieram. A identidade
 real do Kev vem do argumento `--run` na subida do servidor, não da resposta, e
-por isso precisa ser registrada por fora — o campo `model` do artefato é um
+por isso precisa ser registrada por fora. O campo `model` do artefato é um
 rótulo que nós escolhemos, não uma confirmação do que rodou.
 
 ### 5. Formato verificado na API
@@ -114,7 +114,7 @@ POST https://openrouter.ai/api/alpha/decisions
 
 Duas diferenças em relação ao que a PRE-458 descreve, que valem registro:
 
-- as alternativas vão em **`criteria`**, não em `options` — mandar `options`
+- as alternativas vão em **`criteria`**, não em `options`. Mandar `options`
   passa na validação de schema e falha no upstream com "Choice question must
   have at least one choice";
 - modelos de decisão são **recusados** em `/chat/completions` com erro
@@ -127,27 +127,27 @@ além de `usage` com custo por chamada.
 
 Além dos campos que todo artefato já tem:
 
-- **vetor completo de probabilidades** por questão, não só o argmax — sem ele
+- **vetor completo de probabilidades** por questão, não só o argmax. Sem ele
   não há como recalcular calibração nem refazer o score depois;
 - **string de instrução** verbatim;
 - **identificação da versão**: version string (Jev), nome e hash do checkpoint
   (Kev e Laya);
 - **flag `truncated`** por questão, com contagem por edição;
 - `temperature` e `max_tokens` registrados como **não aplicáveis**, não como
-  ausentes — a distinção entre "não se aplica" e "não registramos" importa
+  ausentes, porque a distinção entre "não se aplica" e "não registramos" importa
   para auditoria.
 
 ### 7. Calibração reportada como medida
 
 A calibração (Brier) é reportada como medida, sem correção. Especificamente,
-não se ajusta temperatura nem se faz qualquer fit sobre edição de prova —
+não se ajusta temperatura nem se faz qualquer fit sobre edição de prova,
 isso contaminaria a medição com dados do próprio teste.
 
 ### 8. Corte de treino
 
 Vale a regra do `AGENTS.md` sem exceção: `trainingCutoff` só sai de artefato
 publicado pelo fornecedor. **Não se infere corte do modelo base** (Qwen no
-Kev, ModernBERT/mmBERT no Laya) — o fine-tune posterior pode ter visto dados
+Kev, ModernBERT/mmBERT no Laya), porque o fine-tune posterior pode ter visto dados
 mais novos. Sem artefato publicado, os dois campos ficam `undefined` e o
 modelo é classificado como `unknown`.
 
@@ -166,69 +166,66 @@ verdade, o `modelId` entra em `FORA_DO_LEADERBOARD` (em
 `site/src/data/results.ts`) com o motivo, e um teste garante que a exclusão
 não se perca numa refatoração.
 
-### 10. Laya entra como controle, não como linha do leaderboard
+### 10. Laya como controle de protocolo
 
-O Laya foi medido na ENAMED 2026 e **não** entra no leaderboard: sem entrada
-no registry e listado em `FORA_DO_LEADERBOARD`. A medição fica no
-repositório; a linha na tabela, não.
+O Laya foi medido na ENAMED 2026 e não entra no leaderboard. Não tem entrada
+no registry e está listado em `FORA_DO_LEADERBOARD`. A medição continua no
+repositório.
 
-O que foi medido: precisão 24,7% (63/255), IC95 19,8–30,3%, Macro-F1 19,4%.
-O acaso em quatro alternativas é 25% e está dentro do intervalo.
+Precisão de 24,7% (63/255), IC95 19,8–30,3%, Macro-F1 19,4%. O acaso em
+quatro alternativas é 25%, valor que cai dentro do intervalo.
 
-A medição é limpa, e isso foi verificado antes da decisão. Os 255 vetores de
-probabilidade somam 1,0, o argmax bate com a alternativa registrada, não
-houve erro de transporte e nenhuma questão truncou: a entrada real — enunciado
-mais pergunta mais alternativas — chega no máximo a 391 tokens, contra o teto
-de 1024 do checkpoint, então `max_len=8192` não mudaria nada. O número
-descreve o modelo, não a configuração.
+A medição foi verificada antes da decisão. Os 255 vetores de probabilidade
+somam 1,0, o argmax bate com a alternativa registrada e não houve erro de
+transporte. Nenhuma questão truncou: a entrada real, com enunciado, pergunta
+e alternativas, chega no máximo a 391 tokens contra o teto de 1024 do
+checkpoint, então passar `max_len=8192` não mudaria o resultado.
 
-Mesmo assim não vira linha, por três motivos:
+Três motivos para o número não virar linha:
 
 - **Não há alegação do fornecedor a verificar.** O model card posiciona o
-  Laya para roteamento, guardrails, moderação e classificação — os exemplos
-  próprios são triagem de ticket e detecção de pedido de reembolso. Em
-  nenhum momento a Convai afirma conhecimento médico ou raciocínio de prova.
-  Resultado nulo vale publicação quando contradiz uma alegação; aqui não há
-  o que contradizer.
+  Laya para roteamento, guardrails, moderação e classificação. Os exemplos
+  que a própria Convai dá são triagem de ticket e detecção de pedido de
+  reembolso. Em nenhum momento afirma conhecimento médico ou raciocínio de
+  prova. Resultado nulo vale publicação quando contradiz uma alegação, e aqui
+  não existe alegação.
 - **O piso já era conhecido por aritmética.** Saber 25% de antemão e medir
-  24,7% depois não muda o que o leitor sabe.
-- **A linha seria lida como o que ela não é.** 24,7% ao lado de 94% sugere
-  "o Laya é ruim", quando o medido é "um classificador de roteamento de 322M
-  não sabe medicina" — coisa que ninguém disputava.
+  24,7% depois acrescenta pouco a quem lê.
+- **A linha seria mal lida.** 24,7% ao lado de 94% sugere que o Laya é ruim.
+  O que foi medido é que um classificador de roteamento de 322M não sabe
+  medicina, coisa que ninguém disputava.
 
-O valor da medição é outro, e esse fica: **o Laya é o controle de protocolo
-do ADR.** Mesmo harness, mesmo contrato System One, mesma prova, mesma
-pergunta tipada — um modelo de decisão pontua no acaso e outro (Kev-4B) faz
-72,9%. Isso descarta a hipótese de que o protocolo, e não o modelo, produz o
-resultado do Kev. É a evidência que sustenta a seção 1 deste ADR, e ela só
-existe porque a rodada do Laya foi feita.
+O valor da rodada está em outro lugar. O Laya é o controle de protocolo deste
+ADR: mesmo harness, mesmo contrato System One, mesma prova, mesma pergunta
+tipada, e ainda assim um modelo de decisão pontua no acaso enquanto o Kev-4B
+faz 72,9%. Isso descarta a hipótese de que o resultado do Kev venha do
+protocolo. A seção 1 pressupõe essa evidência.
 
-A decisão se inverte se a Convai — ou alguém com audiência — passar a
-afirmar capacidade clínica ou de conhecimento para o Laya. Nesse caso existe
-alegação a verificar, a publicação passa a ser devida e o dado já está
-medido.
+A decisão se inverte se a Convai, ou alguém com audiência, passar a afirmar
+capacidade clínica para o Laya. Aí existe alegação a verificar, a publicação
+passa a ser devida e o dado já está medido.
 
 ## Consequências
 
 - O roster passa a comparar duas famílias de protocolo na mesma tabela. A
   flag é o que impede que isso seja lido como comparação direta.
 - O vetor de probabilidades habilita análise de calibração que os modelos
-  generativos não permitem — nenhum provider generativo do roster expõe
+  generativos não permitem. Nenhum provider generativo do roster expõe
   logprobs por alternativa sob este protocolo.
 - A precisão próxima do acaso do Laya se confirmou (24,7%, IC95 19,8–30,3%).
-  Não é falha de execução nem piso publicável: é o controle que separa o
-  efeito do protocolo do efeito do modelo, como registra a seção 10.
+  O número serve de controle para separar o efeito do protocolo do efeito do
+  modelo, como registra a seção 10.
 - `parseLetter` não participa deste caminho: não há texto para parsear. Os
   modos de falha de parsing que afetam modelos generativos não se aplicam.
 
 ## Alternativas descartadas
 
-- **Adaptar o system prompt ao formato de pergunta tipada** — o system prompt
+- **Adaptar o system prompt ao formato de pergunta tipada.** O system prompt
   do ADR 0002 é literal e fixo por decisão; reescrevê-lo para um subconjunto
   do roster quebraria a comparabilidade que ele existe para garantir.
-- **Usar só o argmax e descartar as probabilidades** — mais simples, mas
+- **Usar só o argmax e descartar as probabilidades.** Mais simples, mas
   jogaria fora o único sinal que torna calibração possível, e tornaria o
   rescore offline incapaz de recuperar qualquer coisa.
-- **Deixar os modelos de decisão fora do leaderboard, em página própria** —
+- **Deixar os modelos de decisão fora do leaderboard, em página própria.**
   evitaria a confusão de protocolo, mas esconderia justamente a comparação
   que motiva a PRE-458.
