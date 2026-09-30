@@ -2,6 +2,7 @@ import { ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import Atualizacoes from '../components/Atualizacoes';
 import { GridSection } from '../components/brand/GridSection';
 import ComparisonChart from '../components/ComparisonChart';
 import type { ContaminationScope } from '../components/ContaminationToggle';
@@ -165,6 +166,26 @@ export default function Leaderboard() {
           <SlidingToggle items={SCOPE_ITEMS} value={scope} onChange={(v) => setScope(v)} />
         </div>
         <SpecialtyHeatmap contaminationScope={scope} models={MODELS} />
+      </GridSection>
+
+      <GridSection className="space-y-8" id="atualizacoes">
+        <div className="flex flex-col items-start gap-4">
+          <h2 className={TYPE.sectionTitle}>Atualizações</h2>
+          <p className="max-w-2xl text-lg leading-relaxed text-foreground/75">
+            O que mudou no benchmark e quando. Entram edição nova, modelo novo, remedição e correção
+            de dado. Mudança de código que não altera número publicado fica no{' '}
+            <a
+              className="font-medium text-primary underline underline-offset-4 hover:decoration-2"
+              href="https://github.com/Precisa-Saude/medbench-brasil/blob/main/CHANGELOG.md"
+              rel="noreferrer"
+              target="_blank"
+            >
+              CHANGELOG
+            </a>
+            .
+          </p>
+        </div>
+        <Atualizacoes />
       </GridSection>
     </>
   );

@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { formataData, ultimaAtualizacao } from '../data/atualizacoes';
 import { EDITIONS } from '../data/editions';
 import { allEditionIds, MODELS } from '../data/results';
 import { TYPE } from '../lib/typography';
@@ -35,6 +36,8 @@ export function Hero() {
   const editionCount = allEditionIds().length || Object.keys(EDITIONS).length;
   const totalQuestions = MODELS.reduce((acc, m) => Math.max(acc, m.total / m.runsPerQuestion), 0);
   const runs = MODELS[0]?.runsPerQuestion ?? 3;
+
+  const atualizadoEm = ultimaAtualizacao();
 
   const stats = [
     { label: 'Modelos avaliados', value: String(MODELS.length) },
@@ -94,6 +97,16 @@ export function Hero() {
               Reproduza os testes
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
+            {/* Quem já conhece o site volta para saber se algum número mudou.
+                A data responde isso antes de qualquer rolagem. */}
+            {atualizadoEm !== undefined && (
+              <a
+                className="mt-4 flex w-fit items-center gap-2 font-sans text-sm text-primary/75 underline underline-offset-[5px] hover:decoration-2"
+                href="#atualizacoes"
+              >
+                Atualizado em {formataData(atualizadoEm)}
+              </a>
+            )}
           </div>
 
           {/* Painel lavanda opaco sobre o fundo geométrico, como a demonstração
