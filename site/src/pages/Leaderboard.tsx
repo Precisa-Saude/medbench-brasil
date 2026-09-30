@@ -13,6 +13,7 @@ import { SlidingToggle } from '../components/ui/sliding-toggle';
 import { editionsWithPreliminaryKey } from '../data/dataset';
 import { EDITIONS } from '../data/editions';
 import { allEditionIds, MODELS } from '../data/results';
+import { editionOptions as editionOptionsFor } from '../lib/edition-options';
 import { TYPE } from '../lib/typography';
 
 // "Apenas limpas" vem primeiro e é o default porque é a visão mais honesta:
@@ -28,17 +29,9 @@ const SCOPE_ITEMS = [
 export default function Leaderboard() {
   const [scope, setScope] = useState<ContaminationScope>('clean');
   const preliminares = useMemo(() => editionsWithPreliminaryKey(), []);
-  // Mais recente no topo; dentro do mesmo ano, ordem alfabética do rótulo.
   const editionOptions = useMemo(() => {
     const ids = allEditionIds();
-    return (ids.length > 0 ? ids : Object.keys(EDITIONS))
-      .map((id) => ({
-        id,
-        label: EDITIONS[id]?.label ?? id,
-        year: EDITIONS[id]?.publishedAt.slice(0, 4) ?? '',
-      }))
-      .sort((a, b) => b.year.localeCompare(a.year) || a.label.localeCompare(b.label, 'pt-BR'))
-      .map(({ id, label }) => ({ id, label }));
+    return editionOptionsFor(ids.length > 0 ? ids : Object.keys(EDITIONS));
   }, []);
   const [edition, setEdition] = useState<string>(() => editionOptions[0]?.id ?? '');
 

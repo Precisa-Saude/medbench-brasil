@@ -25,8 +25,10 @@ export function SlidingToggle<T extends string>({
 
   return (
     <div
+      // No celular ocupa a largura toda, com as opções divididas por igual;
+      // a partir de `sm` volta a ter a largura do conteúdo.
       className={cn(
-        'relative inline-grid rounded-full bg-card p-1 font-sans ring-1 ring-border',
+        'relative grid w-full rounded-full bg-card p-1 font-sans ring-1 ring-border sm:inline-grid sm:w-auto',
         className,
       )}
       style={{ gridTemplateColumns: `repeat(${count}, 1fr)` }}

@@ -51,6 +51,16 @@ function passRatio(m: ModelResult): { denominator: number; numerator: number } |
   };
 }
 
+/**
+ * No celular a tabela rola na horizontal; # e Modelo ficam presos à esquerda
+ * para a linha não perder a identificação. Fundo opaco igual ao da seção
+ * (`bg-muted`) para as colunas roladas não aparecerem por baixo, e um fio à
+ * direita marcando a borda. A partir de `md` a tabela cabe e nada fica preso.
+ */
+const PIN_RANK = 'max-md:sticky max-md:left-0 max-md:z-10 max-md:bg-muted';
+const PIN_MODEL =
+  'max-md:sticky max-md:left-12 max-md:z-10 max-md:bg-muted max-md:shadow-[inset_-1px_0_0_var(--border)]';
+
 export default function LeaderboardTable({
   contaminationScope,
   models,
@@ -123,8 +133,8 @@ export default function LeaderboardTable({
       <Table>
         <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="w-12">#</TableHead>
-            <TableHead>Modelo</TableHead>
+            <TableHead className={`w-12 ${PIN_RANK}`}>#</TableHead>
+            <TableHead className={PIN_MODEL}>Modelo</TableHead>
             <TableHead>Fornecedor</TableHead>
             <TableHead>Tier</TableHead>
             <SortableHead align="right" k="acc" label="Precisão" sort={sort} onClick={toggleSort} />
@@ -189,8 +199,10 @@ export default function LeaderboardTable({
         <TableBody>
           {pageRows.map(({ acc, d, model, pass }, idx) => (
             <TableRow key={model.modelId}>
-              <TableCell className="text-muted-foreground">{start + idx + 1}</TableCell>
-              <TableCell>
+              <TableCell className={`w-12 text-muted-foreground ${PIN_RANK}`}>
+                {start + idx + 1}
+              </TableCell>
+              <TableCell className={PIN_MODEL}>
                 <Link
                   className="font-medium text-ps-violet hover:underline"
                   to={`/models/${model.modelId}`}

@@ -1,5 +1,5 @@
 import { GridOverlay } from '@precisa-saude/ui/decorative';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import { Footer } from './components/Footer';
@@ -58,15 +58,34 @@ export function decodificaHash(hash: string): string | null {
  *
  * Qualquer rolagem do usuário cancela o ciclo, para não disputar o controle
  * com quem já decidiu ir para outro lugar.
+ *
+ * Esse ciclo instantâneo vale só ao chegar numa página. Dentro da mesma
+ * página, um clique em `#âncora` também muda o hash e disparava o ciclo, que
+ * cortava a rolagem suave do navegador com um salto; ali a rolagem é suave.
+ * Trocar de página sem hash volta ao topo, em vez de manter a posição da
+ * página anterior.
  */
 function ScrollToHash() {
   const { hash, pathname } = useLocation();
+  const paginaAnterior = useRef<null | string>(null);
 
   useEffect(() => {
-    if (!hash) return;
+    const mesmaPagina = paginaAnterior.current === pathname;
+    paginaAnterior.current = pathname;
+
+    if (!hash) {
+      if (!mesmaPagina) window.scrollTo({ behavior: 'instant', left: 0, top: 0 });
+      return;
+    }
 
     const alvoId = decodificaHash(hash);
     if (!alvoId) return;
+
+    if (mesmaPagina) {
+      // `auto` segue o CSS: suave, ou instantânea com movimento reduzido.
+      document.getElementById(alvoId)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      return;
+    }
     const inicio = Date.now();
     let timer: number | undefined;
     let anterior = -1;

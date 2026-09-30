@@ -10,11 +10,27 @@ import { useMemo, useState } from 'react';
 import { allQuestions } from '../data/dataset';
 import type { ModelResult, PerQuestionResult } from '../data/results';
 import { SPECIALTY_LABELS } from '../data/specialties';
+import { editionOptions } from '../lib/edition-options';
 import { MobileQuestionCard, QuestionRow } from './QuestionsTable.views';
 import { Pagination } from './ui/pagination';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from './ui/table';
 
 type Filter = 'all' | 'divergent' | 'no-one-correct' | 'all-correct';
+
+const FILTER_ITEMS: { label: string; value: Filter }[] = [
+  { label: 'Todas as questões', value: 'all' },
+  { label: 'Modelos divergem', value: 'divergent' },
+  { label: 'Ninguém acertou', value: 'no-one-correct' },
+  { label: 'Todos acertaram', value: 'all-correct' },
+];
+
+/** "Todas" primeiro; as especialidades em ordem alfabética. */
+const SPECIALTY_ITEMS = [
+  { label: 'Todas', value: 'all' },
+  ...Object.entries(SPECIALTY_LABELS)
+    .map(([value, label]) => ({ label, value }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR')),
+];
 
 export default function QuestionsTable({ models }: { models: ModelResult[] }) {
   const questions = useMemo(() => allQuestions(), []);
@@ -28,10 +44,20 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
     const withData = new Set<string>();
     for (const m of models) for (const p of m.perQuestion ?? []) withData.add(p.editionId);
     if (withData.size === 0) {
-      return [...new Set(questions.map((q) => q.editionId))].sort();
+      return editionOptions([...new Set(questions.map((q) => q.editionId))]);
     }
-    return [...withData].sort();
+    return editionOptions([...withData]);
   }, [models, questions]);
+
+  // Rótulos para o gatilho dos seletores: sem `items`, o Select do Base UI
+  // mostra o valor cru ("all", "revalida-2025-1") em vez do texto da opção.
+  const editionItems = useMemo(
+    () => [
+      { label: 'Todas', value: 'all' },
+      ...editions.map((e) => ({ label: e.label, value: e.id })),
+    ],
+    [editions],
+  );
 
   const [editionFilter, setEditionFilter] = useState<string>('all');
 
@@ -84,7 +110,7 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
       questionId: string;
       specialty: string[];
     }> = [];
-    const evaluatedEditions = new Set(editions);
+    const evaluatedEditions = new Set(editions.map((e) => e.id));
     for (const q of questions) {
       // Mesmo quando editionFilter === 'all', não queremos poluir a tabela
       // com edições sem avaliação (ex.: enamed-2025) — todas as células
@@ -129,15 +155,15 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-2 font-sans sm:gap-4">
         <FilterField label="Edição">
-          <Select value={editionFilter} onValueChange={onEditionChange}>
+          <Select items={editionItems} value={editionFilter} onValueChange={onEditionChange}>
             <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
               {editions.map((e) => (
-                <SelectItem key={e} value={e}>
-                  {e}
+                <SelectItem key={e.id} value={e.id}>
+                  {e.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -145,15 +171,15 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         </FilterField>
 
         <FilterField label="Especialidade">
-          <Select value={specialtyFilter} onValueChange={onSpecialtyChange}>
+          <Select items={SPECIALTY_ITEMS} value={specialtyFilter} onValueChange={onSpecialtyChange}>
             <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas</SelectItem>
-              {Object.entries(SPECIALTY_LABELS).map(([k, v]) => (
-                <SelectItem key={k} value={k}>
-                  {v}
+              {SPECIALTY_ITEMS.slice(1).map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -161,15 +187,20 @@ export default function QuestionsTable({ models }: { models: ModelResult[] }) {
         </FilterField>
 
         <FilterField label="Filtro">
-          <Select value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
+          <Select
+            items={FILTER_ITEMS}
+            value={filter}
+            onValueChange={(v) => onFilterChange(v as Filter)}
+          >
             <SelectTrigger className="h-9 w-full sm:w-[calc(2*var(--col-w)+1rem)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas as questões</SelectItem>
-              <SelectItem value="divergent">Modelos divergem</SelectItem>
-              <SelectItem value="no-one-correct">Ninguém acertou</SelectItem>
-              <SelectItem value="all-correct">Todos acertaram</SelectItem>
+              {FILTER_ITEMS.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </FilterField>
