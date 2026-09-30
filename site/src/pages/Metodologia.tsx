@@ -121,6 +121,11 @@ export default function Metodologia() {
           <li>Uma questão por requisição, três execuções por modelo, sem ferramentas.</li>
         </ul>
         <p className="mt-3 max-w-3xl text-foreground">
+          Nenhum dos fornecedores destes modelos publica corte de treino, então todos ficam como{' '}
+          <em>unknown</em> e não aparecem na visão <strong>Apenas limpas</strong> do ranking. Para
+          vê-los é preciso trocar para <strong>Todas as edições</strong>.
+        </p>
+        <p className="mt-3 max-w-3xl text-foreground">
           A decisão completa, incluindo o formato verificado na API e a regra de fixar a versão do
           modelo em vez de usar um alias móvel, está registrada no{' '}
           <a
@@ -218,9 +223,10 @@ export default function Metodologia() {
         <p className="mt-3">
           Os cortes vêm exclusivamente de artefatos publicados pelo fornecedor: docs de API, model
           card no Hugging Face, technical report no arXiv ou release notes. Quando o fornecedor não
-          publica o corte (caso atual de Mistral e Qwen), o modelo é classificado como{' '}
-          <em>unknown</em> e fica de fora de ambas as fatias. Não estimamos, porque o número vira
-          base para gráficos e decisões. A URL de cada corte está em{' '}
+          publica o corte, o modelo é classificado como <em>unknown</em> e fica de fora de ambas as
+          fatias. Não é caso raro: vale para boa parte do roster, entre eles DeepSeek, Mistral,
+          Qwen, Kimi K3, Gemini 3.6 Flash, Sabiá 4 Thinking e todos os modelos de decisão. Não
+          estimamos, porque o número vira base para gráficos e decisões. A URL de cada corte está em{' '}
           <code>site/src/data/models.ts</code> (<code>trainingCutoffSource</code>).
         </p>
         <p className="mt-3">
