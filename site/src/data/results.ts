@@ -25,6 +25,12 @@ export interface RawEvaluationArtifact {
   accuracy: number;
   accuracyByEdition?: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
   ci95: [number, number];
+  /**
+   * Em que se apoiou a classificação limpa/contaminada: corte declarado ou,
+   * sem ele, a data de publicação dos pesos (open-weight) como limite
+   * superior. Gravado pelo harness (`rescore --weights-release`).
+   */
+  contaminationBasis?: 'cutoff' | 'release-date';
   contaminationSplit: {
     clean: { accuracy: number; n: number } | null;
     contaminated: { accuracy: number; n: number } | null;
@@ -116,6 +122,10 @@ function combineArtifacts(artifacts: RawEvaluationArtifact[]): RawEvaluationArti
   let perQuestion: PerQuestionResult[] = [];
   let clean: SplitBucket = null;
   let contaminated: SplitBucket = null;
+  // Basta uma edição limpa pelo lançamento para a linha precisar dizer isso.
+  const contaminationBasis = artifacts.some((a) => a.contaminationBasis === 'release-date')
+    ? ('release-date' as const)
+    : artifacts.find((a) => a.contaminationBasis)?.contaminationBasis;
 
   for (const a of artifacts) {
     total += a.total;
@@ -131,6 +141,7 @@ function combineArtifacts(artifacts: RawEvaluationArtifact[]): RawEvaluationArti
     accuracy: total === 0 ? 0 : correct / total,
     accuracyByEdition,
     ci95: wilsonInterval(correct, total),
+    ...(contaminationBasis ? { contaminationBasis } : {}),
     contaminationSplit: { clean, contaminated },
     correct,
     modelId: first.modelId,

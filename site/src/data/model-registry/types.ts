@@ -25,6 +25,17 @@ interface ModelMetadataBase {
   provider: string;
   /** ISO YYYY-MM-DD do lançamento público do modelo. Usado no eixo X do scatter. */
   releaseDate: string;
+  /**
+   * URL publicada pelo fornecedor que fixa `releaseDate` (anúncio, notas de
+   * lançamento ou o commit dos pesos no repositório oficial do HF).
+   *
+   * Só é exigida quando a data decide classificação: em open-weight sem corte
+   * declarado, a data de publicação dos pesos vira limite superior do corte, e
+   * prova aplicada depois dela conta como limpa. Sem esta fonte o fallback não
+   * se aplica — data de lançamento sem procedência não pode virar "limpo".
+   * Ver docs/contamination.md.
+   */
+  releaseDateSource?: string;
   tier: ModelTier;
 }
 

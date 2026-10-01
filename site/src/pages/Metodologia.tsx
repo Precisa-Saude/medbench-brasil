@@ -230,6 +230,15 @@ export default function Metodologia() {
           <code>site/src/data/models.ts</code> (<code>trainingCutoffSource</code>).
         </p>
         <p className="mt-3">
+          Há uma exceção que não depende de estimativa: nenhum dado de treino pode ser posterior à
+          publicação dos pesos de um modelo aberto. Sem corte declarado, prova aplicada depois do
+          lançamento dos pesos conta como limpa, e a coluna de corte mostra{' '}
+          <code>≤ data de lançamento</code>. Prova anterior continua <em>unknown</em>: o lançamento
+          limita o corte por cima, mas não diz se a prova entrou no treino. A data vem do anúncio do
+          fornecedor, no dia exato. Proprietários ficam de fora, porque atrás do mesmo nome de API o
+          modelo pode mudar depois do lançamento.
+        </p>
+        <p className="mt-3">
           O recorte mais confiável é sempre a edição mais recente da INEP. A cada nova prova, o
           leaderboard ganha um ponto limpo para todos os modelos avaliados antes daquela data.
         </p>

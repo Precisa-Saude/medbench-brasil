@@ -59,6 +59,8 @@ describe('runEvaluation — happy path', () => {
     expect(result.modelId).toBe('mock-model');
     expect(result.runsPerQuestion).toBe(1);
     expect(result.perQuestion?.length).toBeGreaterThan(0);
+    // Mesmo campo que o `rescore` grava: a classificação veio do corte declarado.
+    expect(result.contaminationBasis).toBe('cutoff');
   });
 
   it('respeita priorRecords (resume) sem chamar o provider pra runs já feitos', async () => {

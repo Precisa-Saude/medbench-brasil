@@ -1,4 +1,5 @@
-export { getModelContaminationRisk } from './contamination.js';
+export type { ContaminationBasis } from './contamination.js';
+export { classifyContamination, getModelContaminationRisk, parseIsoDay } from './contamination.js';
 export { listEditions, loadAll, loadEdition } from './loader.js';
 export { SPECIALTIES } from './specialty.js';
 export type {

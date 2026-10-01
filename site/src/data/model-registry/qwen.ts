@@ -43,7 +43,10 @@ export const QWEN_MODELS: Record<string, ModelMetadata> = {
     label: 'Qwen 2.5 14B (MLX bf16)',
     modelId: 'mlx-community/Qwen2.5-14B-Instruct-bf16',
     provider: 'Alibaba · MLX local',
+    // Lançamento dos pesos originais da Qwen (a conversão MLX não muda o
+    // treino): blog "Qwen2.5: A Party of Foundation Models!", 19 set. 2024.
     releaseDate: '2024-09-19',
+    releaseDateSource: 'https://qwenlm.github.io/blog/qwen2.5/',
     tier: 'open-weight',
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
@@ -55,7 +58,11 @@ export const QWEN_MODELS: Record<string, ModelMetadata> = {
     label: 'Qwen 3 235B',
     modelId: 'qwen/qwen3-235b-a22b-2507',
     provider: 'Alibaba · OpenRouter',
-    releaseDate: '2025-07-01',
+    // Lançamento: README oficial "2025.07.21: We released the updated version
+    // of Qwen3-235B-A22B non-thinking mode, named Qwen3-235B-A22B-Instruct-2507".
+    // O valor anterior (2025-07-01) era um marcador de mês, não a data.
+    releaseDate: '2025-07-21',
+    releaseDateSource: 'https://github.com/QwenLM/Qwen3',
     tier: 'open-weight',
     trainingCutoff: undefined,
     trainingCutoffSource: undefined,
