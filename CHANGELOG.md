@@ -1,3 +1,25 @@
+## [2.3.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.2.1...v2.3.0) (2026-10-01)
+
+### Features
+
+* DeepSeek V4 Pro na ENAMED 2026 e data de lançamento dos pesos como limite do corte ([#84](https://github.com/Precisa-Saude/medbench-brasil/issues/84)) ([d005cda](https://github.com/Precisa-Saude/medbench-brasil/commit/d005cdadab1dd8e1b15235d829bbc9cbdbc6e85e)), closes [#71](https://github.com/Precisa-Saude/medbench-brasil/issues/71)
+* **results:** Kev-9B na ENAMED 2026 ([#83](https://github.com/Precisa-Saude/medbench-brasil/issues/83)) ([b56c0ed](https://github.com/Precisa-Saude/medbench-brasil/commit/b56c0ed18c564a746850a51577727a98e8aecb8b))
+* **site:** histórico público do que mudou no benchmark ([#79](https://github.com/Precisa-Saude/medbench-brasil/issues/79)) ([31faa43](https://github.com/Precisa-Saude/medbench-brasil/commit/31faa43aacd8bb64ccdd608f543431906de8cf9e))
+
+### Bug Fixes
+
+* **site:** filtros de Questões com rótulo e ordem, rolagem suave e colunas fixas no ranking ([#82](https://github.com/Precisa-Saude/medbench-brasil/issues/82)) ([cec11d7](https://github.com/Precisa-Saude/medbench-brasil/commit/cec11d70421fffdad3e90f7277b43e73f1fea26b))
+* **site:** links de âncora passam a rolar até a seção ([#77](https://github.com/Precisa-Saude/medbench-brasil/issues/77)) ([f52ae3e](https://github.com/Precisa-Saude/medbench-brasil/commit/f52ae3e85d4daf5724a24c1991ee273083085fa7)), closes [#76](https://github.com/Precisa-Saude/medbench-brasil/issues/76)
+* **site:** tooltip na largura do texto e seletor de edições ordenado e com rótulo ([#80](https://github.com/Precisa-Saude/medbench-brasil/issues/80)) ([6c8f308](https://github.com/Precisa-Saude/medbench-brasil/commit/6c8f308782a3f86b0db9beba9fe96ac7f99365aa))
+
+### Documentation
+
+* estilo da casa no ADR 0004 e colisão de numeração ([#78](https://github.com/Precisa-Saude/medbench-brasil/issues/78)) ([4f44d54](https://github.com/Precisa-Saude/medbench-brasil/commit/4f44d54665c1fcab1b55686c6aae4fa7d03b9291))
+
+### Chores
+
+* **ci:** publish-watch passa de diário para semanal ([#81](https://github.com/Precisa-Saude/medbench-brasil/issues/81)) ([ddc02b9](https://github.com/Precisa-Saude/medbench-brasil/commit/ddc02b99a88cac880fc45cf65d360023800f5fc0)), closes [#58](https://github.com/Precisa-Saude/medbench-brasil/issues/58)
+
 ## [2.2.1](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.2.0...v2.2.1) (2026-09-29)
 
 ### Bug Fixes
