@@ -188,10 +188,10 @@ export default function MetodologiaSources() {
           url="https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct"
         />
         <AbntRef
-          author="GUO, D. et al."
-          imprint="arXiv:2501.12948, 22 jan. 2025"
+          author="DEEPSEEK-AI et al."
+          imprint="arXiv:2501.12948v2, 4 jan. 2026"
           title="DeepSeek-R1: incentivizing reasoning capability in LLMs via reinforcement learning"
-          url="https://arxiv.org/abs/2501.12948"
+          url="https://arxiv.org/abs/2501.12948v2"
         />
         <AbntRef
           author="ALMEIDA, T. S. et al."

@@ -191,7 +191,7 @@ export default function LeaderboardTable({
               k="cutoff"
               label="Corte treino"
               sort={sort}
-              tooltip="Data até a qual o fornecedor coletou dados de treino. Define o que é limpo vs contaminado."
+              tooltip="Data até a qual o fornecedor coletou dados de treino. Define o que é limpo vs contaminado. Em modelo aberto sem corte declarado, ≤ data marca o lançamento dos pesos: o corte é no máximo essa data."
               onClick={toggleSort}
             />
           </TableRow>
@@ -278,8 +278,16 @@ export default function LeaderboardTable({
               >
                 {pass ? `${pass.numerator}/${pass.denominator}` : '—'}
               </TableCell>
-              <TableCell className="text-right font-mono text-muted-foreground">
-                {model.trainingCutoff ?? '—'}
+              <TableCell
+                className="text-right font-mono text-muted-foreground"
+                title={
+                  !model.trainingCutoff && model.contaminationBasis === 'release-date'
+                    ? 'Sem corte declarado. Limite pela data de lançamento dos pesos: edição aplicada depois dela conta como limpa.'
+                    : undefined
+                }
+              >
+                {model.trainingCutoff ??
+                  (model.contaminationBasis === 'release-date' ? `≤ ${model.releaseDate}` : '—')}
               </TableCell>
             </TableRow>
           ))}

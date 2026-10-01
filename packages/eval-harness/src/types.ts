@@ -1,4 +1,4 @@
-import type { Question, QuestionOption } from '@precisa-saude/medbench-dataset';
+import type { ContaminationBasis, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
 
 import type { RawCoverage } from './raw-coverage.js';
 
@@ -97,6 +97,13 @@ export interface EvaluationResult {
    */
   accuracyByEdition?: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
   ci95: [number, number];
+  /**
+   * Em que se apoiou a classificação de contaminação: corte declarado ou, sem
+   * ele, a data de lançamento dos pesos como limite superior. Ausente quando
+   * a classificação é `unknown` e em artefatos anteriores ao fallback (que só
+   * conheciam o corte declarado).
+   */
+  contaminationBasis?: ContaminationBasis;
   contaminationSplit: {
     clean: { accuracy: number; n: number } | null;
     contaminated: { accuracy: number; n: number } | null;

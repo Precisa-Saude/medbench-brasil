@@ -38,6 +38,27 @@ export const TIPO_LABEL: Record<TipoDeAtualizacao, string> = {
 /** Mais recente primeiro. */
 export const ATUALIZACOES: readonly Atualizacao[] = [
   {
+    data: '2026-09-30',
+    resumo:
+      'Nove medições de modelos abertos sem corte de treino publicado deixam de ser "unknown": a prova foi aplicada depois da publicação dos pesos, então não pode estar no treino. Provas anteriores ao lançamento seguem "unknown".',
+    tipo: 'medicao',
+    titulo: 'Data de lançamento dos pesos como limite do corte',
+  },
+  {
+    data: '2026-09-30',
+    resumo:
+      'O DeepSeek V4 Pro tira 95,7% na ENAMED 2026, medido sobre os mesmos pesos de abril avaliados na ENAMED 2025.',
+    tipo: 'modelos',
+    titulo: 'DeepSeek V4 Pro na ENAMED 2026',
+  },
+  {
+    data: '2026-09-30',
+    resumo:
+      'Os provedores deixaram de servir o R1 original; o único que resta devolve a resposta vazia em boa parte das chamadas. Os escores das edições anteriores continuam publicados, mas não são reproduzíveis hoje.',
+    tipo: 'modelos',
+    titulo: 'DeepSeek R1 fica fora da ENAMED 2026',
+  },
+  {
     data: '2026-09-29',
     pr: 74,
     resumo:

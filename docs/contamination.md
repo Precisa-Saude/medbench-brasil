@@ -8,9 +8,9 @@ Todas as provas do Revalida são publicadas pela INEP e estão indexadas publica
 
 Para cada modelo, cada edição é classificada em:
 
-- **`likely-clean`** — edição publicada após o corte de treino declarado do modelo
-- **`likely-contaminated`** — edição publicada antes ou na mesma data do corte
-- **`unknown`** — corte de treino não declarado pelo fornecedor
+- **`likely-clean`** — edição publicada após o corte de treino declarado do modelo, ou, sem corte declarado, após a publicação dos pesos (ver [Fallback pela data de lançamento dos pesos](#fallback-pela-data-de-lançamento-dos-pesos))
+- **`likely-contaminated`** — edição publicada antes ou na mesma data do corte declarado
+- **`unknown`** — corte de treino não declarado e o fallback não se aplica
 
 A implementação está em `packages/dataset/src/contamination.ts`.
 
@@ -50,7 +50,34 @@ Auto-declaração não substitui documentação: é comportamento treinado, repe
 
 A Anthropic publica dois cutoffs por modelo: **training data cutoff** (janela ampla do corpus) e **reliable knowledge cutoff** (data até onde o conhecimento é "most extensive and reliable"). Usamos o training data cutoff por ser o mais conservador para contaminação — qualquer dado dentro da janela pode ter sido memorizado.
 
-Na DeepSeek, o único corte oficial é o do V3-Base (jul/2024), atestado no paper do DeepSeek-R1 (arXiv:2501.12948) ao justificar a decontaminação do R1. Esse valor vale **apenas para o R1**: não é herdado pelos snapshots V3-0324 e V3.1, porque ambos passaram por etapas posteriores com dados de data não divulgada — pós-treinamento no 0324, extensão de long-context com "additional long documents" no 3.1. Herdar o corte da base subestimaria a janela real de memorização, então esses snapshots ficam `undefined`, como registrado em `model-registry/open-weights.ts`.
+Na DeepSeek, o único corte oficial é o do V3-Base (jul/2024), atestado no paper do DeepSeek-R1 (arXiv:2501.12948v2, revisão de 4 jan. 2026; a frase não está na v1) ao justificar a decontaminação do R1. Esse valor vale **apenas para o R1**: não é herdado pelos snapshots V3-0324 e V3.1, porque ambos passaram por etapas posteriores com dados de data não divulgada — pós-treinamento no 0324, extensão de long-context com "additional long documents" no 3.1. Herdar o corte da base subestimaria a janela real de memorização, então esses snapshots ficam `undefined`, como registrado em `model-registry/open-weights.ts`.
+
+## Fallback pela data de lançamento dos pesos
+
+Sem corte declarado, ainda há um limite que não depende de estimativa: nenhum dado de treino pode ser posterior à publicação dos pesos. Uma edição aplicada **depois** dessa data não pode ter entrado no treino, então conta como `likely-clean`. O corte declarado, quando existe, sempre prevalece.
+
+O fallback só vale como limite superior, nunca na outra direção. Uma edição aplicada **antes** do lançamento continua `unknown`: o lançamento diz até quando o corte pode ir, não se a prova entrou no corpus. O fallback nunca produz `likely-contaminated`.
+
+Três condições, todas obrigatórias:
+
+1. **Pesos imutáveis (`tier: 'open-weight'`).** Pesos publicados não mudam depois do lançamento. Num modelo proprietário servido por API, o fornecedor pode trocar o que está atrás do mesmo id, e a data de lançamento deixa de limitar o que o modelo viu. Proprietários ficam fora do fallback.
+2. **Sem `trainingCutoff`.** Com corte declarado, vale a regra principal.
+3. **Data com fonte publicada (`releaseDateSource`).** A data passa a decidir classificação, então segue a mesma regra do corte: vem de artefato do fornecedor (anúncio, notas de lançamento, README oficial ou o commit dos pesos no repositório oficial do HF), no dia exato. Quando o commit dos pesos e o anúncio diferem, vale o **anúncio**: o commit prova que os pesos existiam, não que o repositório já era público. Data aproximada (ex.: primeiro dia do mês como marcador) não serve.
+
+O artefato registra a base da classificação em `contaminationBasis` (`cutoff` ou `release-date`), e o site mostra `≤ <data de lançamento>` na coluna de corte desses modelos. O teste `site/src/data/results.test.ts` reprova se um artefato marcado `release-date` pertencer a modelo que não cumpre as três condições.
+
+Modelos com edições limpas por este fallback (verificado em 2026-09-30):
+
+| Modelo                     | Lançamento dos pesos | Fonte                                                               | Edições limpas               |
+| -------------------------- | -------------------- | ------------------------------------------------------------------- | ---------------------------- |
+| DeepSeek V4 Pro            | 2026-04-24           | [notas da DeepSeek](https://api-docs.deepseek.com/news/news260424)  | ENAMED 2026                  |
+| DeepSeek V3-0324           | 2025-03-25           | [notas da DeepSeek](https://api-docs.deepseek.com/news/news250325)  | Revalida 2025/1, ENAMED 2025 |
+| DeepSeek V3.1              | 2025-08-21           | [notas da DeepSeek](https://api-docs.deepseek.com/news/news250821/) | ENAMED 2025                  |
+| Mistral Large 2411         | 2024-11-18           | [anúncio da Mistral](https://mistral.ai/news/pixtral-large)         | Revalida 2025/1, ENAMED 2025 |
+| Qwen2.5 14B Instruct (MLX) | 2024-09-19           | [blog da Qwen](https://qwenlm.github.io/blog/qwen2.5/)              | Revalida 2025/1, ENAMED 2025 |
+| Qwen3 235B A22B 2507       | 2025-07-21           | [README da Qwen](https://github.com/QwenLM/Qwen3)                   | ENAMED 2025                  |
+
+A conversão MLX do Qwen2.5 usa a data dos pesos originais da Qwen: converter o formato não muda o treino.
 
 ## Alterando um cutoff
 
@@ -61,6 +88,14 @@ medbench rescore --from-raw --edition <id> --model <modelId> --cutoff <nova-data
 ```
 
 Para cada edição com raw.jsonl disponível. Omita `--cutoff` quando o novo valor for `undefined` (resulta em `unknown`).
+
+Para aplicar o fallback a um open-weight sem corte, passe a data verificada dos pesos:
+
+```bash
+medbench rescore --from-raw --edition <id> --model <modelId> --weights-release <AAAA-MM-DD>
+```
+
+Antes, registre `releaseDateSource` no registry; sem a fonte o teste do site reprova.
 
 ## A vantagem do benchmark vivo
 

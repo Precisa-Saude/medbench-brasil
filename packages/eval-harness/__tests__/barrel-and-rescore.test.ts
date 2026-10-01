@@ -256,4 +256,49 @@ describe('rescore', () => {
     expect(result.total).toBe(elegiveis);
     expect(result.total).toBe(result.rawCoverage!.observedRecords);
   });
+
+  // revalida-2025-1 foi aplicada em 2025-04-14.
+  describe('fallback pela data de lançamento dos pesos', () => {
+    function rescore(opts: { cutoff?: string; release?: string }) {
+      const rawPath = join(dir, `release-${opts.cutoff ?? '-'}-${opts.release ?? '-'}.jsonl`);
+      const { elegiveis, linhas } = logCompleto(1);
+      writeFileSync(rawPath, linhas.join('\n'), 'utf8');
+      const result = rescoreFromRaw({
+        editionId: 'revalida-2025-1',
+        modelId: 'mock-model',
+        rawLogPath: rawPath,
+        runsPerQuestion: 1,
+        trainingCutoff: opts.cutoff,
+        weightsReleaseDate: opts.release,
+      });
+      return { elegiveis, result };
+    }
+
+    it('sem corte, pesos publicados antes da prova tornam a edição limpa', () => {
+      const { elegiveis, result } = rescore({ release: '2024-11-18' });
+      expect(result.contaminationBasis).toBe('release-date');
+      expect(result.contaminationSplit.clean?.n).toBe(elegiveis);
+      expect(result.contaminationSplit.contaminated).toBeNull();
+    });
+
+    it('pesos publicados depois da prova não decidem nada', () => {
+      const { result } = rescore({ release: '2025-06-01' });
+      expect(result.contaminationBasis).toBeUndefined();
+      expect(result.contaminationSplit.clean).toBeNull();
+      expect(result.contaminationSplit.contaminated).toBeNull();
+    });
+
+    it('corte declarado prevalece', () => {
+      const { result } = rescore({ cutoff: '2025-06-01', release: '2024-11-18' });
+      expect(result.contaminationBasis).toBe('cutoff');
+      expect(result.contaminationSplit.clean).toBeNull();
+    });
+
+    it('rescoreFromScored preserva a base da classificação', () => {
+      const scoredPath = join(dir, 'scored-basis.json');
+      const { result } = rescore({ release: '2024-11-18' });
+      writeFileSync(scoredPath, JSON.stringify(result), 'utf8');
+      expect(rescoreFromScored(scoredPath).contaminationBasis).toBe('release-date');
+    });
+  });
 });

@@ -213,6 +213,7 @@ function runRescore(args: Record<string, string>) {
       rawLogPath,
       runsPerQuestion: Number(args.runs ?? 3),
       trainingCutoff: args.cutoff,
+      weightsReleaseDate: args['weights-release'],
     });
     const outPath = join(dir, `${slug}.json`);
     writeFileSync(outPath, JSON.stringify(result, null, 2));

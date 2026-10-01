@@ -8,12 +8,13 @@
 import { readFileSync } from 'node:fs';
 
 import type {
+  ContaminationBasis,
   ContaminationRisk,
   EditionId,
   Question,
   QuestionOption,
 } from '@precisa-saude/medbench-dataset';
-import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
+import { classifyContamination, loadEdition } from '@precisa-saude/medbench-dataset';
 
 import {
   describeRawCoverage,
@@ -25,6 +26,7 @@ import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, PerQuestionResult, RawResponseRecord } from './types.js';
 
 interface ScoredArtifact {
+  contaminationBasis?: ContaminationBasis;
   modelId: string;
   perQuestion?: PerQuestionResult[];
   runsPerQuestion: number;
@@ -54,7 +56,13 @@ export function rescoreFromScored(scoredJsonPath: string): EvaluationResult {
       });
     }
   }
-  return scoreRun(artifact.modelId, artifact.runsPerQuestion, records);
+  // A contaminação vem do `perQuestion` já persistido, então a base que a
+  // decidiu também precisa atravessar o re-score — sem isso um `rescore` geral
+  // apagaria a marcação de que o "limpo" veio da data de lançamento.
+  const result = scoreRun(artifact.modelId, artifact.runsPerQuestion, records);
+  return artifact.contaminationBasis
+    ? { ...result, contaminationBasis: artifact.contaminationBasis }
+    : result;
 }
 
 /**
@@ -80,6 +88,12 @@ export function rescoreFromRaw(options: {
   rawLogPath: string;
   runsPerQuestion: number;
   trainingCutoff: string | undefined;
+  /**
+   * Data de publicação dos pesos, usada como limite superior do corte quando
+   * `trainingCutoff` não foi declarado. Só para open-weight com data de fonte
+   * publicada — ver `classifyContamination` e docs/contamination.md.
+   */
+  weightsReleaseDate?: string;
 }): EvaluationResult {
   const raw = readFileSync(options.rawLogPath, 'utf8');
   const records: RawResponseRecord[] = [];
@@ -103,7 +117,11 @@ export function rescoreFromRaw(options: {
   }
 
   const edition = loadEdition(options.editionId);
-  const contamination = getModelContaminationRisk(edition, options.trainingCutoff);
+  const { basis, risk: contamination } = classifyContamination(
+    edition,
+    options.trainingCutoff,
+    options.weightsReleaseDate,
+  );
   const excludeImages = options.excludeImages ?? true;
   const excludeTables = options.excludeTables ?? true;
   const questions = new Map<string, Question>(
@@ -160,7 +178,8 @@ export function rescoreFromRaw(options: {
     return { contamination, correct: rec.correct, parsed: rec.parsed, question };
   });
 
-  const result = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  const scored = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
+  const result = basis ? { ...scored, contaminationBasis: basis } : scored;
   // Presença de `rawCoverage` no artefato = algo não fechou. Cobertura
   // completa não grava o campo, mantendo os artefatos estáveis byte a byte.
   return complete ? result : { ...result, rawCoverage: coverage };

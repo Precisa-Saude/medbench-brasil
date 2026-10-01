@@ -55,10 +55,17 @@ Opções de rescore:
   --out DIR                   (padrão: results/)
   --from-raw                  Reconstrói a partir de raw.jsonl em vez do
                               scored existente. Exige --edition, --model e
-                              opcionalmente --cutoff/--runs.
+                              opcionalmente --cutoff/--runs/--weights-release.
                               Valida a matriz questões-elegíveis × runs e
                               ABORTA se faltar registro, houver duplicata ou
                               run fora da faixa.
+  --weights-release YYYY-MM-DD
+                              (com --from-raw) Data de publicação dos pesos,
+                              usada como limite superior do corte quando o
+                              modelo não tem --cutoff declarado: edição
+                              posterior a ela conta como limpa. Só para
+                              open-weight com data de fonte publicada — ver
+                              docs/contamination.md.
   --allow-partial             (com --from-raw) pontua mesmo com cobertura
                               incompleta e grava rawCoverage no artefato.
                               Só para recuperação — o padrão reprova, para

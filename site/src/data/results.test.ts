@@ -31,3 +31,19 @@ describe('composição do leaderboard', () => {
     expect(semMetadado).toEqual([]);
   });
 });
+
+describe('fallback pela data de lançamento dos pesos', () => {
+  // O "limpo" pela data de lançamento só vale para pesos imutáveis, sem corte
+  // declarado e com a data de fonte publicada (docs/contamination.md). Um
+  // artefato re-escorado com --weights-release para um modelo fora dessas
+  // condições publicaria "limpo" sem base.
+  it('só aparece em open-weight sem corte declarado e com data de fonte publicada', () => {
+    const comFallback = MODELS.filter((m) => m.contaminationBasis === 'release-date');
+    expect(comFallback.length).toBeGreaterThan(0);
+    for (const m of comFallback) {
+      expect(m.tier, m.modelId).toBe('open-weight');
+      expect(m.trainingCutoff, m.modelId).toBeUndefined();
+      expect(m.releaseDateSource, m.modelId).toMatch(/^https:\/\//);
+    }
+  });
+});
