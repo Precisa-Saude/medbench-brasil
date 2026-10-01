@@ -9,6 +9,19 @@ import type { ContaminationRisk, Edition } from './types.js';
  */
 export type ContaminationBasis = 'cutoff' | 'release-date';
 
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Timestamp de uma data `AAAA-MM-DD` exata, ou `null`. Mais estrito que
+ * `Date.parse`, que aceita `"2025-07"` como 1º de julho: justamente o marcador
+ * de mês que a regra da data de lançamento proíbe virar limite do corte.
+ */
+export function parseIsoDay(value: string): number | null {
+  if (!ISO_DAY.test(value)) return null;
+  const ts = Date.parse(value);
+  return Number.isNaN(ts) ? null : ts;
+}
+
 /**
  * Classifica o risco de contaminação de uma edição para um modelo específico.
  *
@@ -54,8 +67,8 @@ export function classifyContamination(
   }
 
   if (weightsReleaseDate) {
-    const releaseTs = Date.parse(weightsReleaseDate);
-    if (!Number.isNaN(releaseTs) && editionTs > releaseTs) {
+    const releaseTs = parseIsoDay(weightsReleaseDate);
+    if (releaseTs !== null && editionTs > releaseTs) {
       return { basis: 'release-date', risk: 'likely-clean' };
     }
   }

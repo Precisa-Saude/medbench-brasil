@@ -19,7 +19,7 @@ loadDotenv({ path: '.env.local', quiet: true });
 loadDotenv({ quiet: true });
 
 import type { EditionId } from '@precisa-saude/medbench-dataset';
-import { loadEdition } from '@precisa-saude/medbench-dataset';
+import { loadEdition, parseIsoDay } from '@precisa-saude/medbench-dataset';
 
 import { parseArgs } from './cli/args.js';
 import type { Backend } from './cli/build-provider.js';
@@ -206,6 +206,12 @@ function runRescore(args: Record<string, string>) {
       console.log(`raw.jsonl não encontrado: ${rawLogPath}`);
       process.exit(1);
     }
+    const weightsRelease = args['weights-release'];
+    if (weightsRelease !== undefined && parseIsoDay(weightsRelease) === null) {
+      // Falhar alto: sem isso um valor malformado viraria `unknown` em silêncio.
+      console.log(`--weights-release exige data exata AAAA-MM-DD, recebeu "${weightsRelease}".`);
+      process.exit(1);
+    }
     const result = rescoreFromRaw({
       allowPartial: args['allow-partial'] === 'true',
       editionId: editionFilter as EditionId,
@@ -213,7 +219,7 @@ function runRescore(args: Record<string, string>) {
       rawLogPath,
       runsPerQuestion: Number(args.runs ?? 3),
       trainingCutoff: args.cutoff,
-      weightsReleaseDate: args['weights-release'],
+      weightsReleaseDate: weightsRelease,
     });
     const outPath = join(dir, `${slug}.json`);
     writeFileSync(outPath, JSON.stringify(result, null, 2));

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { classifyContamination, getModelContaminationRisk } from '../src/contamination.js';
+import {
+  classifyContamination,
+  getModelContaminationRisk,
+  parseIsoDay,
+} from '../src/contamination.js';
 
 describe('getModelContaminationRisk', () => {
   it('retorna likely-clean quando a edição é posterior ao corte', () => {
@@ -37,6 +41,18 @@ describe('fallback pela data de lançamento dos pesos', () => {
   it('o corte declarado prevalece sobre o lançamento', () => {
     const r = classifyContamination({ publishedAt: '2025-04-14' }, '2025-06-01', '2024-11-18');
     expect(r).toEqual({ basis: 'cutoff', risk: 'likely-contaminated' });
+  });
+
+  it('data de lançamento só vale no dia exato, nunca como marcador de mês', () => {
+    expect(getModelContaminationRisk({ publishedAt: '2026-09-13' }, undefined, '2025-07')).toBe(
+      'unknown',
+    );
+    expect(getModelContaminationRisk({ publishedAt: '2026-09-13' }, undefined, 'Jul 2025')).toBe(
+      'unknown',
+    );
+    expect(parseIsoDay('2025-07-21')).toBe(Date.parse('2025-07-21'));
+    expect(parseIsoDay('2025-07')).toBeNull();
+    expect(parseIsoDay('2025-13-40')).toBeNull();
   });
 
   it('data inválida não classifica', () => {
