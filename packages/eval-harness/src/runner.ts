@@ -1,5 +1,6 @@
 import type { Edition, EditionId, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
-import { getModelContaminationRisk, loadEdition } from '@precisa-saude/medbench-dataset';
+import type { ContaminationBasis } from '@precisa-saude/medbench-dataset';
+import { classifyContamination, loadEdition } from '@precisa-saude/medbench-dataset';
 
 import { SYSTEM_PROMPT } from './prompt.js';
 import { type RunRecord, scoreRun } from './scorer.js';
@@ -150,6 +151,7 @@ export async function runEvaluation(
   config: RunConfig,
 ): Promise<EvaluationResult> {
   const records: RunRecord[] = [];
+  let basis: ContaminationBasis | undefined;
 
   for (const editionId of config.editions) {
     const edition: Edition = loadEdition(editionId as EditionId);
@@ -160,7 +162,14 @@ export async function runEvaluation(
         (!config.excludeTables || !q.hasTable),
     );
 
-    const contamination = getModelContaminationRisk(edition, provider.trainingCutoff);
+    // O `eval` só conhece o corte declarado (o fallback pela data de
+    // lançamento entra via `rescore --weights-release`), mas grava a base
+    // como o `rescore` grava, para o campo significar o mesmo nos dois caminhos.
+    const { basis: editionBasis, risk: contamination } = classifyContamination(
+      edition,
+      provider.trainingCutoff,
+    );
+    if (editionBasis) basis = editionBasis;
 
     // Índice de resultados prévios (resume após falha parcial). Chave:
     // `${editionId}\t${questionId}\trun${run+1}`.
@@ -247,5 +256,6 @@ export async function runEvaluation(
     await Promise.all(Array.from({ length: concurrency }, () => worker()));
   }
 
-  return scoreRun(provider.id, config.runsPerQuestion, records);
+  const result = scoreRun(provider.id, config.runsPerQuestion, records);
+  return basis ? { ...result, contaminationBasis: basis } : result;
 }
