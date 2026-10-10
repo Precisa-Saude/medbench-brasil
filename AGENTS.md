@@ -61,29 +61,14 @@ When changing a `trainingCutoff`, rerun
 for each edition of the model, regenerating the persisted
 `contaminationSplit` in `results/`.
 
-## Justified template divergences
+## Local CI requirements
 
-Files the shared template would generate differently, whose local
-variant must survive `precisa sync`. Declared in `.precisa.json` under
-`ignoreTemplates`.
+The versioned tooling v3 review workflow uses a local Git diff, avoiding
+GitHub's 20,000-line diff API limit. Keep `exclude_paths: 'results/**
+**/*.raw.jsonl'` in the caller and the corresponding exclusions in the
+review policy when enabling external review.
 
-- **`.github/workflows/review.yml`** — the template builds the review
-  diff with `gh pr diff`, which fails with `HTTP 406` when the diff
-  exceeds GitHub's hard 20.000-line limit. Every results PR here passes
-  that (each model artifact is ~2.500 lines), so the review job died
-  before reviewing anything, and the workflow's own `MAX_DIFF_SIZE`
-  truncation never ran because it sits _after_ that call. The local
-  variant diffs with local git (the job already checks out with
-  `fetch-depth: 0`) and excludes `results/**` and `*.raw.jsonl` from
-  what the reviewer sees.
-
-  **This is a bug in the shared template, not a local preference.** The
-  ignore protects the fix from being reverted by a sync; the real fix
-  belongs upstream in `tooling`. Remove this entry once the template
-  carries the same change.
-
-- **`.commitlintrc.cjs`** and **`.prettierignore`** — predate this
-  section; see the diff against the template for what differs.
+`.commitlintrc.cjs` and `.prettierignore` remain repository-owned.
 
 ## Worktree — specific values
 
@@ -102,3 +87,11 @@ Launch a dev server in a feature worktree:
 ```bash
 pnpm exec precisa-worktree dev --detach   # from inside the worktree
 ```
+
+## Shared tooling maintenance
+
+Local configuration and workflow entrypoints belong to this repository.
+Use versioned package/workflow update PRs for shared changes. `precisa sync`
+is retired; use `precisa scaffold --only <path>` only to add missing files.
+Historical template-divergence notes above describe local requirements;
+`ignoreTemplates` is no longer needed to protect these files.

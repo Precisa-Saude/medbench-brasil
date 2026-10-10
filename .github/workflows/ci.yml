@@ -1,18 +1,9 @@
 name: CI/CD
 
-# Canonical CI/CD orchestrator — mirrors platform's split-workflow shape.
-# Each concern lives in its own reusable workflow under `.github/workflows/`:
-#
-#   _checks.yml       — parallel CI checks (lint, typecheck, format, build, test)
-#   _release.yml      — semantic-release with packages_changed guard
-#   _publish.yml      — npm publish pinned to release_sha
-#   _deploy-site.yml  — Cloudflare Pages deploy + Slack notify (repos with sites)
-#   review.yml        — automated Anthropic → OpenAI code review
-#   publish-tag.yml   — manual recovery (workflow_dispatch)
-#
-# Per-repo customization flows through `.precisa.json`:
-#   publishesToNpm + publishPackages[] gate the `publish` job
-#   hasSite + siteProjectName + siteFilter gate the `deploy-site` job
+# Esta entrada pertence ao repositório. Triggers, permissões, flags de release
+# e jobs específicos são editados aqui. As implementações compartilhadas são
+# chamadas por SHA; o Renovate propõe atualizações com revisão e CI.
+# `.precisa.json` fornece os valores iniciais durante a criação do repositório.
 
 on:
   push:
@@ -27,16 +18,7 @@ on:
         type: number
 
 permissions:
-  # `contents: write` porque _release.yml (reusable) precisa criar
-  # commits e tags via semantic-release. Workflows reusáveis só
-  # conseguem pedir permissões que o caller também concede.
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
-  # `models: read` pelo mesmo motivo: review.yml chama GitHub Models
-  # via GITHUB_TOKEN no fallback de providers.
-  models: read
+  contents: read
 
 # Cancela só em PR. O `push` deste workflow só dispara na branch padrão, e lá
 # o run publica no npm: cancelar no meio deixa a tag criada sem a versão
@@ -57,50 +39,71 @@ concurrency:
 jobs:
   # ── CI checks (every PR and push) ──────────────────────────────
   checks:
-    uses: ./.github/workflows/_checks.yml
-    secrets: inherit
+    permissions:
+      contents: read
+    uses: Precisa-Saude/tooling/.github/workflows/_checks.yml@7b42c968c2da27c702d05ae1cd282557581a918d # v3.0.0
 
   # ── Automated code review (PR, or manual dispatch, after checks) ─
   review:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
+      models: read
     needs: checks
     if: >-
       github.event_name == 'pull_request' ||
       (github.event_name == 'workflow_dispatch' && inputs.pr_number > 0)
-    uses: ./.github/workflows/review.yml
+    uses: Precisa-Saude/tooling/.github/workflows/review.yml@7b42c968c2da27c702d05ae1cd282557581a918d # v3.0.0
     with:
+      exclude_paths: 'results/** **/*.raw.jsonl'
       # fromJSON porque em workflow_dispatch o inputs.pr_number chega como
       # string (mesmo declarado `type: number` no input) e reprova o
       # type-check do input `number` do review.yml — o run conclui "failure"
       # na inicialização, sem criar job nenhum. Verificado no platform
       # (runs 32487421501/32488144271).
       pr_number: ${{ fromJSON(github.event.pull_request.number || inputs.pr_number || 0) }}
-    secrets: inherit
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   # ── Release (main only, guarded on package changes) ────────────
   release:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     needs: checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    uses: ./.github/workflows/_release.yml
-    secrets: inherit
+    uses: Precisa-Saude/tooling/.github/workflows/_release.yml@7b42c968c2da27c702d05ae1cd282557581a918d # v3.0.0
+    secrets:
+      RELEASE_APP_ID: ${{ secrets.RELEASE_APP_ID }}
+      RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
   # ── Publish to npm (when release created a new version) ────────
   publish:
+    permissions:
+      contents: read
+      id-token: write
     needs: release
     if: needs.release.outputs.released == 'true'
-    uses: ./.github/workflows/_publish.yml
+    uses: Precisa-Saude/tooling/.github/workflows/_publish.yml@7b42c968c2da27c702d05ae1cd282557581a918d # v3.0.0
     with:
       release_sha: ${{ needs.release.outputs.release_sha }}
       # Newline-separated list of package directories. One per line.
       packages: |
         packages/dataset
         packages/eval-harness
-    secrets: inherit
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   # ── Deploy site (Cloudflare Pages + Slack notify) ──────────────
   # Dispatch com pr_number é um re-run de review, não um pedido de deploy —
   # por isso o guard extra: sem ele, re-rodar o review de um PR redeployava
   # o site junto.
   deploy-site:
+    permissions:
+      contents: read
     needs: checks
     if: >-
       github.event_name == 'push' ||

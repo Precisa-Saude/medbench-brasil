@@ -23,17 +23,39 @@
       "labels": ["dependencies", "major-update"]
     },
     {
-      "matchPackagePatterns": ["^@precisa-saude/"],
-      "groupName": "precisa-saude packages"
+      "groupName": "precisa-saude packages",
+      "matchPackageNames": ["/^@precisa-saude//"]
     },
     {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "pinDigests": true
+    },
+    {
+      "matchPackageNames": [
+        "/^@precisa-saude/(agent-instructions|cli|commitlint-config|eslint-config|prettier-config|tsconfig|worktree-cli|themes|ui)$/",
+        "Precisa-Saude/tooling"
+      ],
+      "groupName": "precisa-tooling",
+      "groupSlug": "precisa-tooling",
+      "separateMajorMinor": false,
+      "automerge": false,
+      "rangeStrategy": "pin"
     }
   ],
   "vulnerabilityAlerts": {
     "labels": ["security"],
     "automerge": true
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=npm depName=(?<depName>@precisa-saude/cli)\\s+CLI_VERSION: [\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+)[\"']?"
+      ],
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "semver"
+    }
+  ]
 }
