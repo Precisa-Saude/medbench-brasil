@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "provider": "github-models",
+  "fallbackProviders": [],
+  "includePaths": ["packages/**/src/**"],
+  "excludePaths": ["**/fixtures/**", "results/**", "**/*.raw.jsonl", "**/data/**"],
+  "scanForSecretsBeforeSending": true,
+  "onSensitiveContent": "block"
+}
