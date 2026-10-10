@@ -48,7 +48,7 @@ concurrency:
 jobs:
   # ── CI checks (every PR and push) ──────────────────────────────
   checks:
-    uses: Precisa-Saude/tooling/.github/workflows/_checks.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
+    uses: Precisa-Saude/tooling/.github/workflows/_checks.yml@7a61cab18cac4aa7e2163f92dab77209109480de # v2.0.0
     secrets: inherit
 
   # ── Automated code review (PR, or manual dispatch, after checks) ─
@@ -71,14 +71,14 @@ jobs:
   release:
     needs: checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    uses: Precisa-Saude/tooling/.github/workflows/_release.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
+    uses: Precisa-Saude/tooling/.github/workflows/_release.yml@7a61cab18cac4aa7e2163f92dab77209109480de # v2.0.0
     secrets: inherit
 
   # ── Publish to npm (when release created a new version) ────────
   publish:
     needs: release
     if: needs.release.outputs.released == 'true'
-    uses: Precisa-Saude/tooling/.github/workflows/_publish.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
+    uses: Precisa-Saude/tooling/.github/workflows/_publish.yml@7a61cab18cac4aa7e2163f92dab77209109480de # v2.0.0
     with:
       release_sha: ${{ needs.release.outputs.release_sha }}
       # Newline-separated list of package directories. One per line.

@@ -1,4 +1,3 @@
-# Pré-requisito: publicar a migração do CLI e confirmar os pins com prepare-consumers.mjs.
 name: Requisitos do repositório
 
 on:

@@ -95,6 +95,8 @@ versão. Revise o changelog e aguarde o CI antes de adotar cada atualização.
 nos jobs de CI. Para adicionar um arquivo ausente, use
 `precisa scaffold --only <caminho> --dry-run`. Arquivos existentes são preservados.
 
-A migração inicial depende da publicação da versão maior do CLI. Confirme a
-versão e o SHA publicados com `tooling/scripts/prepare-consumers.mjs` antes
-de mesclar esta mudança. O pin inicial `2.0.0` deve ser reconciliado com essa release.
+A migração adota o CLI `2.0.0`, publicado no npm, e os workflows compartilhados
+da [release v2.0.0](https://github.com/Precisa-Saude/tooling/releases/tag/v2.0.0),
+fixados ao SHA `7a61cab18cac4aa7e2163f92dab77209109480de`. A versão e a tag foram
+conferidas por `tooling/scripts/prepare-consumers.mjs`; atualizações futuras
+continuam sendo revisadas em PRs do Renovate.
