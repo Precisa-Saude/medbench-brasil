@@ -102,3 +102,11 @@ Launch a dev server in a feature worktree:
 ```bash
 pnpm exec precisa-worktree dev --detach   # from inside the worktree
 ```
+
+## Shared tooling maintenance
+
+Local configuration and workflow entrypoints belong to this repository.
+Use versioned package/workflow update PRs for shared changes. `precisa sync`
+is retired; use `precisa scaffold --only <path>` only to add missing files.
+Historical template-divergence notes above describe local requirements;
+`ignoreTemplates` is no longer needed to protect these files.

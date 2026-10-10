@@ -1,18 +1,9 @@
 name: CI/CD
 
-# Canonical CI/CD orchestrator — mirrors platform's split-workflow shape.
-# Each concern lives in its own reusable workflow under `.github/workflows/`:
-#
-#   _checks.yml       — parallel CI checks (lint, typecheck, format, build, test)
-#   _release.yml      — semantic-release with packages_changed guard
-#   _publish.yml      — npm publish pinned to release_sha
-#   _deploy-site.yml  — Cloudflare Pages deploy + Slack notify (repos with sites)
-#   review.yml        — automated Anthropic → OpenAI code review
-#   publish-tag.yml   — manual recovery (workflow_dispatch)
-#
-# Per-repo customization flows through `.precisa.json`:
-#   publishesToNpm + publishPackages[] gate the `publish` job
-#   hasSite + siteProjectName + siteFilter gate the `deploy-site` job
+# Esta entrada pertence ao repositório. Triggers, permissões, flags de release
+# e jobs específicos são editados aqui. As implementações compartilhadas são
+# chamadas por SHA; o Renovate propõe atualizações com revisão e CI.
+# `.precisa.json` fornece os valores iniciais durante a criação do repositório.
 
 on:
   push:
@@ -57,7 +48,7 @@ concurrency:
 jobs:
   # ── CI checks (every PR and push) ──────────────────────────────
   checks:
-    uses: ./.github/workflows/_checks.yml
+    uses: Precisa-Saude/tooling/.github/workflows/_checks.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
     secrets: inherit
 
   # ── Automated code review (PR, or manual dispatch, after checks) ─
@@ -80,14 +71,14 @@ jobs:
   release:
     needs: checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    uses: ./.github/workflows/_release.yml
+    uses: Precisa-Saude/tooling/.github/workflows/_release.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
     secrets: inherit
 
   # ── Publish to npm (when release created a new version) ────────
   publish:
     needs: release
     if: needs.release.outputs.released == 'true'
-    uses: ./.github/workflows/_publish.yml
+    uses: Precisa-Saude/tooling/.github/workflows/_publish.yml@1d231f69c570aea4b70b3018a32da9ff9dd2ec1c # v1.16.0
     with:
       release_sha: ${{ needs.release.outputs.release_sha }}
       # Newline-separated list of package directories. One per line.

@@ -83,3 +83,18 @@ O medbench-brasil é um instrumento de avaliação e pesquisa. Não constitui ac
 ## Licença
 
 [Apache-2.0](LICENSE).
+
+## Tooling versionado
+
+A configuração deste repositório é mantida localmente. Atualizações de pacotes
+e workflows compartilhados chegam pela PR agrupada `precisa-tooling` do
+Renovate, com automerge desligado. Os workflows usam SHA com comentário de
+versão. Revise o changelog e aguarde o CI antes de adotar cada atualização.
+
+`precisa doctor` verifica requisitos estruturais; lint, build e testes rodam
+nos jobs de CI. Para adicionar um arquivo ausente, use
+`precisa scaffold --only <caminho> --dry-run`. Arquivos existentes são preservados.
+
+A migração inicial depende da publicação da versão maior do CLI. Confirme a
+versão e o SHA publicados com `tooling/scripts/prepare-consumers.mjs` antes
+de mesclar esta mudança. O pin inicial `2.0.0` deve ser reconciliado com essa release.
