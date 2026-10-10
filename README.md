@@ -100,3 +100,18 @@ da [release v2.0.0](https://github.com/Precisa-Saude/tooling/releases/tag/v2.0.0
 fixados ao SHA `7a61cab18cac4aa7e2163f92dab77209109480de`. A versão e a tag foram
 conferidas por `tooling/scripts/prepare-consumers.mjs`; atualizações futuras
 continuam sendo revisadas em PRs do Renovate.
+
+### Segurança dos workflows compartilhados
+
+Os workflows e o `precisa doctor` usam tooling v3.0.0. Antes de mesclar esta
+migração, a política `.github/review-policy.json` precisa estar em `main`. A
+revisão externa começa desativada; sua ativação exige um PR que autorize o
+provedor e os caminhos. O workflow lê a política do commit base, filtra o diff
+e bloqueia conteúdo sensível antes de qualquer envio. Não há fallback implícito.
+
+Checks têm acesso somente de leitura ao conteúdo. Release e publicação recebem
+permissões e segredos específicos para cada job.
+
+A publicação no npm exige aprovação no ambiente `npm-publish`. A recuperação
+manual por tag só aceita uma GitHub Release publicada cujo commit pertença à
+branch padrão; o checkout usa o SHA resolvido depois dessa validação.

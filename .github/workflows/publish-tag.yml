@@ -18,18 +18,60 @@ on:
 
 permissions:
   contents: read
-  # `id-token: write` is for Sigstore attestations (`--provenance`),
-  # not for npm auth — see _publish.yml for the full rationale.
-  id-token: write
 
 jobs:
+  resolve:
+    name: Validar release
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - name: Resolver tag publicada na branch padrão
+        id: release
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        with:
+          script: |
+            const tag = process.env.RELEASE_TAG;
+            if (!/^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
+              throw new Error('Informe uma tag de versão válida.');
+            }
+            const repo = { owner: context.repo.owner, repo: context.repo.repo };
+            const { data: release } = await github.rest.repos.getReleaseByTag({ ...repo, tag });
+            if (release.draft || release.tag_name !== tag) throw new Error('Release não publicada.');
+            const { data: ref } = await github.rest.git.getRef({ ...repo, ref: `tags/${tag}` });
+            let object = ref.object;
+            for (let depth = 0; object.type === 'tag' && depth < 5; depth++) {
+              const { data: annotated } = await github.rest.git.getTag({ ...repo, tag_sha: object.sha });
+              object = annotated.object;
+            }
+            if (object.type !== 'commit' || !/^[a-f0-9]{40}$/.test(object.sha)) {
+              throw new Error('A tag não aponta para um commit válido.');
+            }
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              ...repo, base: context.payload.repository.default_branch, head: object.sha,
+            });
+            if (!['identical', 'behind'].includes(comparison.status)) {
+              throw new Error('O commit da release não pertence à branch padrão.');
+            }
+            core.setOutput('sha', object.sha);
+            core.info(`Release validada: ${tag} (${object.sha})`);
+
   publish:
+    needs: resolve
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
     name: Publish tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
 
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
