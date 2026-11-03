@@ -1,3 +1,14 @@
+## [2.4.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.3.0...v2.4.0) (2026-11-03)
+
+### Features
+
+* **harness:** registra consumo de tokens e auditoria de chamadas ([#87](https://github.com/Precisa-Saude/medbench-brasil/issues/87)) ([7cbc88a](https://github.com/Precisa-Saude/medbench-brasil/commit/7cbc88ac13ec12bc5300ed4c6ddace28b6a7c465))
+
+### CI/CD
+
+* adotar tooling v3 versionado com política de revisão ([#85](https://github.com/Precisa-Saude/medbench-brasil/issues/85)) ([69a3ad3](https://github.com/Precisa-Saude/medbench-brasil/commit/69a3ad36c159bd353a33765e0eb3af4e832c5d03))
+* definir política explícita para revisão externa ([#86](https://github.com/Precisa-Saude/medbench-brasil/issues/86)) ([a28835b](https://github.com/Precisa-Saude/medbench-brasil/commit/a28835bf11129355a3736ee21758b193643f1fc3))
+
 ## [2.3.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.2.1...v2.3.0) (2026-10-01)
 
 ### Features
