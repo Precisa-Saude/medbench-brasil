@@ -1,6 +1,34 @@
 import type { ContaminationBasis, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
 
 import type { RawCoverage } from './raw-coverage.js';
+import type { TokenUsage, UsageSummary } from './usage.js';
+
+export interface ResponseMetadata {
+  endpoint: string;
+  provider?: string;
+  requestId?: string;
+  resolvedModel?: string;
+  responseId?: string;
+  serviceTier?: string;
+}
+
+export interface RequestAttemptRecord {
+  attempt: number;
+  attemptId: string;
+  editionId: string;
+  elapsedMs: number;
+  errorType?: string;
+  modelId: string;
+  outcome: 'success' | 'error';
+  provider: string;
+  purpose: 'eval' | 'smoke';
+  questionId: string;
+  responseMetadata?: ResponseMetadata;
+  run: number;
+  runId: string;
+  startedAt: string;
+  usage?: TokenUsage;
+}
 
 export interface Provider {
   /** Identificador estável no leaderboard (ex.: 'claude-sonnet-4-6'). */
@@ -25,9 +53,13 @@ export interface RunInput {
 }
 
 export interface ProviderResponse {
+  /** Preenchidos pelo observador de tentativas, não enviados à API. */
+  attemptId?: string;
   parsedAnswer: QuestionOption | null;
   rawResponse: string;
   requestParams: Record<string, unknown>;
+  responseMetadata?: ResponseMetadata;
+  startedAt?: string;
   /**
    * Motivo de parada declarado pelo provider (ex.: `end_turn`, `max_tokens`,
    * `refusal` na Anthropic). Preenchido só onde a API expõe o campo.
@@ -39,6 +71,7 @@ export interface ProviderResponse {
    */
   stopReason?: string;
   timings: { durationMs: number };
+  usage?: TokenUsage;
 }
 
 export interface RunConfig {
@@ -53,6 +86,7 @@ export interface RunConfig {
    * custo após falha no meio do run. Chave lógica: (editionId, questionId, run).
    */
   priorRecords?: RawResponseRecord[];
+  runId?: string;
   runsPerQuestion: number;
   /**
    * Callback invocado uma vez por chamada ao modelo, com a resposta bruta.
@@ -60,9 +94,11 @@ export interface RunConfig {
    * undefined, raw responses são descartadas após o parsing.
    */
   onRawResponse?: (record: RawResponseRecord) => void;
+  onRequestAttempt?: (record: RequestAttemptRecord) => void;
 }
 
 export interface RawResponseRecord {
+  attemptId?: string;
   correct: boolean;
   editionId: string;
   elapsedMs: number;
@@ -71,9 +107,13 @@ export interface RawResponseRecord {
   questionId: string;
   rawResponse: string;
   requestParams: Record<string, unknown>;
+  responseMetadata?: ResponseMetadata;
   run: number;
+  runId?: string;
+  startedAt?: string;
   /** Ver `ProviderResponse.stopReason`. Ausente em providers que não expõem. */
   stopReason?: string;
+  usage?: TokenUsage;
 }
 
 export interface PerQuestionResult {
@@ -133,4 +173,6 @@ export interface EvaluationResult {
   rawCoverage?: RawCoverage;
   runsPerQuestion: number;
   total: number;
+  /** Somente respostas aceitas no score, não o gasto de todas as tentativas. */
+  usage?: UsageSummary;
 }

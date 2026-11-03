@@ -15,6 +15,13 @@ ao medbench-brasil em três frentes:
 
 ## Contexto
 
+**Atualização de 03/11/2026:** a primeira entrega está implementada no
+worktree `feat/harness-usage`, incluindo breakdowns de reasoning/cache,
+metadata, ledger por tentativa e preservação em resume/rescore. Escopo e
+verificações em [`plano-harness-usage.md`](./plano-harness-usage.md).
+O contexto abaixo descreve a lacuna anterior à alteração. Preços, cálculo
+de USD e interface seguem na segunda entrega; nenhum run pago foi iniciado.
+
 - O harness **não captura `usage`** das respostas das APIs: nenhum
   provider (`packages/eval-harness/src/providers/*.ts`) lê os campos de
   tokens, e `RawResponseRecord`/`EvaluationResult`
@@ -33,28 +40,28 @@ ao medbench-brasil em três frentes:
 
 ## Fase 1 — Harness captura `usage` (PR 1)
 
-- [ ] **1.1 Tipos** — `ProviderResponse.usage?: { inputTokens: number;
+- [x] **1.1 Tipos** — `ProviderResponse.usage?: { inputTokens: number;
 outputTokens: number }` e o mesmo campo em `RawResponseRecord`.
       Opcional para back-compat com artefatos existentes.
-- [ ] **1.2 Providers** — parsear o campo de usage de cada API:
+- [x] **1.2 Providers** — parsear o campo de usage de cada API:
       Anthropic `usage.input_tokens/output_tokens`; OpenAI e
       OpenAI-compat `usage.prompt_tokens/completion_tokens`; Google
       `usageMetadata.promptTokenCount/candidatesTokenCount`. Quando a
       API não retornar o campo (ex.: Ollama local), `usage` fica
       `undefined` — nunca estimar por contagem própria.
-- [ ] **1.3 Agregação** — `EvaluationResult.usage?: { inputTokens;
+- [x] **1.3 Agregação** — `EvaluationResult.usage?: { inputTokens;
 outputTokens; callsWithUsage; totalCalls }` somado pelo scorer.
       `callsWithUsage < totalCalls` sinaliza cobertura parcial e o
       site trata como lacuna.
-- [ ] **1.4 Testes** — fixtures de resposta por provider com e sem
+- [x] **1.4 Testes** — fixtures de resposta por provider com e sem
       usage; cobertura ≥ 80% mantida.
-- [ ] **1.5 Nota no ADR 0002** — registrar que a mudança é só de
+- [x] **1.5 Nota no ADR 0002** — registrar que a mudança é só de
       logging de resposta (reforça a garantia 5); nenhum parâmetro de
       requisição muda, nenhuma garantia é afrouxada.
 
 ## Fase 2 — ADR 0005: metodologia de custo (PR 1, mesmo branch)
 
-- [ ] **2.1 Escrever `docs/development/adr/0005-metodologia-de-custo.md`**:
+- [x] **2.1 Escrever `docs/development/adr/0005-metodologia-de-custo.md`**:
   - Preço de tabela oficial do fornecedor (página de pricing da API),
     em USD por MTok, sem descontos de batch/cache.
   - Fonte obrigatória: URL + citação verbatim + data de acesso, no

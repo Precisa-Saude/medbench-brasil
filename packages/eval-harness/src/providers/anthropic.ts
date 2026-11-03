@@ -1,6 +1,7 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
 import type { ProviderBaseOptions } from './_http.js';
 import { fetchWithTimeout } from './_http.js';
+import { providerHttpError, responseAccounting } from './_usage.js';
 
 type AnthropicProviderOptions = ProviderBaseOptions;
 
@@ -128,7 +129,12 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
-        throw new Error(`Anthropic API erro ${res.status}: ${await res.text()}`);
+        throw await providerHttpError(
+          'Anthropic',
+          res,
+          'anthropic',
+          'https://api.anthropic.com/v1/messages',
+        );
       }
       const body = (await res.json()) as {
         content: Array<{ text?: string; type: string }>;
@@ -139,6 +145,7 @@ export function anthropicProvider(opts: AnthropicProviderOptions): Provider {
         .join('');
 
       return {
+        ...responseAccounting(res, body, 'anthropic', 'https://api.anthropic.com/v1/messages'),
         parsedAnswer: null,
         rawResponse,
         requestParams,

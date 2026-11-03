@@ -92,6 +92,33 @@ Específicas de `smoke`:
 
 ## Uso como biblioteca
 
+### Consumo e auditoria de chamadas
+
+Novas respostas incluem `usage` quando a API informa tokens válidos:
+`inputTokens` inclui cache e `outputTokens` inclui raciocínio. Nunca somar
+`reasoningTokens` novamente à saída. O score inclui o agregado e a cobertura
+`callsWithUsage/totalCalls`; ausência significa desconhecido, não gratuito.
+Raws antigos continuam legíveis e não recebem estimativas de tokens.
+
+`eval` e `smoke` registram cada tentativa em
+`results/<edition>/<model>.<eval|smoke>.requests.jsonl`, inclusive retries e
+erros. O ledger não é truncado por `--restart` e permanece ativo com
+`--no-raw-log`. Use `--out DIR` para mudar o destino. A CLI imprime somente
+o consumo novo da invocação; o agregado do score também inclui respostas
+reutilizadas por resume. `rescore` preserva consumo sem criar gasto novo.
+
+Para a biblioteca, persista `RunConfig.onRequestAttempt` além de
+`onRawResponse`; o primeiro recebe um evento por tentativa. `observeRequest`
+permite instrumentar chamadas individuais, como pilotos. UUIDs de tentativa
+ligam o ledger aos raws. Falha ao persistir auditoria interrompe o lote.
+
+O ledger mede consumo observado, não faturamento completo: tentativas sem
+usage, respostas perdidas ou processos interrompidos podem ter sido cobrados.
+Não somar raw e ledger. Para concatenar ledgers copiados, deduplicar por
+`attemptId`. Preços e custos em USD não são gravados nos resultados;
+estimativa por tabela e cobrança conciliada são conceitos distintos.
+Ver [ADR 0005](../../docs/development/adr/0005-metodologia-de-custo.md).
+
 ```ts
 import { runEvaluation, anthropicProvider, SYSTEM_PROMPT } from '@precisa-saude/medbench-harness';
 import type { Provider, RunConfig } from '@precisa-saude/medbench-harness';

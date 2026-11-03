@@ -18,6 +18,10 @@ Leaderboards de LLM são facilmente invalidados quando o protocolo de inferênci
 
 Qualquer alteração exige novo ADR e aprovação de mantenedor.
 
+O ADR 0005 acrescenta captura de consumo e auditoria de tentativas. É uma
+mudança de logging de resposta, sem parâmetros novos de inferência, sem
+ferramentas e sem alteração de qualquer garantia acima.
+
 ## Consequências
 
 - Comparabilidade entre modelos e entre edições

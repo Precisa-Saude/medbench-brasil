@@ -30,6 +30,7 @@ interface ScoredArtifact {
   modelId: string;
   perQuestion?: PerQuestionResult[];
   runsPerQuestion: number;
+  usage?: EvaluationResult['usage'];
 }
 
 /**
@@ -60,6 +61,7 @@ export function rescoreFromScored(scoredJsonPath: string): EvaluationResult {
   // decidiu também precisa atravessar o re-score — sem isso um `rescore` geral
   // apagaria a marcação de que o "limpo" veio da data de lançamento.
   const result = scoreRun(artifact.modelId, artifact.runsPerQuestion, records);
+  if (artifact.usage) result.usage = artifact.usage;
   return artifact.contaminationBasis
     ? { ...result, contaminationBasis: artifact.contaminationBasis }
     : result;
@@ -175,7 +177,13 @@ export function rescoreFromRaw(options: {
         `invariante rompida: ${rec.questionId} está em accepted mas não no conjunto elegível de ${options.editionId}`,
       );
     }
-    return { contamination, correct: rec.correct, parsed: rec.parsed, question };
+    return {
+      contamination,
+      correct: rec.correct,
+      parsed: rec.parsed,
+      question,
+      ...(rec.usage ? { usage: rec.usage } : {}),
+    };
   });
 
   const scored = scoreRun(options.modelId, options.runsPerQuestion, runRecords);
