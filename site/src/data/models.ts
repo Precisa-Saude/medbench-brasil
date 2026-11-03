@@ -21,6 +21,7 @@ import { GOOGLE_MODELS } from './model-registry/google.js';
 import { OPEN_WEIGHT_MODELS } from './model-registry/open-weights.js';
 import { OPENAI_MODELS } from './model-registry/openai.js';
 import { OUTROS_MODELS } from './model-registry/outros.js';
+import { MODEL_PRICING } from './model-registry/pricing/index.js';
 import { QWEN_MODELS } from './model-registry/qwen.js';
 import type { ModelMetadata, ModelTier } from './model-registry/types.js';
 
@@ -43,17 +44,17 @@ export const MODELS_METADATA: Record<string, ModelMetadata> = {
 };
 
 export function getModelMetadata(modelId: string): ModelMetadata {
-  return (
-    MODELS_METADATA[modelId] ?? {
-      label: modelId,
-      modelId,
-      provider: 'desconhecido',
-      releaseDate: '',
-      tier: 'open-weight',
-      trainingCutoff: undefined,
-      trainingCutoffSource: undefined,
-    }
-  );
+  const metadata = MODELS_METADATA[modelId];
+  if (metadata) return { ...metadata, ...MODEL_PRICING[modelId] };
+  return {
+    label: modelId,
+    modelId,
+    provider: 'desconhecido',
+    releaseDate: '',
+    tier: 'open-weight',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  };
 }
 
 export const TIER_LABEL: Record<ModelTier, string> = {

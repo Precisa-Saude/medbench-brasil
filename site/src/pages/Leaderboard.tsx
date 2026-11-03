@@ -6,6 +6,7 @@ import Atualizacoes from '../components/Atualizacoes';
 import { GridSection } from '../components/brand/GridSection';
 import ComparisonChart from '../components/ComparisonChart';
 import type { ContaminationScope } from '../components/ContaminationToggle';
+import CostAccuracyScatter from '../components/CostAccuracyScatter';
 import { Hero } from '../components/Hero';
 import LeaderboardTable from '../components/LeaderboardTable';
 import SpecialtyHeatmap from '../components/SpecialtyHeatmap';
@@ -150,6 +151,7 @@ export default function Leaderboard() {
           models={MODELS}
           onEditionChange={setEdition}
         />
+        <CostAccuracyScatter editionId={edition} models={MODELS} scope={scope} />
       </GridSection>
 
       <GridSection className="space-y-8" id="especialidades" tone="muted">

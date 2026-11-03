@@ -15,12 +15,13 @@ ao medbench-brasil em três frentes:
 
 ## Contexto
 
-**Atualização de 03/11/2026:** a primeira entrega está implementada no
-worktree `feat/harness-usage`, incluindo breakdowns de reasoning/cache,
+**Atualização de 03/11/2026:** a primeira entrega foi mesclada na PR #87,
+incluindo breakdowns de reasoning/cache,
 metadata, ledger por tentativa e preservação em resume/rescore. Escopo e
 verificações em [`plano-harness-usage.md`](./plano-harness-usage.md).
-O contexto abaixo descreve a lacuna anterior à alteração. Preços, cálculo
-de USD e interface seguem na segunda entrega; nenhum run pago foi iniciado.
+O contexto abaixo descreve a lacuna anterior à alteração. A segunda entrega
+(preços, cálculo de USD e interface) está implementada em `feat/site-custo`;
+ver [`plano-site-custo.md`](./plano-site-custo.md). Nenhum run pago foi iniciado.
 
 - O harness **não captura `usage`** das respostas das APIs: nenhum
   provider (`packages/eval-harness/src/providers/*.ts`) lê os campos de
@@ -74,23 +75,23 @@ outputTokens; callsWithUsage; totalCalls }` somado pelo scorer.
 
 ## Fase 3 — Site: preços, coluna de custo e Pareto (PR 2)
 
-- [ ] **3.1 Registry** — em `model-registry/types.ts`, union
+- [x] **3.1 Registry** — em `model-registry/types.ts`, union
       discriminada `PricingFields` espelhando `TrainingCutoffFields`:
       `{ pricePerMTokInputUSD; pricePerMTokOutputUSD; priceSource;
 priceAsOf } | { todos undefined }`. Preencher por fornecedor com
       comentário citando a fonte (regra de verificação: abrir a página
       antes de escrever o valor).
-- [ ] **3.2 Derivação** — em `site/src/data/results.ts`, custo médio
+- [x] **3.2 Derivação** — em `site/src/data/results.ts`, custo médio
       por questão quando `usage` e preço existem; caso contrário
       `undefined`.
-- [ ] **3.3 LeaderboardTable** — coluna "custo/questão" com `—` +
+- [x] **3.3 LeaderboardTable** — coluna "custo/questão" com `—` +
       tooltip explicando a lacuna (run anterior à captura de usage ou
       preço não publicado).
-- [ ] **3.4 Scatter precisão × custo** — novo componente no padrão de
+- [x] **3.4 Scatter precisão × custo** — novo componente no padrão de
       `CutoffGapScatter` (eixo X custo log, eixo Y precisão, fronteira
       de Pareto destacada). Consultar a skill `dataviz` antes de
       implementar.
-- [ ] **3.5 Docs** — `docs/methodology`/Metodologia: seção curta
+- [x] **3.5 Docs** — `docs/methodology`/Metodologia: seção curta
       "Custo" apontando o ADR 0005.
 
 ## Fase 4 — Enquadramento metodológico (PR 3)

@@ -7,6 +7,9 @@
  * fallback gracioso.
  */
 
+import type { UsageSummary } from '@precisa-saude/medbench-harness';
+
+import { deriveCosts, type ScopedCosts } from '../lib/cost';
 import { getModelMetadata, type ModelMetadata } from './models';
 
 export interface PerQuestionResult {
@@ -40,8 +43,10 @@ export interface RawEvaluationArtifact {
   modelId: string;
   perQuestion?: PerQuestionResult[];
   perSpecialty: Record<string, { accuracy: number; n: number }>;
+  rawCoverage?: unknown;
   runsPerQuestion: number;
   total: number;
+  usage?: UsageSummary;
 }
 
 // `type` + intersection em vez de `interface extends` porque ModelMetadata é
@@ -52,6 +57,8 @@ export type ModelResult = RawEvaluationArtifact &
     accuracyByEdition: Record<string, { accuracy: number; n: number; passesCutoff?: boolean }>;
     cleanAccuracy: number | null;
     contaminatedAccuracy: number | null;
+    costByEdition: Record<string, ScopedCosts>;
+    costByScope: ScopedCosts;
   };
 
 // Artefatos agora ficam em `results/<edition>/<model>.json` — um arquivo por
@@ -152,13 +159,14 @@ function combineArtifacts(artifacts: RawEvaluationArtifact[]): RawEvaluationArti
   };
 }
 
-function normalise(raw: RawEvaluationArtifact): ModelResult {
+function normalise(raw: RawEvaluationArtifact, group: RawEvaluationArtifact[]): ModelResult {
   const meta = getModelMetadata(raw.modelId);
   const cleanAccuracy = raw.contaminationSplit.clean?.accuracy ?? null;
   const contaminatedAccuracy = raw.contaminationSplit.contaminated?.accuracy ?? null;
   return {
     ...raw,
     ...meta,
+    ...deriveCosts(group, meta),
     accuracyByEdition: raw.accuracyByEdition ?? {},
     cleanAccuracy,
     contaminatedAccuracy,
@@ -195,7 +203,7 @@ export const FORA_DO_LEADERBOARD: Record<string, string> = {
 };
 
 export const MODELS: ModelResult[] = [...byModel.values()]
-  .map((group) => normalise(combineArtifacts(group)))
+  .map((group) => normalise(combineArtifacts(group), group))
   .filter((m) => !(m.modelId in FORA_DO_LEADERBOARD))
   .sort((a, b) => b.accuracy - a.accuracy);
 

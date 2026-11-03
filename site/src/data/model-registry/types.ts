@@ -5,6 +5,8 @@
  * possam importá-los sem criar ciclo com o barrel que os agrega.
  */
 
+import type { PricingFields } from './pricing-types.js';
+
 export type ModelTier = 'proprietaria' | 'open-weight';
 
 interface ModelMetadataBase {
@@ -50,4 +52,4 @@ type TrainingCutoffFields =
   | { trainingCutoff: string; trainingCutoffSource: string }
   | { trainingCutoff: undefined; trainingCutoffSource: undefined };
 
-export type ModelMetadata = ModelMetadataBase & TrainingCutoffFields;
+export type ModelMetadata = ModelMetadataBase & TrainingCutoffFields & PricingFields;
