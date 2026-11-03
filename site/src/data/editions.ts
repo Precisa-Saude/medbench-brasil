@@ -263,6 +263,32 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
       },
     ],
   },
+  'revalida-2025-2': {
+    id: 'revalida-2025-2',
+    label: 'Revalida 2025/2',
+    publishedAt: '2025-10-19',
+    sources: [
+      {
+        author: 'INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA',
+        publishedAt: '18 ago. 2025',
+        title: 'Edital nº 123, de 12 de agosto de 2025',
+        url: 'https://www.in.gov.br/en/web/dou/-/edital-n-123-de-12-de-agosto-de-2025-*-649056265',
+      },
+    ],
+  },
+  'revalida-2026-1': {
+    id: 'revalida-2026-1',
+    label: 'Revalida 2026/1',
+    publishedAt: '2026-06-07',
+    sources: [
+      {
+        author: 'INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA',
+        publishedAt: '10 jul. 2026',
+        title: 'Revalida 2026/1: divulgados o resultado da primeira etapa e o gabarito definitivo',
+        url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2026-1-divulgados-o-resultado-da-primeira-etapa-e-o-gabarito-definitivo',
+      },
+    ],
+  },
 };
 
 export function getEditionMetadata(id: string): EditionMetadata {
