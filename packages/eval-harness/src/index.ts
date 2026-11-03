@@ -1,3 +1,4 @@
+export { observeRequest } from './accounting.js';
 export { type ConsensusError, type ConsensusOptions, findConsensusErrors } from './consensus.js';
 export {
   computeEnadeConcept,
@@ -37,5 +38,8 @@ export type {
   Provider,
   ProviderResponse,
   RawResponseRecord,
+  RequestAttemptRecord,
+  ResponseMetadata,
   RunConfig,
 } from './types.js';
+export { summarizeUsage, type TokenUsage, type UsageSummary } from './usage.js';

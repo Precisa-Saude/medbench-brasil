@@ -2,6 +2,7 @@ import type { EditionId, Question, QuestionOption } from '@precisa-saude/medbenc
 import { loadEdition } from '@precisa-saude/medbench-dataset';
 
 import type { EvaluationResult, PerQuestionResult } from './types.js';
+import { summarizeUsage, type TokenUsage } from './usage.js';
 
 const QUESTION_OPTIONS: readonly QuestionOption[] = ['A', 'B', 'C', 'D'];
 
@@ -64,6 +65,7 @@ export interface RunRecord {
   correct: boolean;
   parsed: QuestionOption | null;
   question: Question;
+  usage?: TokenUsage;
 }
 
 /**
@@ -138,8 +140,10 @@ export function scoreRun(
   const macro = macroF1(
     perQuestion.map((q) => ({ correctAnswer: q.correctAnswer, majority: q.majority })),
   );
+  const usage = summarizeUsage(records);
 
   return {
+    ...(usage ? { usage } : {}),
     accuracy,
     accuracyByEdition,
     ci95: wilsonInterval(correct, total),

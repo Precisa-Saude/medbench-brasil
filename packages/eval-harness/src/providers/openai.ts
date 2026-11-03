@@ -1,6 +1,7 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
 import type { ProviderBaseOptions } from './_http.js';
 import { fetchWithTimeout } from './_http.js';
+import { providerHttpError, responseAccounting } from './_usage.js';
 
 type OpenAIProviderOptions = ProviderBaseOptions;
 
@@ -111,7 +112,12 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
-        throw new Error(`OpenAI API erro ${res.status}: ${await res.text()}`);
+        throw await providerHttpError(
+          'OpenAI',
+          res,
+          'openai',
+          'https://api.openai.com/v1/chat/completions',
+        );
       }
       const body = (await res.json()) as {
         choices: Array<{ message: { content: string } }>;
@@ -119,6 +125,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
       const rawResponse = body.choices[0]?.message.content ?? '';
 
       return {
+        ...responseAccounting(res, body, 'openai', 'https://api.openai.com/v1/chat/completions'),
         parsedAnswer: null,
         rawResponse,
         requestParams,

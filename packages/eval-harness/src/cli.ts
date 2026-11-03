@@ -21,6 +21,8 @@ loadDotenv({ quiet: true });
 import type { EditionId } from '@precisa-saude/medbench-dataset';
 import { loadEdition, parseIsoDay } from '@precisa-saude/medbench-dataset';
 
+import { AccountingPersistenceError, observeRequest } from './accounting.js';
+import { createRequestLedger } from './cli/accounting.js';
 import { parseArgs } from './cli/args.js';
 import type { Backend } from './cli/build-provider.js';
 import { buildProvider } from './cli/build-provider.js';
@@ -65,6 +67,7 @@ async function runSmoke(args: Record<string, string>) {
   const eligible = edition.questions.filter((q) => !q.annulled && !q.hasImage && !q.hasTable);
   const pickNumbers = samplePickIds(eligible.length, n);
   const samples = pickNumbers.map((i) => eligible[i - 1]!).filter(Boolean);
+  const ledger = createRequestLedger(args.out ?? 'results', editionId, provider, 'smoke');
 
   console.log(
     `smoke: ${provider.label} × ${samples.length} questões de ${editionId} (threshold ${(threshold * 100).toFixed(0)}%)`,
@@ -79,11 +82,16 @@ async function runSmoke(args: Record<string, string>) {
   }> = [];
   for (const q of samples) {
     try {
-      const res = await provider.run({
-        question: q,
-        systemPrompt: SYSTEM_PROMPT,
-        userPrompt: renderUserPrompt(q),
-      });
+      const res = await observeRequest(
+        provider,
+        {
+          question: q,
+          systemPrompt: SYSTEM_PROMPT,
+          userPrompt: renderUserPrompt(q),
+        },
+        { attempt: 1, purpose: 'smoke', run: 1, runId: ledger.runId },
+        ledger.onRequestAttempt,
+      );
       const parsed = res.parsedAnswer ?? parseLetter(res.rawResponse);
       const correct = parsed === q.correct;
       if (correct) ok += 1;
@@ -96,6 +104,7 @@ async function runSmoke(args: Record<string, string>) {
         });
       console.log(`  ${q.id}: parsed=${parsed ?? '?'} vs ${q.correct} ${correct ? 'OK' : 'MISS'}`);
     } catch (err) {
+      if (err instanceof AccountingPersistenceError) throw err;
       const msg = err instanceof Error ? err.message : String(err);
       const transport = isTransportError(msg);
       failures.push({ parsed: null, qid: q.id, tail: msg.slice(0, 180), transport });
@@ -104,6 +113,7 @@ async function runSmoke(args: Record<string, string>) {
   }
 
   const rate = ok / samples.length;
+  ledger.printSummary();
   const transportErrors = failures.filter((f) => f.transport).length;
   const verdict = smokeVerdict({
     ok,
@@ -143,6 +153,7 @@ async function runEval(args: Record<string, string>) {
   const slug = provider.id.replace(/[^a-z0-9.-]/gi, '_');
   const outPath = join(outDir, `${slug}.json`);
   const rawLogPath = join(outDir, `${slug}.raw.jsonl`);
+  const ledger = createRequestLedger(baseDir, edition, provider, 'eval');
 
   // Retomada: se existe JSONL prévio, carrega os registros e reaproveita.
   // Com --restart, descarta e recomeça do zero.
@@ -177,9 +188,11 @@ async function runEval(args: Record<string, string>) {
           appendFileSync(rawLogPath, `${JSON.stringify(record)}\n`);
         }
       : undefined,
+    onRequestAttempt: ledger.onRequestAttempt,
     priorRecords,
+    runId: ledger.runId,
     runsPerQuestion: Number(args.runs ?? 3),
-  });
+  }).finally(() => ledger.printSummary());
 
   writeFileSync(outPath, JSON.stringify(result, null, 2));
   console.log(

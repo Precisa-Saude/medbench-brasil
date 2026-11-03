@@ -1,6 +1,7 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
 import type { ProviderBaseOptions } from './_http.js';
 import { fetchWithTimeout } from './_http.js';
+import { providerHttpError, responseAccounting } from './_usage.js';
 
 interface OpenAICompatOptions extends ProviderBaseOptions {
   /** Base URL sem o path — ex.: `http://localhost:11434/v1` para Ollama. */
@@ -77,7 +78,12 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
-        throw new Error(`${opts.provider} API erro ${res.status}: ${await res.text()}`);
+        throw await providerHttpError(
+          opts.provider,
+          res,
+          'openai',
+          `${opts.baseUrl.replace(/\/$/, '')}/chat/completions`,
+        );
       }
       const body = (await res.json()) as {
         choices?: Array<{ finish_reason?: null | string; message?: { content?: string } }>;
@@ -98,6 +104,12 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
       const stopReason = rawStopReason ? rawStopReason : undefined;
 
       return {
+        ...responseAccounting(
+          res,
+          body,
+          'openai',
+          `${opts.baseUrl.replace(/\/$/, '')}/chat/completions`,
+        ),
         parsedAnswer: null,
         rawResponse,
         requestParams,

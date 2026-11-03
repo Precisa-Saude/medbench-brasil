@@ -3,6 +3,7 @@ import type { QuestionOption } from '@precisa-saude/medbench-dataset';
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
 import type { ProviderBaseOptions } from './_http.js';
 import { fetchWithTimeout } from './_http.js';
+import { providerHttpError, responseAccounting } from './_usage.js';
 
 /**
  * Cliente da API System One — modelos de decisão.
@@ -84,7 +85,12 @@ export function systemOneProvider(opts: SystemOneOptions): Provider {
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
-        throw new Error(`${opts.provider} API erro ${res.status}: ${await res.text()}`);
+        throw await providerHttpError(
+          opts.provider,
+          res,
+          'openai',
+          `${opts.baseUrl.replace(/\/$/, '')}${opts.path}`,
+        );
       }
 
       const body = (await res.json()) as {
@@ -126,6 +132,12 @@ export function systemOneProvider(opts: SystemOneOptions): Provider {
       });
 
       return {
+        ...responseAccounting(
+          res,
+          body,
+          'openai',
+          `${opts.baseUrl.replace(/\/$/, '')}${opts.path}`,
+        ),
         parsedAnswer,
         rawResponse,
         requestParams,

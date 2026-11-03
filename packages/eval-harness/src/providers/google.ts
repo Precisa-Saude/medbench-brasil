@@ -1,6 +1,7 @@
 import type { Provider, ProviderResponse, RunInput } from '../types.js';
 import type { ProviderBaseOptions } from './_http.js';
 import { fetchWithTimeout } from './_http.js';
+import { providerHttpError, responseAccounting } from './_usage.js';
 
 type GoogleProviderOptions = ProviderBaseOptions;
 
@@ -64,7 +65,7 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
       const durationMs = Date.now() - start;
 
       if (!res.ok) {
-        throw new Error(`Google API erro ${res.status}: ${await res.text()}`);
+        throw await providerHttpError('Google', res, 'google', url);
       }
       const body = (await res.json()) as {
         candidates?: Array<{
@@ -79,6 +80,7 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
       const rawResponse = parts.map((p) => p.text ?? '').join('');
 
       return {
+        ...responseAccounting(res, body, 'google', url),
         parsedAnswer: null,
         rawResponse,
         // Nunca inclua a API key nos logs de parâmetros.

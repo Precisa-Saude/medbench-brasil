@@ -36,7 +36,10 @@ Opções de eval/smoke (exigem --backend e --model):
                               Útil quando o servidor MLX serve base + LoRA: o
                               --model identifica o checkpoint composto nos
                               resultados, enquanto --request-model usa o base
-                              que o servidor de fato carregou.
+                               que o servidor de fato carregou.
+  --out DIR                   (padrão: results/) Destino de resultados e auditoria.
+                              eval/smoke sempre registram *.requests.jsonl;
+                              restart não trunca a auditoria de tentativas.
 
 Opções de eval:
   --runs N                    (padrão: 3)

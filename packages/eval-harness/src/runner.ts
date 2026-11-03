@@ -1,7 +1,10 @@
+import { randomUUID } from 'node:crypto';
+
 import type { Edition, EditionId, Question, QuestionOption } from '@precisa-saude/medbench-dataset';
 import type { ContaminationBasis } from '@precisa-saude/medbench-dataset';
 import { classifyContamination, loadEdition } from '@precisa-saude/medbench-dataset';
 
+import { AccountingPersistenceError, observeRequest } from './accounting.js';
 import { SYSTEM_PROMPT } from './prompt.js';
 import { type RunRecord, scoreRun } from './scorer.js';
 import type { EvaluationResult, Provider, RunConfig } from './types.js';
@@ -107,6 +110,7 @@ export function parseLetter(raw: string): QuestionOption | null {
 const RETRY_DELAYS_MS = [1000, 3000, 10_000];
 
 function isRetryable(err: unknown): boolean {
+  if (err instanceof AccountingPersistenceError) return false;
   if (!(err instanceof Error)) return false;
   const name = err.name;
   const msg = err.message;
@@ -128,10 +132,10 @@ function isRetryable(err: unknown): boolean {
   return false;
 }
 
-async function runWithRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+async function runWithRetry<T>(fn: (attempt: number) => Promise<T>, label: string): Promise<T> {
   for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
     try {
-      return await fn();
+      return await fn(attempt + 1);
     } catch (err) {
       if (attempt === RETRY_DELAYS_MS.length || !isRetryable(err)) throw err;
       const delay = RETRY_DELAYS_MS[attempt]!;
@@ -151,6 +155,7 @@ export async function runEvaluation(
   config: RunConfig,
 ): Promise<EvaluationResult> {
   const records: RunRecord[] = [];
+  const runId = config.runId ?? randomUUID();
   let basis: ContaminationBasis | undefined;
 
   for (const editionId of config.editions) {
@@ -175,7 +180,7 @@ export async function runEvaluation(
     // `${editionId}\t${questionId}\trun${run+1}`.
     const priorIndex = new Map<string, NonNullable<typeof config.priorRecords>[number]>();
     for (const rec of config.priorRecords ?? []) {
-      if (rec.editionId !== editionId) continue;
+      if (rec.editionId !== editionId || rec.modelId !== provider.id) continue;
       priorIndex.set(`${rec.editionId}\t${rec.questionId}\trun${rec.run}`, rec);
     }
 
@@ -191,6 +196,7 @@ export async function runEvaluation(
             correct: prior.correct,
             parsed: prior.parsed,
             question: q,
+            ...(prior.usage ? { usage: prior.usage } : {}),
           });
           resumed += 1;
           continue;
@@ -208,27 +214,46 @@ export async function runEvaluation(
     let done = 0;
     let correctSoFar = 0;
     const startAll = Date.now();
+    let stopped = false;
 
     async function worker() {
-      while (true) {
+      while (!stopped) {
         const idx = cursor++;
         if (idx >= tasks.length) return;
         const { q, run } = tasks[idx]!;
         const start = Date.now();
         const response = await runWithRetry(
-          () =>
-            provider.run({
-              question: q,
-              systemPrompt: SYSTEM_PROMPT,
-              userPrompt: renderUserPrompt(q),
-            }),
+          (attempt) => {
+            if (stopped) throw new Error('Execução interrompida após falha fatal em outro worker.');
+            return observeRequest(
+              provider,
+              {
+                question: q,
+                systemPrompt: SYSTEM_PROMPT,
+                userPrompt: renderUserPrompt(q),
+              },
+              { attempt, purpose: 'eval', run: run + 1, runId },
+              config.onRequestAttempt,
+            );
+          },
           `${provider.id} ${q.id} run${run + 1}`,
         );
         const parsed = response.parsedAnswer ?? parseLetter(response.rawResponse);
         const correct = parsed === q.correct;
-        records.push({ contamination, correct, parsed, question: q });
+        records.push({
+          contamination,
+          correct,
+          parsed,
+          question: q,
+          ...(response.usage ? { usage: response.usage } : {}),
+        });
         if (config.onRawResponse) {
           config.onRawResponse({
+            attemptId: response.attemptId,
+            runId,
+            startedAt: response.startedAt,
+            ...(response.usage ? { usage: response.usage } : {}),
+            ...(response.responseMetadata ? { responseMetadata: response.responseMetadata } : {}),
             correct,
             editionId,
             elapsedMs: response.timings.durationMs,
@@ -253,7 +278,22 @@ export async function runEvaluation(
       }
     }
 
-    await Promise.all(Array.from({ length: concurrency }, () => worker()));
+    const workers = Array.from({ length: concurrency }, async () => {
+      try {
+        await worker();
+      } catch (error) {
+        stopped = true;
+        throw error;
+      }
+    });
+    try {
+      await Promise.all(workers);
+    } catch (error) {
+      // Não iniciar outras questões após falha fatal. Chamadas já em voo
+      // precisam terminar e registrar consumo antes de propagar o erro.
+      await Promise.allSettled(workers);
+      throw error;
+    }
   }
 
   const result = scoreRun(provider.id, config.runsPerQuestion, records);
