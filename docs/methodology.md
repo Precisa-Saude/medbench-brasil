@@ -60,6 +60,33 @@ incluindo o formato verificado na API, a regra de fixar versão em vez de usar
 alias móvel e o motivo de o Laya ficar fora da tabela, servindo de controle de
 protocolo.
 
+## Custo por questão
+
+O site deriva estimativas em USD dos tokens declarados pela API e de tarifas
+padrão de referência, com fornecedor, fonte e data de verificação no registry.
+USD não é persistido em `results/`. A fórmula é
+`(entrada × tarifa de entrada + saída × tarifa de saída) / 1.000.000`.
+Raciocínio já está na saída e cache já está na entrada; não somar novamente.
+
+US$/questão inclui as três execuções. Divide-se o custo pelas questões
+representadas (`chamadas / execuções por questão`), não pelas chamadas.
+Consumo incompleto, preço sem fonte, tarifa expirada ou faixa de contexto
+impossível de confirmar deixam custo desconhecido. Avaliações antigas
+não recebem tokens inferidos por texto. Preços apenas em BRL ficam sem
+conversão USD até existir fonte cambial; execução local não recebe preço
+de API presumido.
+
+O custo acompanha o conjunto da precisão exibida: escopos limpo/contaminado
+usam apenas seus artefatos completos. O scatter compara uma edição por vez,
+com custo positivo em escala log e Pareto observada, sem teste de significância.
+Uma tabela textual oferece os mesmos dados, inclusive custos zero verdadeiros.
+Modelos de decisão são excluídos desse gráfico por diferença de protocolo.
+
+Tarifa de referência não prova o valor faturado pela rota histórica.
+Não inclui descontos, impostos, condições regionais/negociadas, retries ou smoke.
+As tentativas operacionais ficam em ledgers separados; cobrança efetiva exige
+conciliação com o fornecedor. Ver [ADR 0005](development/adr/0005-metodologia-de-custo.md).
+
 ## Parsing da resposta
 
 - Extraímos a primeira letra (A, B, C, D) do output bruto com regex case-insensitive, tolerando ruído

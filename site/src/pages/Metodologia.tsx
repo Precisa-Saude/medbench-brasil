@@ -1,6 +1,7 @@
 import { SYSTEM_PROMPT } from '@precisa-saude/medbench-harness/prompt';
 
 import ContaminationDumbbell from '../components/ContaminationDumbbell';
+import CostMethodology from '../components/CostMethodology';
 import CutoffGapScatter from '../components/CutoffGapScatter';
 import { DocLayout, InlineToc, type TocItem } from '../components/DocLayout';
 import { CodeBlock } from '../components/ui/code-block';
@@ -15,6 +16,7 @@ const TOC: readonly TocItem[] = [
   { id: 'prompt', label: 'System prompt literal' },
   { id: 'modelos-de-decisao', label: 'Modelos de decisão' },
   { id: 'variancia', label: 'Por que rodamos três vezes' },
+  { id: 'custo', label: 'Como estimamos o custo' },
   { id: 'contaminacao', label: 'Contaminação de treino' },
   { id: 'benchmarks-relacionados', label: 'Benchmarks relacionados' },
   { id: 'linha-de-base', label: 'Linha de base humana e o sentido da nota de corte' },
@@ -80,12 +82,7 @@ export default function Metodologia() {
         </ul>
       </section>
 
-      <section id="prompt">
-        <h2 className={TYPE.h2}>System prompt literal</h2>
-        <div className="mt-3">
-          <CodeBlock>{SYSTEM_PROMPT}</CodeBlock>
-        </div>
-      </section>
+      <LiteralSystemPrompt />
 
       <section id="modelos-de-decisao">
         <h2 className={TYPE.h2}>Modelos de decisão</h2>
@@ -213,6 +210,7 @@ export default function Metodologia() {
         </p>
       </section>
 
+      <CostMethodology />
       <section id="contaminacao">
         <h2 className={TYPE.h2}>Contaminação de treino</h2>
         <p className="mt-3">
@@ -336,6 +334,17 @@ export default function Metodologia() {
 
       <MetodologiaSources />
     </DocLayout>
+  );
+}
+
+function LiteralSystemPrompt() {
+  return (
+    <section id="prompt">
+      <h2 className={TYPE.h2}>System prompt literal</h2>
+      <div className="mt-3">
+        <CodeBlock>{SYSTEM_PROMPT}</CodeBlock>
+      </div>
+    </section>
   );
 }
 

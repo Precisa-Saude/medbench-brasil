@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { EDITIONS } from '../data/editions';
 import { TIER_LABEL } from '../data/models';
 import type { ModelResult } from '../data/results';
+import { compareCosts } from '../lib/cost';
 import type { ContaminationScope } from './ContaminationToggle';
+import CostValue from './CostValue';
 import { Pagination } from './ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
-type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cobertura' | 'cutoff' | 'pass';
+type SortKey = 'acc' | 'clean' | 'cont' | 'delta' | 'ci' | 'cobertura' | 'cutoff' | 'pass' | 'cost';
 
 function pickAccuracy(m: ModelResult, scope: ContaminationScope): number | null {
   if (scope === 'clean') return m.cleanAccuracy;
@@ -103,6 +105,8 @@ export default function LeaderboardTable({
     const mul = sort.dir === 'desc' ? -1 : 1;
     const get = (row: (typeof rows)[number]): number => {
       switch (sort.key) {
+        case 'cost':
+          return 0;
         case 'acc':
           return row.acc;
         case 'clean':
@@ -121,7 +125,15 @@ export default function LeaderboardTable({
           return row.pass ? row.pass.numerator / row.pass.denominator : -Infinity;
       }
     };
-    return [...rows].sort((a, b) => (get(a) - get(b)) * mul);
+    return [...rows].sort((a, b) =>
+      sort.key === 'cost'
+        ? compareCosts(
+            a.model.costByScope[contaminationScope],
+            b.model.costByScope[contaminationScope],
+            sort.dir,
+          )
+        : (get(a) - get(b)) * mul,
+    );
   }, [models, contaminationScope, sort]);
 
   const totalRows = sortedRows.length;
@@ -138,6 +150,14 @@ export default function LeaderboardTable({
             <TableHead>Fornecedor</TableHead>
             <TableHead>Tier</TableHead>
             <SortableHead align="right" k="acc" label="Precisão" sort={sort} onClick={toggleSort} />
+            <SortableHead
+              align="right"
+              k="cost"
+              label="US$/questão"
+              sort={sort}
+              tooltip="Estimativa à tarifa padrão de referência, incluindo as três execuções por questão e o mesmo escopo da precisão. Sem descontos ou reconciliação de faturamento. Traço indica consumo ou preço indisponível."
+              onClick={toggleSort}
+            />
             <SortableHead
               align="right"
               k="ci"
@@ -230,6 +250,9 @@ export default function LeaderboardTable({
               <TableCell className="text-muted-foreground">{model.provider}</TableCell>
               <TableCell className="text-muted-foreground">{TIER_LABEL[model.tier]}</TableCell>
               <TableCell className="text-right font-mono">{(acc * 100).toFixed(1)}%</TableCell>
+              <TableCell className="text-right">
+                <CostValue cost={model.costByScope[contaminationScope]} />
+              </TableCell>
               <TableCell className="text-right font-mono text-muted-foreground">
                 {(model.ci95[0] * 100).toFixed(1)}–{(model.ci95[1] * 100).toFixed(1)}
               </TableCell>
