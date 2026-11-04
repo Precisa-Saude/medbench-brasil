@@ -29,6 +29,17 @@ Declarados nos módulos por fornecedor em `site/src/data/model-registry/` (agreg
 
 Quando o fornecedor não publica o corte, `trainingCutoff` e `trainingCutoffSource` ficam `undefined`. Nesse caso, todas as edições são classificadas como `unknown` — **não estimamos**. É mais honesto não classificar do que inventar um recorte que vira base para o gráfico de contaminação.
 
+Nos novos cadastros de novembro/2026, uma fonte que publica apenas o mês
+também fica sem conversão para uma data diária. Haiku 5.5 declara
+"Training data cutoff | Jun 2026" na
+[página oficial](https://platform.claude.com/docs/en/models/haiku-5-5/overview).
+O [model card do Argon](https://deepmind.google/models/model-cards/gemini-4-argon/)
+declara "The knowledge cutoff for Gemini 4 is March 2026". As citações são
+preservadas no registry, mas ambos permanecem `unknown` no scorer enquanto
+o contrato exigir `YYYY-MM-DD`. Isso não afirma ausência de cutoff publicado;
+registra a precisão insuficiente para esse contrato. Não altera os registros
+históricos de outros modelos.
+
 No momento desta versão, ficam `undefined`:
 
 - Mistral (Large 2411, Large 3/2512) — o `SYSTEM_PROMPT.txt` dos repos HF cita "2023-10-01" de forma idêntica até no Large 3 (Dez 2025); é boilerplate, não cutoff real. Blog Mistral e docs da API não publicam.

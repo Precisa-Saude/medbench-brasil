@@ -56,4 +56,18 @@ export const OPENAI_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2026-02-16',
     trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-5.6',
   },
+  // "Jun 01, 2026 knowledge cutoff", página oficial de GPT-6.1 Terra.
+  // Release: changelog OpenAI, 26/10/2026, "Released GPT-6.1 Terra".
+  'openai/gpt-6.1-terra': {
+    description: 'GPT-6.1 Terra avaliado sem ferramentas, com esforço alto, via OpenRouter.',
+    homepage: 'https://developers.openai.com/api/docs/models/gpt-6.1-terra',
+    label: 'GPT-6.1 Terra',
+    modelId: 'openai/gpt-6.1-terra',
+    provider: 'OpenAI · OpenRouter',
+    releaseDate: '2026-10-26',
+    releaseDateSource: 'https://developers.openai.com/api/docs/changelog',
+    tier: 'proprietaria',
+    trainingCutoff: '2026-06-01',
+    trainingCutoffSource: 'https://developers.openai.com/api/docs/models/gpt-6.1-terra',
+  },
 };

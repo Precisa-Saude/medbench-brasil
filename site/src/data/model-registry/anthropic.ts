@@ -44,6 +44,23 @@ export const ANTHROPIC_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2026-06-01',
     trainingCutoffSource: 'https://platform.claude.com/docs/en/models/fable-5-1/overview',
   },
+  // "Training data cutoff | Jun 2026", página oficial de Haiku 5.5:
+  // https://platform.claude.com/docs/en/models/haiku-5-5/overview
+  // Sem dia publicado: campos undefined e classificação unknown, sem inferência.
+  // "Released | October 7, 2026", mesma página.
+  'claude-haiku-5-5': {
+    description:
+      'Claude Haiku 5.5 avaliado pela API Anthropic com esforço alto. O fornecedor declara cutoff em junho/2026, sem dia exato.',
+    homepage: 'https://platform.claude.com/docs/en/models/haiku-5-5/overview',
+    label: 'Claude Haiku 5.5',
+    modelId: 'claude-haiku-5-5',
+    provider: 'Anthropic',
+    releaseDate: '2026-10-07',
+    releaseDateSource: 'https://platform.claude.com/docs/en/models/haiku-5-5/overview',
+    tier: 'proprietaria',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
   'claude-opus-4-5': {
     description:
       'Modelo flagship da Anthropic da geração Claude 4, lançado em meados de 2025 com foco em raciocínio e uso agêntico.',

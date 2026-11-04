@@ -48,4 +48,21 @@ export const GOOGLE_MODELS: Record<string, ModelMetadata> = {
     trainingCutoff: '2025-01-01',
     trainingCutoffSource: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview',
   },
+  // "The knowledge cutoff for Gemini 4 is March 2026", model card oficial:
+  // https://deepmind.google/models/model-cards/gemini-4-argon/
+  // Dia não publicado. Preservar unknown, sem inventar uma data completa.
+  // Release GA: changelog Gemini API, 13/10/2026.
+  'google/gemini-4-argon': {
+    description:
+      'Gemini 4 Argon avaliado sem ferramentas, com esforço alto, via OpenRouter. O fornecedor declara cutoff em março/2026, sem dia exato.',
+    homepage: 'https://deepmind.google/models/model-cards/gemini-4-argon/',
+    label: 'Gemini 4 Argon',
+    modelId: 'google/gemini-4-argon',
+    provider: 'Google · OpenRouter',
+    releaseDate: '2026-10-13',
+    releaseDateSource: 'https://ai.google.dev/gemini-api/docs/changelog',
+    tier: 'proprietaria',
+    trainingCutoff: undefined,
+    trainingCutoffSource: undefined,
+  },
 };

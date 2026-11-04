@@ -18,6 +18,18 @@ export const ANTHROPIC_PRICING: Record<string, PublishedPricing> = {
   'claude-fable-5': price(10, 50, 'Claude Fable 5; $10 / MTok; $50 / MTok'),
   // "Claude Fable 5.1", "$10 / MTok", "$50 / MTok".
   'claude-fable-5-1': price(10, 50, 'Claude Fable 5.1; $10 / MTok; $50 / MTok'),
+  // "Input | $0.10 / MTok for prompts up to 100,000 tokens";
+  // "Output | $0.50 / MTok for prompts up to 100,000 tokens".
+  'claude-haiku-5-5': {
+    priceAsOf: '2026-11-04',
+    priceMaxInputTokens: 100_000,
+    pricePerMTokInputUSD: 0.1,
+    pricePerMTokOutputUSD: 0.5,
+    priceProvider: 'Anthropic (API direta)',
+    priceQuote:
+      '$0.10 / MTok for prompts up to 100,000 tokens; $0.50 / MTok for prompts up to 100,000 tokens',
+    priceSource: 'https://platform.claude.com/docs/en/models/haiku-5-5/overview',
+  },
   // "Claude Opus 4.5", "$5 / MTok", "$25 / MTok". Sem garantir faixa longa.
   'claude-opus-4-5': {
     ...price(5, 25, 'Claude Opus 4.5; $5 / MTok; $25 / MTok'),

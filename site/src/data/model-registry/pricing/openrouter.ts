@@ -32,6 +32,14 @@ export const OPENROUTER_PRICING: Record<string, PublishedPricing> = {
     ...price(2, 12, 'prompt: "0.000002", completion: "0.000012"'),
     priceMaxInputTokens: 199_999,
   },
+  // prompt "0.000002", completion "0.00001" (USD/token).
+  // Expiração conservadora pela promoção nativa até 30/11/2026:
+  // https://ai.google.dev/gemini-api/docs/pricing#gemini-4-argon
+  'google/gemini-4-argon': {
+    ...price(2, 10, 'prompt: "0.000002", completion: "0.00001"'),
+    priceAsOf: '2026-11-04',
+    priceValidThrough: '2026-11-30',
+  },
   // prompt "0.0000002", completion "0.00000052" (USD/token).
   'meta-llama/llama-3.3-70b-instruct': price(
     0.2,
@@ -50,6 +58,12 @@ export const OPENROUTER_PRICING: Record<string, PublishedPricing> = {
   'mistralai/mistral-large-2512': price(0.5, 1.5, 'prompt: "0.0000005", completion: "0.0000015"'),
   // prompt "0.000000192", completion "0.000015" (USD/token).
   'moonshotai/kimi-k3': price(0.192, 15, 'prompt: "0.000000192", completion: "0.000015"'),
+  // prompt "0.000001", completion "0.000005"; override min_prompt_tokens=272000.
+  'openai/gpt-6.1-terra': {
+    ...price(1, 5, 'prompt: "0.000001", completion: "0.000005"; min_prompt_tokens: 272000'),
+    priceAsOf: '2026-11-04',
+    priceMaxInputTokens: 271_999,
+  },
   // prompt "0.00000009", completion "0.00000055" (USD/token).
   'qwen/qwen3-235b-a22b-2507': price(0.09, 0.55, 'prompt: "0.00000009", completion: "0.00000055"'),
   // prompt "0.00000026", completion "0.00000208" (USD/token).
