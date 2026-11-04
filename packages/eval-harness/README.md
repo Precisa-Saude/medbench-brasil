@@ -44,6 +44,15 @@ também registram o motivo de parada quando declarado pela API.
 O piloto operacional separado da CLI está documentado em
 [`plano-shortlist-pilots.md`](../../docs/development/plano-shortlist-pilots.md).
 Ele não publica scores e interrompe cada modelo na primeira falha, sem retry.
+O argumento final `openrouter` seleciona somente Terra e Argon nessa rota,
+com `OPENROUTER_API_KEY`, logs separados e fallback desabilitado:
+
+```bash
+node packages/eval-harness/scripts/shortlist-pilots.mjs /caminho/.env.local openrouter
+```
+
+Execute a partir da raiz após o build. O script recusa repetir um piloto
+cujos arquivos de saída já existem, preservando as tentativas anteriores.
 
 Dois subcomandos: `smoke` (pré-flight, ~8 amostras estratificadas) e `eval` (run completo).
 

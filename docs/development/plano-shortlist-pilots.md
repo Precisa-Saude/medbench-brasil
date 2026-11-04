@@ -74,6 +74,56 @@ retry. Nenhum scored JSON, cutoff ou entrada do leaderboard foi alterado.
 
 ## Resultado operacional
 
+### Continuação autorizada via OpenRouter (04/11/2026)
+
+O mantenedor autorizou testar Terra e Argon pelo OpenRouter após os bloqueios
+nativos. O catálogo `https://openrouter.ai/api/v1/models`, consultado nesta
+sessão, lista `openai/gpt-6.1-terra` e `google/gemini-4-argon`, ambos com
+`reasoning_effort=high`. Tarifas por milhão: Terra US$ 1/5 e Argon US$ 2/10.
+Não usar variantes Pro, batch ou modelos substitutos.
+
+Especificação desta continuação:
+
+- Mesmas oito questões, no máximo 16 chamadas novas, sem retry. Interromper
+  cada modelo no primeiro erro, parsing inválido ou parada diferente de stop.
+- Chat Completions OpenRouter; system literal e uma mensagem de usuário.
+  Sem sampling para esses dois IDs exatos nessa URL. Effort explícito high.
+- Terra: `max_tokens=8192`, timeout 300 segundos; Argon: `max_tokens=32768`,
+  timeout 900 segundos. OpenRouter aceita `max_tokens` nos dois modelos.
+- `provider.require_parameters=true` e `provider.allow_fallbacks=false`,
+  conforme a [documentação de roteamento](https://openrouter.ai/docs/guides/routing/provider-selection)
+  aberta nesta sessão. Nenhum fallback de modelo ou provedor na falha.
+- Compatibilidade: requests antigos de OpenAI-compat permanecem idênticos.
+  Cobrir os dois IDs e a restrição da URL por testes antes das chamadas.
+- Modo `openrouter` separado no script, carregando somente sua credencial.
+  Novos logs usam os IDs com prefixo do fornecedor, sem tocar nos nativos.
+  Registrar identidade resolvida, provedor, usage e motivos de parada.
+- Sem scored JSON ou publicação no roster. Nova alteração ainda sem commit.
+
+Resultado: 16/16 chamadas concluídas, parsing válido e `stop` em todas.
+Identidades resolvidas iguais aos IDs solicitados, com provedor reportado
+`OpenAI` para Terra e `Google` para Argon. Não houve falhas nem retries.
+
+| Modelo via OpenRouter | Entrada | Saída (inclui raciocínio) | Raciocínio | Custo de referência |
+| --------------------- | ------: | ------------------------: | ---------: | ------------------: |
+| Terra                 |   1.959 |                       840 |        612 |        US$ 0,006159 |
+| Argon                 |   2.210 |                    10.947 |      7.589 |        US$ 0,113890 |
+
+Total de referência desta continuação: **US$ 0,120049**. Tarifas consultadas
+no catálogo OpenRouter nesta sessão: `(entrada × tarifa + saída × tarifa) /
+1000000`. Não somar raciocínio novamente. Cache lido/escrito explicitamente
+zero. Máximos de entrada/saída por chamada: Terra 309/175, Argon 344/2.057.
+O máximo de Terra fica abaixo da faixa longa de 272.000 tokens do catálogo.
+O total é uma estimativa de tabela sem taxas ou créditos, não uma fatura.
+
+Raws e ledgers separados: `openai_gpt-6.1-terra.smoke*.jsonl` e
+`google_gemini-4-argon.smoke*.jsonl` em `results/revalida-2026-1/`.
+Auditoria confirmou oito tentativas bem-sucedidas por modelo, cada uma ligada
+à resposta pelo attempt ID. Logs nativos permanecem intactos. Os pilotos
+validam a rota, mas não publicam acurácia ou substituem três runs completas.
+
+### Piloto nativo (03/11/2026)
+
 As oito questões selecionadas por índices igualmente espaçados entre as 84
 elegíveis foram 01, 18, 34, 47, 58, 74, 86 e 100. Terra e Argon receberam
 somente a questão 01, pois a política interrompe o modelo no primeiro erro.

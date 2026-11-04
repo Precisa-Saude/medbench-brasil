@@ -5,8 +5,54 @@ import { SYSTEM_PROMPT } from '../src/prompt.js';
 import { anthropicProvider } from '../src/providers/anthropic.js';
 import { googleProvider } from '../src/providers/google.js';
 import { openAiProvider } from '../src/providers/openai.js';
+import { openAiCompatProvider } from '../src/providers/openai-compat.js';
 
 afterEach(() => vi.unstubAllGlobals());
+
+it.each([
+  ['openai/gpt-6.1-terra', 'https://openrouter.ai/api/v1', true, 8192],
+  ['google/gemini-4-argon', 'https://openrouter.ai/api/v1/', true, 32768],
+  ['google/gemini-2.5-pro', 'https://openrouter.ai/api/v1', false, 8192],
+  ['openai/gpt-6.1-terra', 'http://localhost:8080/v1', false, 8192],
+] as const)(
+  'fixa rota OpenRouter somente quando aplicável: %s %s',
+  async (model, baseUrl, special, maxTokens) => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers(),
+      json: async () => ({
+        model,
+        provider: 'upstream',
+        choices: [{ finish_reason: 'stop', message: { content: 'A' } }],
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const response = await openAiCompatProvider({
+      model,
+      baseUrl,
+      provider: 'OpenRouter',
+      apiKey: 'test',
+      reasoningEffort: 'high',
+      maxTokens,
+    }).run({ question: {} as Question, systemPrompt: SYSTEM_PROMPT, userPrompt: 'Questão única' });
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body);
+    expect(body).toEqual({
+      model,
+      max_tokens: maxTokens,
+      reasoning_effort: 'high',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: 'Questão única' },
+      ],
+      ...(special
+        ? { provider: { allow_fallbacks: false, require_parameters: true } }
+        : { temperature: 0 }),
+    });
+    expect(response.requestParams).toEqual(body);
+    expect(response.stopReason).toBe('stop');
+    expect(response.responseMetadata).toMatchObject({ resolvedModel: model, provider: 'upstream' });
+  },
+);
 
 it.each([
   ['gpt-6.1-terra', openAiProvider, { max_completion_tokens: 8192, reasoning_effort: 'high' }],

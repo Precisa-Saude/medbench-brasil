@@ -10,6 +10,7 @@ import {
   googleProvider,
   observeRequest,
   openAiProvider,
+  openAiCompatProvider,
   parseLetter,
   SYSTEM_PROMPT,
 } from '../dist/index.js';
@@ -17,10 +18,14 @@ import {
 const require = createRequire(new URL('../package.json', import.meta.url));
 if (!process.argv[2]) throw new Error('Informe o caminho do ambiente local como argumento.');
 require('dotenv').config({ path: process.argv[2], quiet: true });
-for (const key of ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY']) {
+const mode = process.argv[3] ?? 'native';
+if (!['native', 'openrouter'].includes(mode)) throw new Error('Modo inválido.');
+for (const key of mode === 'openrouter'
+  ? ['OPENROUTER_API_KEY']
+  : ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY']) {
   if (!process.env[key]) throw new Error(`Credencial ausente: ${key}`);
 }
-if (!process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY)
+if (mode === 'native' && !process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY)
   throw new Error('Credencial Google ausente.');
 
 const editionId = 'revalida-2026-1';
@@ -33,21 +38,50 @@ const samples = Array.from(
 );
 const dir = fileURLToPath(new URL(`../../../results/${editionId}/`, import.meta.url));
 mkdirSync(dir, { recursive: true });
-const models = [
-  openAiProvider({ model: 'gpt-6.1-terra' }),
-  anthropicProvider({ model: 'claude-haiku-5-5' }),
-  googleProvider({ model: 'gemini-4-argon' }),
-];
+const models =
+  mode === 'openrouter'
+    ? [
+        openAiCompatProvider({
+          model: 'openai/gpt-6.1-terra',
+          apiKey: process.env.OPENROUTER_API_KEY,
+          baseUrl: 'https://openrouter.ai/api/v1',
+          provider: 'OpenRouter',
+          reasoningEffort: 'high',
+          maxTokens: 8192,
+          timeoutMs: 300_000,
+        }),
+        openAiCompatProvider({
+          model: 'google/gemini-4-argon',
+          apiKey: process.env.OPENROUTER_API_KEY,
+          baseUrl: 'https://openrouter.ai/api/v1',
+          provider: 'OpenRouter',
+          reasoningEffort: 'high',
+          maxTokens: 32768,
+          timeoutMs: 900_000,
+        }),
+      ]
+    : [
+        openAiProvider({ model: 'gpt-6.1-terra' }),
+        anthropicProvider({ model: 'claude-haiku-5-5' }),
+        googleProvider({ model: 'gemini-4-argon' }),
+      ];
 // Reservar todos os arquivos antes da primeira chamada impede repetição acidental.
 const paths = models.map((p) => ({
-  raw: `${dir}${p.id}.smoke.jsonl`,
-  ledger: `${dir}${p.id}.smoke.requests.jsonl`,
+  raw: `${dir}${p.id.replace(/[^a-z0-9.-]/gi, '_')}.smoke.jsonl`,
+  ledger: `${dir}${p.id.replace(/[^a-z0-9.-]/gi, '_')}.smoke.requests.jsonl`,
 }));
 if (paths.some((p) => existsSync(p.raw) || existsSync(p.ledger)))
   throw new Error('Piloto já iniciado; não repetir chamadas automaticamente.');
 for (const p of paths) for (const path of Object.values(p)) closeSync(openSync(path, 'wx'));
 const append = (path, value) => appendFileSync(path, `${JSON.stringify(value)}\n`);
-console.log(JSON.stringify({ editionId, questions: samples.map((q) => q.id), maxCalls: 24 }));
+console.log(
+  JSON.stringify({
+    editionId,
+    mode,
+    questions: samples.map((q) => q.id),
+    maxCalls: models.length * samples.length,
+  }),
+);
 for (const [i, provider] of models.entries()) {
   const runId = randomUUID();
   for (const q of samples) {
