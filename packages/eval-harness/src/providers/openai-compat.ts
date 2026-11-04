@@ -45,6 +45,12 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
   const timeoutMs = opts.timeoutMs ?? 300_000;
   const requestModel = opts.requestModel ?? opts.model;
   const reasoningEffort = opts.reasoningEffort;
+  // Somente os dois IDs do piloto OpenRouter: omitir sampling e impedir
+  // fallback ou descarte silencioso de parâmetros. Demais rotas não mudam.
+  // https://openrouter.ai/docs/guides/routing/provider-selection
+  const isShortlistOpenRouter =
+    opts.baseUrl.replace(/\/$/, '') === 'https://openrouter.ai/api/v1' &&
+    ['openai/gpt-6.1-terra', 'google/gemini-4-argon'].includes(requestModel);
 
   return {
     id: opts.model,
@@ -59,7 +65,9 @@ export function openAiCompatProvider(opts: OpenAICompatOptions): Provider {
         ],
         model: requestModel,
         ...(reasoningEffort === undefined ? {} : { reasoning_effort: reasoningEffort }),
-        temperature,
+        ...(isShortlistOpenRouter
+          ? { provider: { allow_fallbacks: false, require_parameters: true } }
+          : { temperature }),
       } as const;
 
       const start = Date.now();
