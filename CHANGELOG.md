@@ -1,3 +1,10 @@
+## [2.5.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.4.0...v2.5.0) (2026-11-04)
+
+### Features
+
+* **dataset:** adiciona Revalida 2025/2 e 2026/1 com avaliações ([#89](https://github.com/Precisa-Saude/medbench-brasil/issues/89)) ([e3f2697](https://github.com/Precisa-Saude/medbench-brasil/commit/e3f2697171f8e72b475e05604efe5abfe6791022))
+* **site:** adiciona preços e estimativas de custo por questão ([#88](https://github.com/Precisa-Saude/medbench-brasil/issues/88)) ([4f2ceb0](https://github.com/Precisa-Saude/medbench-brasil/commit/4f2ceb06d9621dc88178f21ee9dce70a0e70efb7))
+
 ## [2.4.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.3.0...v2.4.0) (2026-11-03)
 
 ### Features
