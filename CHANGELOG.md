@@ -1,3 +1,13 @@
+## [2.7.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.6.0...v2.7.0) (2026-11-04)
+
+### Features
+
+* **site:** publicar avaliações do novo shortlist no Revalida ([b429175](https://github.com/Precisa-Saude/medbench-brasil/commit/b429175fb84928cf260ca5d67a17188f6c41f3c4))
+
+### Bug Fixes
+
+* **dataset:** corrigir taxas humanas com snapshot oficial do INEP ([7c6e744](https://github.com/Precisa-Saude/medbench-brasil/commit/7c6e74433c41d62ed9ca19412acfd08921b5369d))
+
 ## [2.6.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.5.0...v2.6.0) (2026-11-04)
 
 ### Features
