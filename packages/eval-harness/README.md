@@ -33,6 +33,18 @@ A CLI fica disponível como o binário `medbench`. Requer Node ≥ 20.
 
 ## Uso como CLI
 
+### Compatibilidade dos novos candidatos
+
+Os IDs exatos `gpt-6.1-terra`, `claude-haiku-5-5` e `gemini-4-argon`
+possuem parâmetros específicos de raciocínio alto, sem sampling. Terra e
+Haiku usam limite de 8.192 tokens; Argon usa 32.768 e timeout de 15 minutos.
+Essas regras não alteram os requests dos modelos anteriores. OpenAI e Google
+também registram o motivo de parada quando declarado pela API.
+
+O piloto operacional separado da CLI está documentado em
+[`plano-shortlist-pilots.md`](../../docs/development/plano-shortlist-pilots.md).
+Ele não publica scores e interrompe cada modelo na primeira falha, sem retry.
+
 Dois subcomandos: `smoke` (pré-flight, ~8 amostras estratificadas) e `eval` (run completo).
 
 ### `medbench smoke` — validação de provider e parser
