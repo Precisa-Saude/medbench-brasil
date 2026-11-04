@@ -1,7 +1,7 @@
 /** Tarifa padrão de referência, não cobrança da execução histórica. */
 export interface PublishedPricing {
   priceAsOf: string;
-  /** Condição suficiente: a entrada agregada inteira cabe nessa faixa. */
+  /** Limite inclusivo de entrada por chamada na faixa de preço registrada. */
   priceMaxInputTokens?: number;
   pricePerMTokInputUSD: number;
   pricePerMTokOutputUSD: number;

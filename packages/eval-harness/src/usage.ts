@@ -15,6 +15,8 @@ export interface TokenUsage {
 
 export interface UsageSummary extends TokenUsage {
   callsWithUsage: number;
+  /** Máximo observado, incluindo cache; ausente se houver chamadas sem usage válido. */
+  maxInputTokensPerCall?: number;
   totalCalls: number;
 }
 
@@ -50,6 +52,9 @@ export function summarizeUsage(records: Array<{ usage?: TokenUsage }>): UsageSum
     outputTokens: known.reduce((sum, u) => sum + u.outputTokens, 0),
     totalCalls: records.length,
   };
+  if (known.length === records.length) {
+    summary.maxInputTokensPerCall = known.reduce((max, u) => Math.max(max, u.inputTokens), 0);
+  }
   const details = [
     'cacheReadInputTokens',
     'cacheWriteInputTokens',

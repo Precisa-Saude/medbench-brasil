@@ -4,6 +4,7 @@
     "inputTokens": 379914,
     "outputTokens": 466367,
     "totalCalls": 252,
+    "maxInputTokensPerCall": 1712,
     "cacheReadInputTokens": 317952,
     "cacheWriteInputTokens": 0,
     "reasoningTokens": 458407,

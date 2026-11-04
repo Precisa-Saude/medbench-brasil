@@ -51,6 +51,14 @@ O scored JSON soma consumo somente das respostas aceitas no score, com
 disponíveis em todas as chamadas que possuem usage. Cobertura incompleta
 não autoriza apresentar soma observada como custo completo.
 
+`maxInputTokensPerCall` é o máximo derivado dos contadores de entrada de cada
+resposta aceita, incluindo cache. Só é publicado com usage válido em todas
+as chamadas do agregado. Permite confirmar faixas de preço por contexto sem
+inferir o máximo pela média. Resume e rescore-from-raw o recalculam; rescore
+de scored JSON apenas preserva o campo, pois somas não o reconstituem.
+O site rejeita máximos negativos, fracionários, acima da soma ou abaixo da
+média. Sem o campo, só confirma a faixa se a soma inteira cabe nela.
+
 `*.eval.requests.jsonl` e `*.smoke.requests.jsonl` são ledgers append-only
 independentes dos raws. Incluem tentativas bem-sucedidas e falhas observadas,
 com UUID único, ordem da tentativa, timestamp, duração, contexto e usage

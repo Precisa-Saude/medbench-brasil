@@ -142,6 +142,7 @@ describe('runner, resume e rescore', () => {
       inputTokens: eligible.length * 10,
       outputTokens: eligible.length * 4,
       callsWithUsage: eligible.length,
+      maxInputTokensPerCall: 10,
       totalCalls: eligible.length,
     });
     expect(raw[0]).toMatchObject({
@@ -185,6 +186,7 @@ describe('runner, resume e rescore', () => {
       callsWithUsage: eligible.length - 1,
       totalCalls: eligible.length,
     });
+    expect(result.usage).not.toHaveProperty('maxInputTokensPerCall');
   });
 
   it('registra retries sem somar erro à usage do score', async () => {

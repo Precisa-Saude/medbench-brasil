@@ -76,6 +76,11 @@ não recebem tokens inferidos por texto. Preços apenas em BRL ficam sem
 conversão USD até existir fonte cambial; execução local não recebe preço
 de API presumido.
 
+Tarifas por faixa de contexto usam `usage.maxInputTokensPerCall`, máximo
+calculado dos contadores individuais somente quando a cobertura de usage
+é completa. Sem esse campo, a soma inteira deve caber na faixa para que
+o preço seja confirmável. A média de entrada não prova o tamanho máximo.
+
 O custo acompanha o conjunto da precisão exibida: escopos limpo/contaminado
 usam apenas seus artefatos completos. O scatter compara uma edição por vez,
 com custo positivo em escala log e Pareto observada, sem teste de significância.

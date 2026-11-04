@@ -100,6 +100,12 @@ Novas respostas incluem `usage` quando a API informa tokens válidos:
 `callsWithUsage/totalCalls`; ausência significa desconhecido, não gratuito.
 Raws antigos continuam legíveis e não recebem estimativas de tokens.
 
+Com cobertura completa, o agregado também inclui `maxInputTokensPerCall`,
+calculado dos tokens de entrada observados por chamada (incluindo cache).
+Ele permite confirmar a faixa de preço por tamanho do prompt. Em cobertura
+parcial, fica ausente. `rescore --from-raw` o deriva offline de raws com usage,
+sem nova inferência; rescore de scored JSON apenas preserva o que já existe.
+
 `eval` e `smoke` registram cada tentativa em
 `results/<edition>/<model>.<eval|smoke>.requests.jsonl`, inclusive retries e
 erros. O ledger não é truncado por `--restart` e permanece ativo com
