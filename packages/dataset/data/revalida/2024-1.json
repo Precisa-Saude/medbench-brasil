@@ -2,8 +2,17 @@
   "cutoffScore": 0.6131,
   "cutoffScoreSource": "https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-1-nota-de-corte-da-1a-etapa-e-de-91-96-pontos",
   "id": "revalida-2024-1",
-  "passRate": 0.2535,
-  "passRateSource": "https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/",
+  "passRate": 0.26751993285774234,
+  "passRateSource": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida",
+  "passRateSnapshot": {
+    "approved": 2550,
+    "denominator": "participants",
+    "evidence": "data/provenance/revalida-pass-rates/2026-11-04/snapshot.json",
+    "participants": 9532,
+    "snapshotAt": "2026-11-04T15:43:29.267Z",
+    "stage": "first"
+  },
+  "totalInscritos": 10049,
   "publishedAt": "2024-03-17",
   "questions": [
     {

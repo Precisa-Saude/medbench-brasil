@@ -349,7 +349,7 @@ export default function ComparisonChart({
                       >
                         {s.url}
                       </a>
-                      .
+                      .{s.snapshotAt ? ` Snapshot de ${s.snapshotAt}.` : ''}
                     </li>
                   ))}
                 </ul>

@@ -100,11 +100,21 @@ export interface Edition {
    * edital. Na ENAMED 2026 só sai em 04/12/2026.
    */
   passRate?: number;
+  /** Evidência de aprovação na primeira etapa entre candidatos presentes. */
+  passRateSnapshot?: {
+    approved: number;
+    denominator: 'participants';
+    /** Caminho relativo à raiz do pacote dataset, distribuído em `data/`. */
+    evidence: string;
+    participants: number;
+    /** Timestamp da resposta preservada do painel, não data de atualização do modelo. */
+    snapshotAt: string;
+    stage: 'first';
+  };
   /**
    * URL da publicação que fixa o `passRate`. Ver `cutoffScoreSource`.
    *
-   * Nas edições Revalida o valor vem hoje de fonte secundária, não da INEP —
-   * a substanciação contra o Painel Revalida está pendente.
+   * Painéis dinâmicos exigem snapshot com contagens e data em `passRateSnapshot`.
    */
   passRateSource?: string;
   publishedAt: string;

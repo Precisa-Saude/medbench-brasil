@@ -1,0 +1,46 @@
+{
+  "source": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida",
+  "reportUrl": "https://app.powerbi.com/view?r=eyJrIjoiOGQ3MjVjYzItOTMyOC00YzNjLTgwMTUtZTQyZmQ1MDdiYzY1IiwidCI6IjI2ZjczODk3LWM4YWMtNGIxZS05NzhmLWVhNGMwNzc0MzRiZiJ9",
+  "endpoint": "https://wabi-brazil-south-d-primary-api.analysis.windows.net/public/reports/querydata",
+  "modelId": 1442943,
+  "snapshotAt": "2026-11-04T15:43:29.267Z",
+  "dataUpdatedAt": "2026-07-17T11:24:02.903Z",
+  "modelLastRefreshTime": "2026-08-26T19:05:18.54",
+  "stage": "1° Etapa",
+  "denominator": "participants",
+  "editions": {
+    "revalida-2024-1": {
+      "registered": 10049,
+      "participants": 9532,
+      "approved": 2550,
+      "rejected": 6982,
+      "passRate": 0.26751993285774234
+    },
+    "revalida-2024-2": {
+      "registered": 10821,
+      "participants": 10335,
+      "approved": 2509,
+      "rejected": 7826,
+      "passRate": 0.24276729559748428
+    },
+    "revalida-2025-1": {
+      "registered": 17118,
+      "participants": 15949,
+      "approved": 4499,
+      "rejected": 11450,
+      "passRate": 0.28208665120070225
+    }
+  },
+  "files": {
+    "visuals.json": "91caf25dc88ce7d64a89e0c6e84d58979195e42873877d88268aa9a7a772f58e",
+    "source-page.html": "f14ad100c30a34e1b42561de409bb182cbfeb1cbfd6d6a6acece332e95f835c4",
+    "history.query.json": "01e2576ab32a1a060ed5d6a4729ca8dbef96bcf06a1775f6514ebd478c42a8eb",
+    "history.response.json": "fd2ad0a379f24c7c10fb2a5046a54736316a0d84bd461b0320814e4e5ff3a8dc",
+    "2024-1.query.json": "8c7e04e45882cb2bf0192d1d7648eb77db49cd67af6fbbb66b0d7353a7930c6e",
+    "2024-1.response.json": "e22aa77bd735aef1a3416482e0444a63b11a0db313c823ef6b2a1f12c8edbb7f",
+    "2024-2.query.json": "aa8c0d00ddb1d2c174e5269704768aaa55dfd8c42b9f294ef811dc9194252655",
+    "2024-2.response.json": "bd1383cf5a7674f1ac592075399f5bbadc6d8031e7c7a084093826b90a029569",
+    "2025-1.query.json": "7bdc47dde44dde0b0581859f073eff3c44f51ce46c666136a1a416c0d402c6c4",
+    "2025-1.response.json": "9a9985acb40cde783f4e538b06799a6dd6116cd14a4dd86254a33677d5fee98c"
+  }
+}
