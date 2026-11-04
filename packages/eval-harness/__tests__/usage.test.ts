@@ -179,8 +179,32 @@ describe('agregação de usage', () => {
       cacheWrite1hInputTokens: 0,
       totalTokens: 24,
       callsWithUsage: 2,
+      maxInputTokensPerCall: 10,
       totalCalls: 2,
     });
+  });
+
+  it('calcula máximo real, não soma nem média, incluindo cache', () => {
+    const usages = [
+      { inputTokens: 100, outputTokens: 1, cacheReadInputTokens: 80 },
+      { inputTokens: 5, outputTokens: 1 },
+      { inputTokens: 20, outputTokens: 1 },
+    ];
+    expect(summarizeUsage(usages.map((usage) => ({ usage })))).toMatchObject({
+      inputTokens: 125,
+      maxInputTokensPerCall: 100,
+    });
+    expect(summarizeUsage([{ usage: { inputTokens: 0, outputTokens: 0 } }])).toMatchObject({
+      maxInputTokensPerCall: 0,
+    });
+  });
+
+  it('omite máximo quando alguma chamada não tem usage válido', () => {
+    const usage = { inputTokens: 10, outputTokens: 2 };
+    expect(summarizeUsage([{ usage }, {}])).not.toHaveProperty('maxInputTokensPerCall');
+    expect(
+      summarizeUsage([{ usage }, { usage: { inputTokens: -1, outputTokens: 2 } }]),
+    ).not.toHaveProperty('maxInputTokensPerCall');
   });
 });
 

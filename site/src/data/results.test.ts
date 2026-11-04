@@ -4,6 +4,22 @@ import { MODELS_METADATA } from './models';
 import { FORA_DO_LEADERBOARD, MODELS } from './results';
 
 describe('composição do leaderboard', () => {
+  it('publica custo por edição de Grok quando os raws comprovam a faixa de contexto', () => {
+    const grok = MODELS.find((model) => model.modelId === 'x-ai/grok-4.7');
+    for (const [edition, input, output, questions] of [
+      ['revalida-2025-2', 365526, 437273, 82],
+      ['revalida-2026-1', 379914, 466367, 84],
+    ] as const) {
+      const cost = grok?.costByEdition[edition]?.all;
+      expect(cost?.status).toBe('available');
+      if (!cost || cost.status !== 'available') throw new Error('Custo da edição indisponível');
+      const expected =
+        (input * cost.pricing.pricePerMTokInputUSD + output * cost.pricing.pricePerMTokOutputUSD) /
+        1_000_000;
+      expect(cost.totalUSD).toBeCloseTo(expected, 10);
+      expect(cost.perQuestionUSD).toBeCloseTo(expected / questions, 10);
+    }
+  });
   it('não publica modelo marcado como fora do leaderboard', () => {
     // Regressão: ausência de entrada no registry NÃO basta para esconder um
     // modelo — `getModelMetadata` tem fallback, então todo artefato em

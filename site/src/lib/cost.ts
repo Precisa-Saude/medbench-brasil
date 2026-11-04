@@ -63,7 +63,13 @@ function validUsage(u: UsageSummary, total: number): boolean {
     count(u.callsWithUsage) &&
     count(u.totalCalls) &&
     u.callsWithUsage <= u.totalCalls &&
-    u.totalCalls === total
+    u.totalCalls === total &&
+    (u.maxInputTokensPerCall === undefined ||
+      (count(u.maxInputTokensPerCall) &&
+        u.maxInputTokensPerCall <= u.inputTokens &&
+        (u.callsWithUsage > 0
+          ? u.maxInputTokensPerCall >= Math.ceil(u.inputTokens / u.callsWithUsage)
+          : u.maxInputTokensPerCall === 0 && u.inputTokens === 0)))
   );
 }
 
@@ -100,7 +106,8 @@ export function estimateCost(
     if (pricing.priceMaxInputTokens !== undefined) {
       if (!count(pricing.priceMaxInputTokens) || pricing.priceMaxInputTokens === 0)
         return unknown('invalid-data');
-      if (usage.inputTokens > pricing.priceMaxInputTokens) return unknown('context-unknown');
+      const maxInput = usage.maxInputTokensPerCall ?? usage.inputTokens;
+      if (maxInput > pricing.priceMaxInputTokens) return unknown('context-unknown');
     }
     // Reasoning já pertence à saída. Cache já pertence à entrada. Tarifa
     // de referência não aplica descontos nem soma breakdowns novamente.

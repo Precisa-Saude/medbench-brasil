@@ -34,10 +34,10 @@ export default function CostMethodology() {
       </p>
       <p className="mt-3">
         Tarifas com validade encerrada deixam de produzir estimativas. Se a tarifa depende do
-        tamanho do prompt, só usamos a faixa registrada quando a entrada agregada inteira cabe nela.
-        Acima disso, o agregado não revela o maior prompt e o custo permanece desconhecido. Preços
-        de Sabiá publicados em BRL e execução local não recebem conversão ou tarifa de API
-        presumida.
+        tamanho do prompt, comparamos o limite com o máximo de entrada observado por chamada,
+        calculado dos raws com consumo completo. Sem esse máximo, só usamos a faixa quando a soma
+        inteira de entrada cabe nela; caso contrário, o custo permanece desconhecido. Preços de
+        Sabiá publicados em BRL e execução local não recebem conversão ou tarifa de API presumida.
       </p>
       <p className="mt-3">
         A fronteira de Pareto é descritiva: nenhum outro ponto observado tem menor ou igual custo e

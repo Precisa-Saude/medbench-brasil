@@ -161,6 +161,42 @@ describe('estimativa de custo', () => {
     });
   });
 
+  it('usa máximo observado mesmo quando a soma ultrapassa a faixa', () => {
+    const a = artifact();
+    a.usage = { ...a.usage!, maxInputTokensPerCall: 200_000 };
+    expect(estimateCost([a], { ...pricing, priceMaxInputTokens: 200_000 }, asOf)).toMatchObject({
+      status: 'available',
+      totalUSD: 12,
+    });
+    // Mesmo com média abaixo da faixa, uma chamada longa não cabe nela.
+    a.usage.maxInputTokensPerCall = 200_001;
+    expect(estimateCost([a], { ...pricing, priceMaxInputTokens: 200_000 }, asOf)).toMatchObject({
+      reason: 'context-unknown',
+    });
+  });
+
+  it.each([-1, NaN, Infinity, 1.5, 1_000_001, 100_000])(
+    'rejeita máximo impossível: %s',
+    (maximum) => {
+      const a = artifact();
+      a.usage = { ...a.usage!, maxInputTokensPerCall: maximum };
+      expect(estimateCost([a], pricing, asOf)).toMatchObject({ reason: 'invalid-data' });
+    },
+  );
+
+  it('permite máximo zero observado, mas mantém lacunas de cobertura', () => {
+    const a = artifact();
+    a.usage = { ...a.usage!, inputTokens: 0, outputTokens: 0, maxInputTokensPerCall: 0 };
+    expect(estimateCost([a], { ...pricing, priceMaxInputTokens: 10 }, asOf)).toMatchObject({
+      status: 'available',
+      totalUSD: 0,
+    });
+    a.usage.callsWithUsage = 0;
+    expect(estimateCost([a], pricing, asOf)).toMatchObject({ reason: 'partial-usage' });
+    a.usage.inputTokens = 1;
+    expect(estimateCost([a], pricing, asOf)).toMatchObject({ reason: 'invalid-data' });
+  });
+
   it('overflow não produz número publicável', () => {
     expect(
       estimateCost([artifact()], { ...pricing, pricePerMTokInputUSD: Number.MAX_VALUE }, asOf),
