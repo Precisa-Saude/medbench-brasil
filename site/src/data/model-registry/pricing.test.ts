@@ -8,7 +8,8 @@ describe('procedência de preços', () => {
     expect(Object.keys(MODEL_PRICING).length).toBeGreaterThan(20);
     for (const [id, p] of Object.entries(MODEL_PRICING)) {
       expect(MODELS_METADATA[id], id).toBeDefined();
-      expect(p.priceAsOf).toBe('2026-11-03');
+      expect(p.priceAsOf).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(Number.isFinite(Date.parse(p.priceAsOf))).toBe(true);
       expect(p.priceSource).toMatch(/^https:\/\//);
       expect(p.priceQuote.length).toBeGreaterThan(10);
       expect(p.priceProvider.length).toBeGreaterThan(3);

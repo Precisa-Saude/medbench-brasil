@@ -54,6 +54,26 @@ node packages/eval-harness/scripts/shortlist-pilots.mjs /caminho/.env.local open
 Execute a partir da raiz após o build. O script recusa repetir um piloto
 cujos arquivos de saída já existem, preservando as tentativas anteriores.
 
+A avaliação completa das duas novas edições está especificada em
+[`plano-shortlist-evaluations.md`](../../docs/development/plano-shortlist-evaluations.md).
+O executor operacional não reutiliza pilotos nem sobrescreve resultados:
+
+```bash
+node packages/eval-harness/scripts/shortlist-evaluations.mjs --dry-run
+node packages/eval-harness/scripts/shortlist-evaluations.mjs /caminho/.env.local
+```
+
+São seis combinações, 1.494 respostas esperadas e três runs por questão.
+Falhas transitórias seguem o retry canônico, com cada tentativa no ledger.
+Parsing inválido ou parada anormal interrompem a combinação sem publicar um
+score parcial. Uma retomada após interrupção exige revisar os logs primeiro.
+
+A retomada específica autorizada de Argon 2026/1 usa
+`scripts/resume-argon.mjs`. Ela preserva cópias dos arquivos interrompidos,
+registra hashes e a exclusão operacional em um manifesto, reutiliza 44
+respostas e limita a continuação a 208 chamadas sem retries. Não é um comando
+genérico de restart e recusa repetir uma retomada já iniciada.
+
 Dois subcomandos: `smoke` (pré-flight, ~8 amostras estratificadas) e `eval` (run completo).
 
 ### `medbench smoke` — validação de provider e parser
