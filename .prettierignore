@@ -9,3 +9,5 @@ scripts/data/raw
 .venv
 .venv-*
 CHANGELOG.md
+# Snapshots de fonte: preservar bytes e hashes de procedência.
+packages/dataset/data/provenance

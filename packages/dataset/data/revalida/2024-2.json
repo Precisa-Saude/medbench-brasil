@@ -2,8 +2,17 @@
   "cutoffScore": 0.5777,
   "cutoffScoreSource": "https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos",
   "id": "revalida-2024-2",
-  "passRate": 0.2318,
-  "passRateSource": "https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/",
+  "passRate": 0.24276729559748428,
+  "passRateSource": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida",
+  "passRateSnapshot": {
+    "approved": 2509,
+    "denominator": "participants",
+    "evidence": "data/provenance/revalida-pass-rates/2026-11-04/snapshot.json",
+    "participants": 10335,
+    "snapshotAt": "2026-11-04T15:43:29.267Z",
+    "stage": "first"
+  },
+  "totalInscritos": 10821,
   "publishedAt": "2024-08-25",
   "questions": [
     {

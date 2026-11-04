@@ -123,6 +123,15 @@ Novas edições são incorporadas conforme o INEP publica os gabaritos definitiv
 - **Questões com imagem, tabela ou anuladas** ficam marcadas por `hasImage`, `hasTable` e `annulled`, mas **não são excluídas** do JSON — a exclusão é decisão do consumidor (o harness, por padrão, exclui imagens e tabelas).
 - Detalhes do pipeline e política editorial em [`CLAUDE.md`](https://github.com/Precisa-Saude/medbench-brasil/blob/main/CLAUDE.md) e nos ADRs em [`docs/development/adr/`](https://github.com/Precisa-Saude/medbench-brasil/tree/main/docs/development/adr).
 
+As taxas de aprovação de Revalida 2024/1, 2024/2 e 2025/1 usam o snapshot
+oficial do Painel Revalida de 04/11/2026. `passRate` é a razão entre aprovados
+e presentes na **primeira etapa**, não entre aprovados e inscritos.
+`passRateSnapshot` registra contagens, etapa, denominador, timestamp e caminho
+da evidência. As consultas e respostas públicas agregadas acompanham o pacote
+em `data/provenance/revalida-pass-rates/2026-11-04/`, com hashes verificáveis.
+Os dados do painel são dinâmicos; uma atualização futura exige novo snapshot
+e revisão, sem sobrescrever a evidência anterior. Ver `docs/human-baseline.md`.
+
 ## Licença
 
 [Apache-2.0](https://github.com/Precisa-Saude/medbench-brasil/blob/main/LICENSE).

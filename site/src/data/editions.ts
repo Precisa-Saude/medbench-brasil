@@ -24,6 +24,8 @@ export interface EditionSource {
   location?: string;
   /** Data de publicação no formato "DD mmm. YYYY" (pt-BR abreviado). */
   publishedAt?: string;
+  /** Data do snapshot de uma fonte dinâmica, em formato legível. */
+  snapshotAt?: string;
   /** Título do recurso (renderizado em negrito). */
   title: string;
   /** URL canônica. */
@@ -197,8 +199,8 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
     label: 'ENAMED 2026',
     publishedAt: '2026-09-13',
   },
-  // Revalida 2024/1 — nota de corte 91,96/150 = 61,3%; aprovação 25,35%
-  // (2.549 / 10.048 presentes na 1ª etapa).
+  // Revalida 2024/1: 2.550 / 9.532 presentes na 1ª etapa (26,75%).
+  // Snapshot oficial do Painel Revalida em 04/11/2026, com hashes no dataset.
   'revalida-2024-1': {
     id: 'revalida-2024-1',
     label: 'Revalida 2024/1',
@@ -212,15 +214,16 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
         url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-1-nota-de-corte-da-1a-etapa-e-de-91-96-pontos',
       },
       {
-        author: 'ESTRATÉGIA MED',
-        publishedAt: '2025',
-        title: 'Como está a taxa de aprovação no Revalida Inep? Dados e números atualizados',
-        url: 'https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/',
+        author: 'INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA',
+        publishedAt: '27 mai. 2022',
+        snapshotAt: '4 nov. 2026',
+        title: 'Painel Revalida',
+        url: 'https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida',
       },
     ],
   },
-  // Revalida 2024/2 — nota de corte 86,659/150 = 57,8%; aprovação 23,18%
-  // (2.509 / 10.822).
+  // Revalida 2024/2: 2.509 / 10.335 presentes na 1ª etapa (24,28%).
+  // Snapshot oficial do Painel Revalida em 04/11/2026.
   'revalida-2024-2': {
     id: 'revalida-2024-2',
     label: 'Revalida 2024/2',
@@ -234,15 +237,16 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
         url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2024-2-nota-de-corte-da-1a-etapa-e-de-86-659-pontos',
       },
       {
-        author: 'ESTRATÉGIA MED',
-        publishedAt: '2025',
-        title: 'Como está a taxa de aprovação no Revalida Inep? Dados e números atualizados',
-        url: 'https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/',
+        author: 'INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA',
+        publishedAt: '27 mai. 2022',
+        snapshotAt: '4 nov. 2026',
+        title: 'Painel Revalida',
+        url: 'https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida',
       },
     ],
   },
-  // Revalida 2025/1 — nota de corte 88/150 = 58,7%; aprovação 26,28%
-  // (4.503 / 17.121 presentes na 1ª etapa).
+  // Revalida 2025/1: 4.499 / 15.949 presentes na 1ª etapa (28,21%).
+  // Os 17.118 inscritos não são o denominador. Snapshot oficial de 04/11/2026.
   'revalida-2025-1': {
     id: 'revalida-2025-1',
     label: 'Revalida 2025/1',
@@ -256,10 +260,11 @@ export const EDITIONS: Record<string, CuratedEditionMetadata> = {
         url: 'https://www.gov.br/inep/pt-br/centrais-de-conteudo/noticias/revalida/revalida-2025-1-nota-de-corte-da-1a-etapa-e-de-88-pontos',
       },
       {
-        author: 'ESTRATÉGIA MED',
-        publishedAt: '2025',
-        title: 'Como está a taxa de aprovação no Revalida Inep? Dados e números atualizados',
-        url: 'https://med.estrategia.com/portal/revalida/aprovados-no-revalida-inep-confira-os-dados/',
+        author: 'INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA',
+        publishedAt: '27 mai. 2022',
+        snapshotAt: '4 nov. 2026',
+        title: 'Painel Revalida',
+        url: 'https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/painel-revalida',
       },
     ],
   },
