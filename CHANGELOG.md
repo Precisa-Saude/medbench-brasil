@@ -1,3 +1,14 @@
+## [2.6.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.5.0...v2.6.0) (2026-11-04)
+
+### Features
+
+* **harness:** adicionar adapters e pilotos do novo shortlist ([a23c16d](https://github.com/Precisa-Saude/medbench-brasil/commit/a23c16d60b46c7da2cb98fd068c6a44a5a349b3d))
+* **harness:** validar pilotos via OpenRouter ([9687e4f](https://github.com/Precisa-Saude/medbench-brasil/commit/9687e4f3da840ee99261f28f172c3d2fb244a0cc))
+
+### Bug Fixes
+
+* **site:** validar faixa de custo pelo máximo de entrada ([b085761](https://github.com/Precisa-Saude/medbench-brasil/commit/b08576156badc971853a71362c18f52bd7f9c411))
+
 ## [2.5.0](https://github.com/Precisa-Saude/medbench-brasil/compare/v2.4.0...v2.5.0) (2026-11-04)
 
 ### Features
