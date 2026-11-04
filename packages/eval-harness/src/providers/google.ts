@@ -11,13 +11,17 @@ type GoogleProviderOptions = ProviderBaseOptions;
  */
 export function googleProvider(opts: GoogleProviderOptions): Provider {
   const apiKey = opts.apiKey ?? process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
+  // Argon: default medium e sampling ignorado. Fixamos HIGH e usamos o
+  // mínimo recomendado de saída/timeout, sem mudar os Gemini já publicados.
+  // Fonte: https://ai.google.dev/gemini-api/docs/latest-model
+  const isArgon = opts.model === 'gemini-4-argon';
   // Gemini 2.5+ usa tokens de "thinking" que contam contra maxOutputTokens
   // junto com o texto da resposta. Casos reais no Revalida mostraram
   // thoughtsTokenCount de 1400-2500 tokens; 2048 cortava a resposta. 8192
   // dá folga para pensamento + conteúdo.
-  const maxTokens = opts.maxTokens ?? 8192;
+  const maxTokens = opts.maxTokens ?? (isArgon ? 32768 : 8192);
   const temperature = opts.temperature ?? 0;
-  const timeoutMs = opts.timeoutMs ?? 90_000;
+  const timeoutMs = opts.timeoutMs ?? (isArgon ? 900_000 : 90_000);
 
   return {
     id: opts.model,
@@ -38,7 +42,7 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
         ],
         generationConfig: {
           maxOutputTokens: maxTokens,
-          temperature,
+          ...(isArgon ? { thinkingConfig: { thinkingLevel: 'HIGH' } } : { temperature }),
         },
         systemInstruction: {
           parts: [{ text: input.systemPrompt }],
@@ -85,6 +89,9 @@ export function googleProvider(opts: GoogleProviderOptions): Provider {
         rawResponse,
         // Nunca inclua a API key nos logs de parâmetros.
         requestParams: { model: opts.model, ...requestParams },
+        ...(body.candidates?.[0]?.finishReason
+          ? { stopReason: body.candidates[0].finishReason }
+          : {}),
         timings: { durationMs },
       };
     },

@@ -48,7 +48,10 @@ function openAiModelQuirks(model: string): {
   omitTemperature: boolean;
   usesNewParamName: boolean;
 } {
-  const isReasoningModel = /^gpt-5/i.test(model) || /^o[1-9]/i.test(model);
+  // ID exato verificado no guia GPT-6: reasoning via Chat Completions,
+  // sem sampling quando effort não é none. Não inferir para outras variantes.
+  const isTerra = model === 'gpt-6.1-terra';
+  const isReasoningModel = isTerra || /^gpt-5/i.test(model) || /^o[1-9]/i.test(model);
   // GPT-5.1, 5.2 e 5.4 **aceitam** `temperature: 0` e já estão publicados em
   // `results/` com esse valor. Mantê-los fora do corte preserva a
   // comparabilidade: um re-run deles precisa mandar o mesmo parâmetro.
@@ -56,6 +59,7 @@ function openAiModelQuirks(model: string): {
   return {
     isReasoningModel,
     omitTemperature:
+      isTerra ||
       /^gpt-5-nano/i.test(model) ||
       /^gpt-5-mini/i.test(model) ||
       (minor !== null && minor >= GPT5_TEMPERATURE_FLOOR) ||
@@ -93,6 +97,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
           { content: input.userPrompt, role: 'user' },
         ],
         model: opts.model,
+        ...(opts.model === 'gpt-6.1-terra' ? { reasoning_effort: 'high' } : {}),
         ...(quirks.omitTemperature ? {} : { temperature }),
       } as const;
 
@@ -120,7 +125,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
         );
       }
       const body = (await res.json()) as {
-        choices: Array<{ message: { content: string } }>;
+        choices: Array<{ finish_reason?: string; message: { content: string } }>;
       };
       const rawResponse = body.choices[0]?.message.content ?? '';
 
@@ -129,6 +134,7 @@ export function openAiProvider(opts: OpenAIProviderOptions): Provider {
         parsedAnswer: null,
         rawResponse,
         requestParams,
+        ...(body.choices[0]?.finish_reason ? { stopReason: body.choices[0].finish_reason } : {}),
         timings: { durationMs },
       };
     },

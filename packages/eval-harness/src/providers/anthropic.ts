@@ -34,8 +34,13 @@ function anthropicModelQuirks(model: string): {
   omitTemperature: boolean;
 } {
   return {
-    defaultMaxTokens: THINKS_BY_DEFAULT.test(model) ? THINKING_MAX_TOKENS : DEFAULT_MAX_TOKENS,
-    omitTemperature: OMITS_TEMPERATURE.test(model),
+    // Haiku 5.5: thinking adaptativo padrão, sampling não aceito, conforme
+    // https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide
+    defaultMaxTokens:
+      model === 'claude-haiku-5-5' || THINKS_BY_DEFAULT.test(model)
+        ? THINKING_MAX_TOKENS
+        : DEFAULT_MAX_TOKENS,
+    omitTemperature: model === 'claude-haiku-5-5' || OMITS_TEMPERATURE.test(model),
   };
 }
 
@@ -65,6 +70,7 @@ export const EFFORT = 'high';
  */
 function modelSupportsEffort(model: string): boolean {
   return (
+    model === 'claude-haiku-5-5' ||
     /^claude-(fable|mythos)-5/.test(model) ||
     /^claude-opus-(4-[5-9]|5)/.test(model) ||
     /^claude-sonnet-(4-6|5)/.test(model)
