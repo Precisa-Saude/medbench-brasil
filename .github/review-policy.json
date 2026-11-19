@@ -1,9 +1,9 @@
 {
-  "enabled": false,
-  "provider": "github-models",
-  "fallbackProviders": [],
-  "includePaths": ["packages/**/src/**"],
-  "excludePaths": ["**/fixtures/**", "results/**", "**/*.raw.jsonl", "**/data/**"],
+  "enabled": true,
+  "provider": "openrouter",
+  "fallbackProviders": ["anthropic"],
+  "includePaths": ["packages/**", "scripts/**", "probes/**", ".github/**", "docs/**", "README.md"],
+  "excludePaths": ["**/fixtures/**", "results/**", "**/*.raw.jsonl", "**/data/**", "**/dist/**"],
   "scanForSecretsBeforeSending": true,
   "onSensitiveContent": "block"
 }
