@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { EditionId } from '@precisa-saude/medbench-dataset';
@@ -15,28 +16,51 @@ function withoutMaximum(result: EvaluationResult): EvaluationResult {
   return copy;
 }
 
-const cases = [{ modelId: 'x-ai/grok-4.7' }, { modelId: 'claude-opus-5-5' }].flatMap((model) =>
-  (['revalida-2025-2', 'revalida-2026-1'] as EditionId[]).map((editionId) => ({
-    ...model,
-    editionId,
-  })),
-);
+const resultsDir = fileURLToPath(new URL('../../../results/', import.meta.url));
 
-describe.each(cases)('máximo derivado de $modelId / $editionId', ({ modelId, editionId }) => {
-  it('reconstitui máximo dos raws sem alterar score, splits, votos ou consumo total', () => {
-    const slug = modelId.replace(/[^a-z0-9.-]/gi, '_');
-    const scoredPath = fileURLToPath(
-      new URL(`../../../results/${editionId}/${slug}.json`, import.meta.url),
-    );
-    const rawLogPath = fileURLToPath(
-      new URL(`../../../results/${editionId}/${slug}.raw.jsonl`, import.meta.url),
-    );
+// Descobre todo scored JSON que publica `maxInputTokensPerCall`, para que
+// resultados novos entrem na conferência sem precisar editar este teste.
+const cases = readdirSync(resultsDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .flatMap((edition) =>
+    readdirSync(join(resultsDir, edition.name))
+      .filter((file) => file.endsWith('.json'))
+      .map((file) => ({
+        editionId: edition.name as EditionId,
+        file: `${edition.name}/${file}`,
+        scoredPath: join(resultsDir, edition.name, file),
+      })),
+  )
+  .filter(({ scoredPath }) => {
+    const scored = JSON.parse(readFileSync(scoredPath, 'utf8')) as EvaluationResult;
+    return scored.usage?.maxInputTokensPerCall !== undefined;
+  })
+  .sort((a, b) => a.file.localeCompare(b.file));
+
+it('a descoberta inclui os resultados que introduziram o máximo publicado', () => {
+  expect(cases.map((c) => c.file)).toEqual(
+    expect.arrayContaining([
+      'revalida-2025-2/claude-opus-5-5.json',
+      'revalida-2025-2/x-ai_grok-4.7.json',
+      'revalida-2026-1/claude-opus-5-5.json',
+      'revalida-2026-1/x-ai_grok-4.7.json',
+    ]),
+  );
+});
+
+// `%s` em vez de `$file`: a interpolação por `$` trunca o nome do arquivo.
+describe.each(cases.map((c) => [c.file, c] as const))('máximo publicado em %s', (file, c) => {
+  const { editionId, scoredPath } = c;
+  it('confere o máximo publicado com os raws sem alterar score, splits, votos ou consumo total', () => {
+    const rawLogPath = scoredPath.replace(/\.json$/, '.raw.jsonl');
     const before = JSON.parse(readFileSync(scoredPath, 'utf8')) as EvaluationResult;
     const rows = readFileSync(rawLogPath, 'utf8')
       .trim()
       .split('\n')
       .map((line) => JSON.parse(line) as RawResponseRecord);
     const observedMax = rows.reduce((max, row) => Math.max(max, row.usage!.inputTokens), 0);
+    // O valor gravado é o que o site usa para confirmar a faixa de preço.
+    expect(before.usage?.maxInputTokensPerCall, file).toBe(observedMax);
     const { accepted, coverage } = partitionRawRecords({
       editionId,
       malformedLines: 0,
