@@ -54,7 +54,7 @@ jobs:
     if: >-
       github.event_name == 'pull_request' ||
       (github.event_name == 'workflow_dispatch' && inputs.pr_number > 0)
-    uses: Precisa-Saude/tooling/.github/workflows/review.yml@7b42c968c2da27c702d05ae1cd282557581a918d # v3.0.0
+    uses: Precisa-Saude/tooling/.github/workflows/review.yml@5c10f72e4f4bfe0b06884b68d871b49d4f4b54fb # v3.5.1
     with:
       exclude_paths: 'results/** **/*.raw.jsonl'
       # fromJSON porque em workflow_dispatch o inputs.pr_number chega como
@@ -66,6 +66,7 @@ jobs:
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
   # ── Release (main only, guarded on package changes) ────────────
   release:
